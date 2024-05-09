@@ -42,6 +42,12 @@ class RoleController extends Controller
     
     }
 
+    public function listerRole()
+    {
+        $Role = Role::all();
+        return response()->json($Role);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
