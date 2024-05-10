@@ -45,6 +45,11 @@ return [
             'driver' => 'jwt',
             'provider' => 'users',
         ],
+
+        'apisousUtilisateur' => [
+            'driver' => 'jwt',
+            'provider' => 'sousUtilisateur',
+        ],
     ],
 
     /*
@@ -68,6 +73,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
+        ],
+
+        'sousUtilisateur' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Sous_Utilisateur::class,
         ],
 
         // 'users' => [

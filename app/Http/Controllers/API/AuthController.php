@@ -12,7 +12,7 @@ class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'login_sousUtilisateur']]);
     }
 
     public function login(Request $request)
@@ -78,4 +78,50 @@ class AuthController extends Controller
             ]
         ]);
     }
+
+
+    public function login_sousUtilisateur(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+        $credentials = $request->only('email', 'password');
+        $token = Auth::guard('apisousUtilisateur')->attempt($credentials);
+        
+        if (!$token) {
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $sousUtilisateur = Auth::guard('apisousUtilisateur')->user();
+        return response()->json([
+            'sousUtilisateur' => $sousUtilisateur,
+            'authorization' => [
+                'token' => $token,
+                'type' => 'bearer',
+            ]
+        ]);
+    }
+
+    public function logout_sousUtilisateur()
+{
+    auth('apisousUtilisateur')->logout(); // Utilisez le garde 'apisousUtilisateur' pour déconnecter les sous-utilisateurs
+    return response()->json([
+        'message' => 'Successfully logged out',
+    ]);
+}
+
+public function refresh_sousUtilisateur()
+    {
+        return response()->json([
+            'user' => Auth::user(),
+            'authorisation' => [
+                'token' => Auth::refresh(),
+                'type' => 'bearer',
+            ]
+        ]);
+    }
+
 }

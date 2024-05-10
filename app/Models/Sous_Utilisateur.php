@@ -4,9 +4,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Sous_Utilisateur extends Model
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+
+
+//class Sous_Utilisateur extends Model
+class Sous_Utilisateur extends Authenticatable implements JWTSubject
+
 {
-    use HasFactory;
+    use HasFactory, HasApiTokens;
+
 
     protected $fillable = [
         'nom', 'prenom', 'email', 'password', 'archiver','id_role', 'id_user',
@@ -22,5 +30,21 @@ class Sous_Utilisateur extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user');
+    }
+
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }
