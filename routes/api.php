@@ -4,6 +4,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\CategorieClientController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SousUtilisateurController;
@@ -22,8 +23,6 @@ Route::controller(AuthController::class)->group(function () {
 Route::controller(RoleController::class)->group(function () {
     Route::post('ajouterRole', 'ajouterRole');
     Route::get('listerRole', 'listerRole');
-    Route::post('modifierRole', 'modifierRole');
-    Route::post('supprimerRole', 'supprimerRole');
 });
 
 
@@ -46,3 +45,12 @@ Route::get('listerArticles', [ArticleController::class, 'listerArticles']);
 Route::post('modifierArticle/{id}', [ArticleController::class, 'modifierArticle']);
 Route::delete('supprimerArticle/{id}', [ArticleController::class, 'supprimerArticle']);
 Route::post('affecterPromoArticle/{id}', [ArticleController::class, 'affecterPromoArticle']);
+
+
+Route::controller(CategorieClientController::class)->group(function () {
+    Route::post('ajouterCategorie', 'ajouterCategorie');
+    Route::get('listerCategorieClient', 'listerCategorieClient');
+    Route::post('modifierCategorie/{id}', 'modifierCategorie');
+    Route::delete('supprimerCategorie/{id}', 'supprimerCategorie');
+
+});

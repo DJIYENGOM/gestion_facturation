@@ -42,6 +42,11 @@ class Sous_Utilisateur extends Authenticatable implements JWTSubject
         return $this->hasMany(Promo::class);
     }
 
+    public function categorie_client()
+    {
+        return $this->hasMany(CategorieClient::class);
+    }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();
