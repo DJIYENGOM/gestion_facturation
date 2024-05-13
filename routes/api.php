@@ -3,6 +3,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SousUtilisateurController;
@@ -40,4 +41,8 @@ Route::controller(PromoController::class)->group(function () {
     Route::post('supprimerPromo/{id}', 'supprimerPromo');
 });
 
-//Route::post('ajouterPromo', [PromoController::class, 'ajouterPromo']);
+Route::post('ajouterArticle', [ArticleController::class, 'ajouterArticle']);
+Route::get('listerArticles', [ArticleController::class, 'listerArticles']);
+Route::post('modifierArticle/{id}', [ArticleController::class, 'modifierArticle']);
+Route::delete('supprimerArticle/{id}', [ArticleController::class, 'supprimerArticle']);
+Route::post('affecterPromoArticle/{id}', [ArticleController::class, 'affecterPromoArticle']);
