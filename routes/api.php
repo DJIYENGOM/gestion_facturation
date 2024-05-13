@@ -3,6 +3,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SousUtilisateurController;
 
@@ -33,3 +34,10 @@ Route::controller(SousUtilisateurController::class)->group(function () {
     Route::post('ArchiverSousUtilisateur/{id}', 'ArchiverSousUtilisateur');
 });
 
+
+Route::controller(PromoController::class)->group(function () {
+    Route::post('ajouterPromo', 'ajouterPromo');
+    Route::post('supprimerPromo/{id}', 'supprimerPromo');
+});
+
+//Route::post('ajouterPromo', [PromoController::class, 'ajouterPromo']);
