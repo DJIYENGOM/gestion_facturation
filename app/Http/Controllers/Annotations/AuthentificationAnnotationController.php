@@ -25,6 +25,22 @@ namespace App\Http\Controllers\Annotations ;
 
  *
 
+ * @OA\GET(
+ *     path="/api/listerUser",
+ *     summary="liste User",
+ *     description="",
+ *         security={
+ *    {       "BearerAuth": {}}
+ *         },
+ * @OA\Response(response="200", description="OK"),
+ * @OA\Response(response="404", description="Not Found"),
+ * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ * ),
+ *     tags={"Authentification"},
+*),
+
+
  * @OA\POST(
  *     path="/api/refresh_sousUtilisateur",
  *     summary="refresh sous_utilisateur",
