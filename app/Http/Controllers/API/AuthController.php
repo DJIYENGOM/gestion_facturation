@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Sous_Utilisateur;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -122,6 +123,13 @@ public function refresh_sousUtilisateur()
                 'type' => 'bearer',
             ]
         ]);
+    }
+
+    public function listerUser()
+    {
+        $users = User::all();
+    
+        return response()->json(['user' => $users]);
     }
 
 }
