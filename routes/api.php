@@ -18,6 +18,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('login_sousUtilisateur', 'login_sousUtilisateur');
     Route::post('logout_sousUtilisateur', 'logout_sousUtilisateur')->withoutMiddleware('auth:api');
     Route::post('refresh_sousUtilisateur', 'refresh_sousUtilisateur')->withoutMiddleware('auth:api'); //->withoutMiddleware('auth:api') permet de ne pas s'ecouter sur la table user;
+    Route::get('listerUser', 'listerUser');
 });
 
 
