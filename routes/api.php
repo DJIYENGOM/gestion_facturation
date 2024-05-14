@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CategorieClientController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SousUtilisateurController;
@@ -52,5 +53,13 @@ Route::controller(CategorieClientController::class)->group(function () {
     Route::get('listerCategorieClient', 'listerCategorieClient');
     Route::post('modifierCategorie/{id}', 'modifierCategorie');
     Route::delete('supprimerCategorie/{id}', 'supprimerCategorie');
+
+});
+
+Route::controller(ClientController::class)->group(function () {
+    Route::post('ajouterClient', 'ajouterClient');
+    Route::get('listerClients', 'listerClients');
+    Route::post('modifierClient/{id}', 'modifierClient');
+    Route::delete('supprimerClient/{id}', 'supprimerClient');
 
 });
