@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
@@ -12,15 +13,21 @@ class ClientController extends Controller
 {
     public function ajouterClient(Request $request)
     {
-        $request->validate([
-            'nom_client' => 'required|string|max:255',
-            'prenom_client' => 'required|string|max:255',
+        $validator=Validator::make($request->all(),[
+            'nom_client' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
+            'prenom_client' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
             'nom_entreprise' => 'required|string|max:255',
             'adress_client' => 'required|string|max:255',
             'email_client' => 'required|email|max:255',
             'tel_client' => 'required|string|max:255',
             'categorie_id' => 'required|exists:categorie_clients,id',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ],422);
+        }
     
         $client = new Client([
             'nom_client' => $request->nom_client,
@@ -49,15 +56,21 @@ public function modifierClient(Request $request, $id)
 {
     $client = Client::findOrFail($id);
 
-    $request->validate([
-        'nom_client' => 'required|string|max:255',
-        'prenom_client' => 'required|string|max:255',
+    $validator=Validator::make($request->all(),[
+        'nom_client' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
+        'prenom_client' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
         'nom_entreprise' => 'required|string|max:255',
         'adress_client' => 'required|string|max:255',
         'email_client' => 'required|email|max:255',
         'tel_client' => 'required|string|max:255',
         'categorie_id' => 'required|exists:categorie_clients,id',
     ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'errors' => $validator->errors(),
+        ],422);
+    }
 
     $client->update($request->all());
 

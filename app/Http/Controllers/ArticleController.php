@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
+use Illuminate\Support\Facades\Validator;
 use App\Models\Promo;
 use Illuminate\Http\Request;
 
@@ -23,13 +24,18 @@ class ArticleController extends Controller
      */
     public function ajouterArticle(Request $request)
     {
-        $request->validate([
+        $validator=Validator::make($request->all(),[
             'nom_article' => 'required|string|max:255',
             'description' => 'nullable|string',
             'prix_unitaire' => 'required|numeric|min:0',
             'type_article' => 'required|in:produit,service',
             'promo_id' => 'nullable|exists:promos,id', // Vérifie si l'ID du promo existe dans la table promos
         ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ],422);
+        }
 
         // Récupérer le pourcentage de la promo associée
         $pourcentagePromo = null;
@@ -67,13 +73,18 @@ class ArticleController extends Controller
     {
     $article = Article::findOrFail($id);
 
-    $request->validate([
+    $validator=Validator::make($request->all(),[
         'nom_article' => 'required|string|max:255',
         'description' => 'nullable|string',
         'prix_unitaire' => 'required|numeric|min:0',
         'type_article' => 'required|in:produit,service',
         'promo_id' => 'nullable|exists:promos,id',
     ]);
+    if ($validator->fails()) {
+        return response()->json([
+            'errors' => $validator->errors(),
+        ],422);
+    }
 
     // Mise à jour des champs de l'article
     $article->update([

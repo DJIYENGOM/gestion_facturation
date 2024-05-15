@@ -19,14 +19,19 @@ class SousUtilisateurController extends Controller
         $user = auth()->user();
 
         // Valider les données de la requête
-        $request->validate([
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
+        $validator=Validator::make($request->all(),[
+            'nom' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
+            'prenom' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
             'email' => 'required|string|email|unique:sous__utilisateurs|max:255',
-            'password' => 'required|string|min:6',
+            'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/'],
             'id_role' => 'required|exists:roles,id', // Vérifier que le rôle existe dans la table des rôles
         ]);
-    
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ],422);
+        }
         // Créer un nouvel utilisateur
         $utilisateur = new Sous_Utilisateur([
             'nom' => $request->input('nom'),
@@ -57,32 +62,29 @@ class SousUtilisateurController extends Controller
 
     public function listeUtilisateurArchive()
     {
-        $utilisateur = Sous_Utilisateur::where('archiver', 'non')->get();
+        $utilisateur = Sous_Utilisateur::where('archiver', 'oui')->get();
         return response()->json($utilisateur);
     }
 
     public function modifierSousUtilisateur(Request $request, $id)
     {
-        // Récupérer l'utilisateur connecté
         $user = auth()->user();
-    
-        // Récupérer le sous-utilisateur à modifier
         $utilisateur = Sous_Utilisateur::findOrFail($id);
     
-        // Vérifier que l'utilisateur connecté est le propriétaire du sous-utilisateur
-        if ($user->id !== $utilisateur->id_user) {
-            return response()->json(['message' => 'Vous n\'êtes pas autorisé à modifier cet utilisateur'], 403);
-        }
-    
         // Valider les données de la requête
-        $request->validate([
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
+        $validator=Validator::make($request->all(),[
+            'nom' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
+            'prenom' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
             'email' => 'required|string|email|max:255|unique:sous__utilisateurs,email,'.$id,
-            'password' => 'nullable|string|min:6',
-            'id_role' => 'required|exists:roles,id', // Vérifier que le rôle existe dans la table des rôles
-            'archiver' => 'required|in:oui,non' // Valider que la valeur est soit "oui" soit "non"
+            'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/'],
+            'id_role' => 'required|exists:roles,id', 
+            'archiver' => 'required|in:oui,non' 
         ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ],422);
+        }
     
         // Mettre à jour les attributs du sous-utilisateur
         $utilisateur->nom = $request->input('nom');
@@ -102,29 +104,31 @@ class SousUtilisateurController extends Controller
     
     public function ArchiverSousUtilisateur(Request $request, $id)
     {
-        // Récupérer l'utilisateur connecté
-        $user = auth()->user();
-    
-        // Récupérer le sous-utilisateur à modifier
+
         $utilisateur = Sous_Utilisateur::findOrFail($id);
-    
-        // Vérifier que l'utilisateur connecté est le propriétaire du sous-utilisateur
-        if ($user->id !== $utilisateur->id_user) {
-            return response()->json(['message' => 'Vous n\'êtes pas autorisé à modifier le statut cet utilisateur'], 403);
+        if($utilisateur->archiver == 'oui'){
+            return response()->json(['message' => 'ce sous utilisateur est deja archivé']);
         }
     
-        // Valider la donnée 'archiver' de la requête
-        $request->validate([
-            'archiver' => 'required|in:oui,non' // Valider que la valeur est soit "oui" soit "non"
-        ]);
+        $utilisateur->archiver = 'oui';
     
-        // Mettre à jour le champ 'archiver' du sous-utilisateur
-        $utilisateur->archiver = $request->input('archiver');
-    
-        // Enregistrer les modifications
         $utilisateur->save();
     
-        return response()->json(['message' => 'le statut cet sous-utilisateur a été modifié avec succès']);
+        return response()->json(['message' => 'vous avez archive le sous-utilisateur ' .$utilisateur->prenom ]);
     }
     
+    public function Des_ArchiverSousUtilisateur(Request $request, $id)
+    {
+
+        $utilisateur = Sous_Utilisateur::findOrFail($id);
+        if($utilisateur->archiver == 'non'){
+            return response()->json(['message' => 'ce sous utilisateur est deja desarchivé']);
+        }
+    
+        $utilisateur->archiver = 'non';
+    
+        $utilisateur->save();
+    
+        return response()->json(['message' => 'vous avez desarchive le sous-utilisateur ' .$utilisateur->prenom ]);
+    }
 }

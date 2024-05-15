@@ -7,6 +7,8 @@ use App\Http\Requests\StorePromoRequest;
 use App\Http\Requests\UpdatePromoRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+
 
 
 class PromoController extends Controller
@@ -18,11 +20,17 @@ class PromoController extends Controller
     {
         $user = auth('apisousUtilisateur')->user();
 
-        $request->validate([
+        $validator=Validator::make($request->all(),[
             'nom_promo' => 'required|string|max:255',
             'pourcentage_promo' => 'required|numeric|min:0|max:100',
             'date_expiration' => 'required|date|after:today',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ],422);
+        }
           // Convertir le pourcentage en décimal (diviser par 100)
           $pourcentage_decimal = $request->pourcentage_promo / 100;
 

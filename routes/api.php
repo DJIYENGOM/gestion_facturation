@@ -25,6 +25,8 @@ Route::controller(AuthController::class)->group(function () {
 Route::controller(RoleController::class)->group(function () {
     Route::post('ajouterRole', 'ajouterRole');
     Route::get('listerRole', 'listerRole');
+    Route::post('modifierRole/{id}', 'modifierRole');
+    Route::delete('supprimerRole/{id}', 'supprimerRole');
 });
 
 
@@ -34,6 +36,7 @@ Route::controller(SousUtilisateurController::class)->group(function () {
     Route::get('listeUtilisateurArchive', 'listeUtilisateurArchive');
     Route::post('modifierSousUtilisateur/{id}', 'modifierSousUtilisateur');
     Route::post('ArchiverSousUtilisateur/{id}', 'ArchiverSousUtilisateur');
+    Route::post('Des_ArchiverSousUtilisateur/{id}', 'Des_ArchiverSousUtilisateur');
 });
 
 

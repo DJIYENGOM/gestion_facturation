@@ -48,43 +48,29 @@ class RoleController extends Controller
         return response()->json($Role);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreRoleRequest $request)
-    {
-        //
-    }
+    public function modifierRole(Request $request, $id)
+   {
+    $role = Role::findOrFail($id);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Role $role)
-    {
-        //
-    }
+    $request->validate([
+        'role' => 'required|string|max:255',
+    ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Role $role)
-    {
-        //
-    }
+    $role->role = $request->role;
+    $role->id_user = auth()->id(); // Ou récupérez l'ID de l'utilisateur connecté de votre façon
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateRoleRequest $request, Role $role)
-    {
-        //
-    }
+    $role->save();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Role $role)
-    {
-        //
-    }
+    return response()->json(['message' => 'Role modifiée avec succès', 'role' => $role]);
+   }
+
+   public function supprimerRole($id)
+   {    
+       $role = Role::findOrFail($id); // Rechercher la role par son ID
+       // Supprimer la role
+       $role->delete();
+   
+       return response()->json(['message' => 'role supprimée avec succès']);
+   }
+    
 }

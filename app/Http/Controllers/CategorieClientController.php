@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CategorieClient;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreCategorieClientRequest;
 use App\Http\Requests\UpdateCategorieClientRequest;
 
@@ -12,9 +12,19 @@ class CategorieClientController extends Controller
 {
     public function ajouterCategorie(Request $request)
     {
-        $request->validate([
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        if($sousUtilisateur_id == null){
+            return response()->json(['Vous n\'êtes pas connecté en tant que sous-utilisateur']);
+        }
+        
+        $validator=Validator::make($request->all(),[
             'nom_categorie' => 'required|string|max:255',
         ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ],422);
+        }
     
         $categorie = new CategorieClient([
             'nom_categorie' => $request->nom_categorie,
@@ -41,6 +51,8 @@ class CategorieClientController extends Controller
     ]);
 
     $categorie->nom_categorie = $request->nom_categorie;
+    $categorie->sousUtilisateur_id = auth('apisousUtilisateur')->id(); // Ou récupérez l'ID de l'utilisateur connecté de votre façon
+
     $categorie->save();
 
     return response()->json(['message' => 'Catégorie modifiée avec succès', 'categorie' => $categorie]);
