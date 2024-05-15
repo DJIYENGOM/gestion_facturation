@@ -55,14 +55,14 @@ class SousUtilisateurController extends Controller
      */
     public function listeUtilisateurNonArchive()
     {
-        $utilisateur = Sous_Utilisateur::where('archiver', 'non')->get();
+        $utilisateur = Sous_Utilisateur::where('archiver', 'non')->with('role')->get();
         return response()->json($utilisateur);
     }
 
 
     public function listeUtilisateurArchive()
     {
-        $utilisateur = Sous_Utilisateur::where('archiver', 'oui')->get();
+        $utilisateur = Sous_Utilisateur::where('archiver', 'oui')->with('role')->get();
         return response()->json($utilisateur);
     }
 

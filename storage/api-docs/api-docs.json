@@ -209,7 +209,7 @@
                                 }
                             },
                             "example": {
-                                "prenom_client": "fallou",
+                                "prenom_client": "f",
                                 "nom_client": "diop",
                                 "email_client": "fallou@gmail.com",
                                 "adress_client": "parcelle",
@@ -566,7 +566,7 @@
                                 }
                             },
                             "example": {
-                                "nom_categorie": "Prospect"
+                                "nom_categorie": "visiteur"
                             }
                         }
                     }
@@ -1070,6 +1070,65 @@
                 }
             }
         },
+        "/api/Des_ArchiverSousUtilisateur/{id}": {
+            "post": {
+                "summary": "Des_Archiver Sous Utilisateur",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion sous_utilisateur"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/listeUtilisateurArchive": {
             "get": {
                 "summary": "liste sous_utilisateur archiver",
@@ -1115,7 +1174,7 @@
                 ]
             }
         },
-        "/api/ArchiverSousUtilisateur/1": {
+        "/api/ArchiverSousUtilisateur/{id}": {
             "post": {
                 "summary": "archiver (supprimer) sous_utilisateur",
                 "description": "",
@@ -1162,31 +1221,19 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
                     }
-                ],
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "archiver": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "example": {
-                                "archiver": "non"
-                            }
-                        }
-                    }
-                }
+                ]
             }
         },
-        "/api/modifierSousUtilisateur/1": {
+        "/api/modifierSousUtilisateur/{id}": {
             "post": {
                 "summary": "modifier un sous_utilisateur",
                 "description": "",
@@ -1233,6 +1280,11 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1265,10 +1317,10 @@
                                 }
                             },
                             "example": {
-                                "nom": "binta",
+                                "nom": "bint",
                                 "prenom": "faye",
-                                "email": "binta@gmail.com",
-                                "password": "1234567",
+                                "email": "bin@gmail.com",
+                                "password": "password@1",
                                 "archiver": "oui",
                                 "id_role": "2"
                             }
@@ -1353,10 +1405,10 @@
                                 }
                             },
                             "example": {
-                                "nom": "fatou",
+                                "nom": "ibou",
                                 "prenom": "diop",
-                                "email": "diop@gmail.com",
-                                "password": "123456",
+                                "email": "ibou@gmail.com",
+                                "password": "123456p@",
                                 "id_role": "1"
                             }
                         }
@@ -1401,6 +1453,65 @@
                     "gestion sous_utilisateur"
                 ],
                 "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/supprimerRole/{id}": {
+            "delete": {
+                "summary": "supprimer Role",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion role"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -2006,9 +2117,9 @@
                                 }
                             },
                             "example": {
-                                "name": " ngom",
-                                "email": "die@gmail.com",
-                                "password": "123456"
+                                "name": " cisse",
+                                "email": "cisse@gmail.com",
+                                "password": "ciss123@"
                             }
                         }
                     }
