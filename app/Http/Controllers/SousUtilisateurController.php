@@ -7,7 +7,7 @@ use App\Http\Requests\StoreSous_UtilisateurRequest;
 use App\Http\Requests\UpdateSous_UtilisateurRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 
@@ -55,15 +55,23 @@ class SousUtilisateurController extends Controller
      */
     public function listeUtilisateurNonArchive()
     {
-        $utilisateur = Sous_Utilisateur::where('archiver', 'non')->with('role')->get();
-        return response()->json($utilisateur);
+        $utilisateurs = DB::table('sous__utilisateurs')
+        ->select('sous__utilisateurs.id', 'sous__utilisateurs.nom', 'sous__utilisateurs.prenom', 'sous__utilisateurs.email', 'sous__utilisateurs.password', 'sous__utilisateurs.id_role', 'sous__utilisateurs.id_user', 'sous__utilisateurs.archiver', 'sous__utilisateurs.created_at', 'sous__utilisateurs.updated_at', 'roles.role as nom_role')
+        ->where('sous__utilisateurs.archiver', 'non')
+        ->join('roles', 'sous__utilisateurs.id_role', '=', 'roles.id')
+        ->get();
+    return response()->json($utilisateurs);
     }
 
 
     public function listeUtilisateurArchive()
     {
-        $utilisateur = Sous_Utilisateur::where('archiver', 'oui')->with('role')->get();
-        return response()->json($utilisateur);
+        $utilisateurs = DB::table('sous__utilisateurs')
+        ->select('sous__utilisateurs.id', 'sous__utilisateurs.nom', 'sous__utilisateurs.prenom', 'sous__utilisateurs.email', 'sous__utilisateurs.password', 'sous__utilisateurs.id_role', 'sous__utilisateurs.id_user', 'sous__utilisateurs.archiver', 'sous__utilisateurs.created_at', 'sous__utilisateurs.updated_at', 'roles.role as nom_role')
+        ->where('sous__utilisateurs.archiver', 'oui')
+        ->join('roles', 'sous__utilisateurs.id_role', '=', 'roles.id')
+        ->get();        
+    return response()->json($utilisateurs);
     }
 
     public function modifierSousUtilisateur(Request $request, $id)
