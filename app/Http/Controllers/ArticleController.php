@@ -6,24 +6,24 @@ use App\Models\Article;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use App\Models\Promo;
 use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function ajouterArticle(Request $request)
     {
+        
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = null;
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
         $validator=Validator::make($request->all(),[
             'nom_article' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -61,7 +61,8 @@ class ArticleController extends Controller
         $article->type_article = $request->type_article;
         $article->promo_id = $request->promo_id;
         // Le sous_utilisateur_id peut être récupéré à partir de l'utilisateur authentifié
-        $article->sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $article->sousUtilisateur_id = $sousUtilisateur_id;
+        $article->user_id = $user_id;
         
         // Enregistrer l'article dans la base de données
         $article->save();
@@ -118,7 +119,13 @@ class ArticleController extends Controller
 
 public function listerArticles()
 {
-    $articles = Article::all();
+   // $articles = Article::all();
+
+   $articles = DB::table('articles')
+   ->select('articles.*', 'promos.pourcentage_promo as pourcentage_promo', 'promos.date_expiration as date_expiration', 'promos.nom_promo as nom_promo')
+   ->join('promos', 'articles.promo_id', '=', 'promos.id')
+   ->get();
+
     return response()->json(['articles' => $articles]);
 }
 

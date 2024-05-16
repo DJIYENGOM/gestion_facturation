@@ -921,11 +921,11 @@
                                 }
                             },
                             "example": {
-                                "nom_article": "soin de visage",
+                                "nom_article": "service medical",
                                 "description": "jvhn nsmdljnvjknb jck",
                                 "prix_unitaire": "22000",
                                 "type_article": "service",
-                                "promo_id": "4"
+                                "promo_id": "1"
                             }
                         }
                     }
@@ -977,7 +977,7 @@
                 ]
             }
         },
-        "/api/modifierPromo/{1}": {
+        "/api/modifierPromo/{id}": {
             "post": {
                 "summary": "modifier Promo",
                 "description": "",
@@ -1052,8 +1052,8 @@
                                 }
                             },
                             "example": {
-                                "nom_promo": "promo korité",
-                                "pourcentage_promo": "50",
+                                "nom_promo": "promo fin d'annee",
+                                "pourcentage_promo": "10",
                                 "date_expiration": "2024-5-20"
                             }
                         }
@@ -1190,8 +1190,8 @@
                                 }
                             },
                             "example": {
-                                "nom_promo": " promo tabaski",
-                                "pourcentage_promo": "10",
+                                "nom_promo": " promo 30%",
+                                "pourcentage_promo": "30",
                                 "date_expiration": "2024-05-17"
                             }
                         }
@@ -1588,6 +1588,82 @@
                         "type": "string"
                     }
                 ]
+            }
+        },
+        "/api/modifierRole/1": {
+            "post": {
+                "summary": "modifier role",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion role"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "role": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "role": "super utilisateur"
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/supprimerRole/{id}": {
