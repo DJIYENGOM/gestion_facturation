@@ -117,16 +117,22 @@ class ArticleController extends Controller
     return response()->json(['message' => 'Article supprimé avec succès']);
 }
 
+// public function listerArticles()
+// {
+//    // $articles = Article::all();
+
+//    $articles = DB::table('articles')
+//    ->select('articles.*', 'promos.pourcentage_promo as pourcentage_promo', 'promos.date_expiration as date_expiration', 'promos.nom_promo as nom_promo')
+//    ->join('promos', 'articles.promo_id', '=', 'promos.id')
+//    ->get();
+
+//     return response()->json(['articles' => $articles]);
+// }
+
 public function listerArticles()
 {
-   // $articles = Article::all();
-
-   $articles = DB::table('articles')
-   ->select('articles.*', 'promos.pourcentage_promo as pourcentage_promo', 'promos.date_expiration as date_expiration', 'promos.nom_promo as nom_promo')
-   ->join('promos', 'articles.promo_id', '=', 'promos.id')
-   ->get();
-
-    return response()->json(['articles' => $articles]);
+    $Article = Article::all();
+    return response()->json($Article);
 }
 
 public function affecterPromoArticle(Request $request, $id)
