@@ -209,12 +209,12 @@
                                 }
                             },
                             "example": {
-                                "prenom_client": "f",
+                                "prenom_client": "ibou",
                                 "nom_client": "diop",
-                                "email_client": "fallou@gmail.com",
+                                "email_client": "ibou@gmail.com",
                                 "adress_client": "parcelle",
                                 "tel_client": "768947493",
-                                "categorie_id": "2",
+                                "categorie_id": "1",
                                 "nom_entreprise": "fa cosmetique"
                             }
                         }
@@ -309,13 +309,13 @@
                                 }
                             },
                             "example": {
-                                "prenom_client": "fallou",
+                                "prenom_client": "ibou",
                                 "nom_client": "diop",
-                                "email_client": "fallou@gmail.com",
+                                "email_client": "diopp@gmail.com",
                                 "adress_client": "parcelle",
                                 "tel_client": "768947493",
-                                "categorie_id": "2",
-                                "nom_entreprise": "fallou  buness"
+                                "categorie_id": "1",
+                                "nom_entreprise": "IBOU  buness"
                             }
                         }
                     }
@@ -450,7 +450,7 @@
                                 }
                             },
                             "example": {
-                                "nom_categorie": "client infidel"
+                                "nom_categorie": "client fidel"
                             }
                         }
                     }
@@ -504,7 +504,7 @@
         },
         "/api/ajouterCategorie": {
             "post": {
-                "summary": "ajouter categorie",
+                "summary": "ajouter categorie client",
                 "description": "",
                 "responses": {
                     "201": {
@@ -566,7 +566,7 @@
                                 }
                             },
                             "example": {
-                                "nom_categorie": "visiteur"
+                                "nom_categorie": " societe"
                             }
                         }
                     }
@@ -932,6 +932,135 @@
                 }
             }
         },
+        "/api/listerPromo": {
+            "get": {
+                "summary": "lister promo",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des promos"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/modifierPromo/{1}": {
+            "post": {
+                "summary": "modifier Promo",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des promos"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nom_promo": {
+                                        "type": "string"
+                                    },
+                                    "pourcentage_promo": {
+                                        "type": "string"
+                                    },
+                                    "date_expiration": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nom_promo": "promo korité",
+                                "pourcentage_promo": "50",
+                                "date_expiration": "2024-5-20"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/supprimerPromo/{id}": {
             "post": {
                 "summary": "Supprimer promo",
@@ -1062,8 +1191,8 @@
                             },
                             "example": {
                                 "nom_promo": " promo tabaski",
-                                "pourcentage_promo": "50",
-                                "date_expiration": "2024-05-11"
+                                "pourcentage_promo": "10",
+                                "date_expiration": "2024-05-17"
                             }
                         }
                     }
@@ -1405,9 +1534,9 @@
                                 }
                             },
                             "example": {
-                                "nom": "ibou",
+                                "nom": "ba",
                                 "prenom": "diop",
-                                "email": "ibou@gmail.com",
+                                "email": "ba@gmail.com",
                                 "password": "123456p@",
                                 "id_role": "1"
                             }
@@ -1629,7 +1758,7 @@
                                 }
                             },
                             "example": {
-                                "role": "consultant"
+                                "role": "utilisateur simple"
                             }
                         }
                     }
@@ -1856,8 +1985,8 @@
                                 }
                             },
                             "example": {
-                                "email": "diop@gmail.com",
-                                "password": "123456"
+                                "email": "ba@gmail.com",
+                                "password": "123456p@"
                             }
                         }
                     }
@@ -2039,8 +2168,8 @@
                                 }
                             },
                             "example": {
-                                "email": "die@gmail.com",
-                                "password": "123456"
+                                "email": "cisse@gmail.com",
+                                "password": "ciss123@"
                             }
                         }
                     }
