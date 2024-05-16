@@ -60,7 +60,7 @@ public function ajouterPromo(Request $request)
         // Modifier le pourcentage_promo pour l'afficher comme un pourcentage
         foreach ($promos as $promo) {
             $pourcentage = number_format($promo->pourcentage_promo * 100, 0);
-            $promo->pourcentage_promo = $pourcentage . '%';
+            $promo->pourcentage_promo = $pourcentage ;
         }
     
         return response()->json($promos);
