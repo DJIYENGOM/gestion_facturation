@@ -42,6 +42,8 @@ Route::controller(SousUtilisateurController::class)->group(function () {
 
 Route::controller(PromoController::class)->group(function () {
     Route::post('ajouterPromo', 'ajouterPromo');
+    Route::get('listerPromo', 'listerPromo');
+    Route::post('modifierPromo/{id}', 'modifierPromo');
     Route::post('supprimerPromo/{id}', 'supprimerPromo');
 });
 

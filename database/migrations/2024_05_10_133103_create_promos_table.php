@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('nom_promo');
             $table->decimal('pourcentage_promo');
             $table->date('date_expiration');
-            $table->foreignId('sousUtilisateur_id')->constrained('sous__utilisateurs')->onDelete('cascade');
+            $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');            
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });
     }

@@ -16,6 +16,7 @@ class Client extends Model
         'adress_client',
         'tel_client',
         'sousUtilisateur_id',
-        'categorie_id'
+        'categorie_id',
+        'user_id'
     ];
 }

@@ -19,8 +19,10 @@ return new class extends Migration
             $table->string('adress_client');
             $table->string('email_client');
             $table->string('tel_client');
-            $table->foreignId('sousUtilisateur_id')->constrained('sous__utilisateurs')->onDelete('cascade');
+            $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');            
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('categorie_id')->constrained('categorie_clients')->onDelete('cascade');
+
             $table->timestamps();
         });
     }

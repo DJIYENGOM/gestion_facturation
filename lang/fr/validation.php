@@ -16,7 +16,7 @@ return [
     'accepted' => 'Le champ :attribute doit être accepté.',
     'accepted_if' => 'Le champ :attribute doit être accepté lorsque :other vaut :value.',
     'active_url' => 'Le champ :attribute n\'est pas une URL valide.',
-    'after' => 'Le champ :date d\'expiration doit être une date postérieure à :ajourd\'hui.',
+    'after' => 'Le champ :date d\'expiration doit être une date postérieure à ajourd\'hui.',
     'after_or_equal' => 'Le champ :attribute doit être une date après ou égale à :date.',
     'alpha' => 'Le champ :attribute doit seulement contenir des lettres.',
     'alpha_dash' => 'Le champ :attribute doit seulement contenir des lettres, des chiffres et des tirets.',
@@ -193,6 +193,10 @@ return [
 
         "nom_categorie"=> [
             'regex' => 'Le champ categorie est invalide ',
+        ],
+
+        'id_user' => [
+            'exists' => 'il ya un probleme avec cet utilisateur qui est connecté',
         ],
     ],
 

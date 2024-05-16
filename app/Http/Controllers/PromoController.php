@@ -13,14 +13,19 @@ use Illuminate\Support\Facades\Validator;
 
 class PromoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function ajouterPromo(Request $request)
-    {
-        $user = auth('apisousUtilisateur')->user();
-
-        $validator=Validator::make($request->all(),[
+ 
+public function ajouterPromo(Request $request)
+{
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = null;
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+        $validator = Validator::make($request->all(), [
             'nom_promo' => 'required|string|max:255',
             'pourcentage_promo' => 'required|numeric|min:0|max:100',
             'date_expiration' => 'required|date|after:today',
@@ -29,21 +34,57 @@ class PromoController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'errors' => $validator->errors(),
-            ],422);
+            ], 422);
         }
-          // Convertir le pourcentage en décimal (diviser par 100)
-          $pourcentage_decimal = $request->pourcentage_promo / 100;
+
+        // Convertir le pourcentage en décimal (diviser par 100)
+        $pourcentage_decimal = $request->pourcentage_promo / 100;
 
         $promo = Promo::create([
             'nom_promo' => $request->nom_promo,
             'pourcentage_promo' => $pourcentage_decimal,
             'date_expiration' => $request->date_expiration,
-            'sousUtilisateur_id' => $user->id,              // ou  'sousUtilisateur_id' => Auth::id(),
+            'sousUtilisateur_id' => $sousUtilisateur_id,    
+            'user_id' => $user_id,                               // ou  'sousUtilisateur_id' => Auth::id(),
 
         ]);
-    
+
         return response()->json(['message' => 'Promo ajoutée avec succès', 'promo' => $promo]);
     }
+
+
+public function listerPromo()
+{
+    $Promo = Promo::all();
+    return response()->json($Promo);
+}
+
+public function modifierPromo(Request $request, $id)
+{
+    $promo = Promo::findOrFail($id);
+
+    $validator = Validator::make($request->all(), [
+        'nom_promo' => 'required|string|max:255',
+        'pourcentage_promo' => 'required|numeric|min:0|max:100',
+        'date_expiration' => 'required|date|after:today',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    // Convertir le pourcentage en décimal (diviser par 100)
+    $pourcentage_decimal = $request->pourcentage_promo / 100;
+
+    $promo->update([
+        'nom_promo' => $request->nom_promo,
+        'pourcentage_promo' => $pourcentage_decimal,
+        'date_expiration' => $request->date_expiration,
+    ]);
+
+    // Retourner la réponse avec un message de succès et les données du promo mis à jour
+    return response()->json(['message' => 'Promo modifiée avec succès', 'promo' => $promo]);
+}
 
 
     public function supprimerPromo($id)
@@ -57,52 +98,4 @@ class PromoController extends Controller
 
 
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorePromoRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Promo $promo)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Promo $promo)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePromoRequest $request, Promo $promo)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Promo $promo)
-    {
-        //
-    }
 }

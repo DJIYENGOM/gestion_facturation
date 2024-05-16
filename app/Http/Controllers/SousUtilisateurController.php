@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateSous_UtilisateurRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\Request;
 
 
@@ -24,7 +25,7 @@ class SousUtilisateurController extends Controller
             'prenom' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
             'email' => 'required|string|email|unique:sous__utilisateurs|max:255',
             'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/'],
-            'id_role' => 'required|exists:roles,id', // Vérifier que le rôle existe dans la table des rôles
+            'id_role' => 'required|exists:roles,id', 
         ]);
 
         if ($validator->fails()) {
@@ -38,9 +39,10 @@ class SousUtilisateurController extends Controller
             'prenom' => $request->input('prenom'),
             'email' => $request->input('email'),
             'password' => Hash::make($request->password),
-            'id_role' => $request->input('id_role'), // Utiliser le rôle choisi par l'utilisateur
-            'id_user' => $user->id, // ID de l'utilisateur connecté  ou utiliser  ''id_user' => Auth::id(),
-            'archiver' => 'non', // Par défaut, l'utilisateur n'est pas archivé
+           // 'password' => Crypt::encryptString($request->password),
+            'id_role' => $request->input('id_role'), 
+            'id_user' => $user->id, 
+            'archiver' => 'non', 
         ]);
 
         //dd($utilisateur);
@@ -60,6 +62,11 @@ class SousUtilisateurController extends Controller
         ->where('sous__utilisateurs.archiver', 'non')
         ->join('roles', 'sous__utilisateurs.id_role', '=', 'roles.id')
         ->get();
+
+        // foreach ($utilisateurs as $utilisateur) {
+        //     $utilisateur->password = Crypt::decryptString($utilisateur->password);  //pour decrypter les mot de password
+        //       }
+
     return response()->json($utilisateurs);
     }
 
@@ -70,7 +77,12 @@ class SousUtilisateurController extends Controller
         ->select('sous__utilisateurs.id', 'sous__utilisateurs.nom', 'sous__utilisateurs.prenom', 'sous__utilisateurs.email', 'sous__utilisateurs.password', 'sous__utilisateurs.id_role', 'sous__utilisateurs.id_user', 'sous__utilisateurs.archiver', 'sous__utilisateurs.created_at', 'sous__utilisateurs.updated_at', 'roles.role as nom_role')
         ->where('sous__utilisateurs.archiver', 'oui')
         ->join('roles', 'sous__utilisateurs.id_role', '=', 'roles.id')
-        ->get();        
+        ->get();  
+
+        // foreach ($utilisateurs as $utilisateur) {
+        //     $utilisateur->password = Crypt::decryptString($utilisateur->password);  
+        //       }
+
     return response()->json($utilisateurs);
     }
 
@@ -98,13 +110,10 @@ class SousUtilisateurController extends Controller
         $utilisateur->nom = $request->input('nom');
         $utilisateur->prenom = $request->input('prenom');
         $utilisateur->email = $request->input('email');
-        if ($request->has('password')) {
-            $utilisateur->password = Hash::make($request->input('password'));
-        }
-        $utilisateur->id_role = $request->input('id_role'); // Utiliser le rôle choisi par l'utilisateur
-        $utilisateur->archiver = $request->input('archiver'); // Mettre à jour le champ archiver
+        $utilisateur->password = Hash::make($request->password);
+        $utilisateur->id_role = $request->input('id_role'); 
+        $utilisateur->archiver = $request->input('archiver'); 
         $utilisateur->id_user = $user->id; 
-        // Enregistrer les modifications
         $utilisateur->save();
     
         return response()->json(['message' => 'Utilisateur modifié avec succès']);

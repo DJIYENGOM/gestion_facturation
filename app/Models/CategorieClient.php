@@ -10,7 +10,7 @@ class CategorieClient extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nom_categorie','sousUtilisateur_id'
+        'nom_categorie','sousUtilisateur_id','user_id'
     ];
 
     public function sousUtilisateur()

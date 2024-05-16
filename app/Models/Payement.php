@@ -9,7 +9,7 @@ class Payement extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nom_payement', 'sousUtilisateur_id'];
+    protected $fillable = ['nom_payement', 'sousUtilisateur_id','user_id'];
 
     public function sousUtilisateur()
     {

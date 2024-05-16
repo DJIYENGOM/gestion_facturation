@@ -19,7 +19,8 @@ return new class extends Migration
             $table->decimal('prix_promo')->nullable();
             $table->enum('type_article', ['produit', 'service']);
             $table->foreignId('promo_id')->nullable()->constrained('promos')->onDelete('set null')->nullable();
-            $table->foreignId('sousUtilisateur_id')->constrained('sous__utilisateurs')->onDelete('cascade');
+            $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');            
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });
     }
