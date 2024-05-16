@@ -53,11 +53,19 @@ public function ajouterPromo(Request $request)
     }
 
 
-public function listerPromo()
-{
-    $Promo = Promo::all();
-    return response()->json($Promo);
-}
+    public function listerPromo()
+    {
+        $promos = Promo::all();
+    
+        // Modifier le pourcentage_promo pour l'afficher comme un pourcentage
+        foreach ($promos as $promo) {
+            $pourcentage = number_format($promo->pourcentage_promo * 100, 0);
+            $promo->pourcentage_promo = $pourcentage . '%';
+        }
+    
+        return response()->json($promos);
+    }
+    
 
 public function modifierPromo(Request $request, $id)
 {
