@@ -26,7 +26,7 @@ Route::controller(AuthController::class)->group(function () {
 Route::controller(Info_SupplementaireController::class)->group(function () {
     Route::post('completerInfoEntreprise', 'completerInfoEntreprise');
     Route::get('afficherInfoEntreprise', 'afficherInfoEntreprise');
-    Route::post('modifierInfoEntreprise', 'completerEntreprise');
+    Route::post('modifierInfoEntreprise', 'completerInfoEntreprise');
     
 });
 
