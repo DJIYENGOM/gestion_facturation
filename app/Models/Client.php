@@ -19,4 +19,19 @@ class Client extends Model
         'categorie_id',
         'user_id'
     ];
+
+    public function sousUtilisateur()
+    {
+        return $this->belongsTo(Sous_Utilisateur::class, 'sousUtilisateur_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function categorie()
+    {
+        return $this->belongsTo(CategorieClient::class, 'categorie_id');
+    }
 }

@@ -39,7 +39,6 @@ class SousUtilisateurController extends Controller
             'prenom' => $request->input('prenom'),
             'email' => $request->input('email'),
             'password' => Hash::make($request->password),
-           // 'password' => Crypt::encryptString($request->password),
             'id_role' => $request->input('id_role'), 
             'id_user' => $user->id, 
             'archiver' => 'non', 
@@ -57,35 +56,40 @@ class SousUtilisateurController extends Controller
      */
     public function listeUtilisateurNonArchive()
     {
+        if (auth()->check()) {
+            $user = auth()->user();
+
         $utilisateurs = DB::table('sous__utilisateurs')
         ->select('sous__utilisateurs.id', 'sous__utilisateurs.nom', 'sous__utilisateurs.prenom', 'sous__utilisateurs.email', 'sous__utilisateurs.password', 'sous__utilisateurs.id_role', 'sous__utilisateurs.id_user', 'sous__utilisateurs.archiver', 'sous__utilisateurs.created_at', 'sous__utilisateurs.updated_at', 'roles.role as nom_role')
-        ->where('sous__utilisateurs.archiver', 'non')
+        ->where('sous__utilisateurs.archiver', 'non' )
+        ->where('sous__utilisateurs.id_user', $user->id)
         ->join('roles', 'sous__utilisateurs.id_role', '=', 'roles.id')
         ->get();
 
-        // foreach ($utilisateurs as $utilisateur) {
-        //     $utilisateur->password = Crypt::decryptString($utilisateur->password);  //pour decrypter les mot de password
-        //       }
+         return response()->json($utilisateurs);
+        }
+        return response()->json(['error' => 'Unauthorized'], 401);
 
-    return response()->json($utilisateurs);
     }
 
 
     public function listeUtilisateurArchive()
     {
+        if (auth()->check()) {
+            $user = auth()->user();
+
         $utilisateurs = DB::table('sous__utilisateurs')
         ->select('sous__utilisateurs.id', 'sous__utilisateurs.nom', 'sous__utilisateurs.prenom', 'sous__utilisateurs.email', 'sous__utilisateurs.password', 'sous__utilisateurs.id_role', 'sous__utilisateurs.id_user', 'sous__utilisateurs.archiver', 'sous__utilisateurs.created_at', 'sous__utilisateurs.updated_at', 'roles.role as nom_role')
         ->where('sous__utilisateurs.archiver', 'oui')
+        ->where('sous__utilisateurs.id_user', $user->id)
         ->join('roles', 'sous__utilisateurs.id_role', '=', 'roles.id')
         ->get();  
 
-        // foreach ($utilisateurs as $utilisateur) {
-        //     $utilisateur->password = Crypt::decryptString($utilisateur->password);  
-        //       }
+          return response()->json($utilisateurs);
+       }
+       return response()->json(['error' => 'Unauthorized'], 401);
 
-    return response()->json($utilisateurs);
     }
-
     public function modifierSousUtilisateur(Request $request, $id)
     {
         $user = auth()->user();

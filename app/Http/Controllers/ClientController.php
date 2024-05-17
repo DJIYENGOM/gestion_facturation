@@ -56,14 +56,48 @@ class ClientController extends Controller
         return response()->json(['message' => 'Client ajouté avec succès', 'client' => $client]);
     }
 
-    public function listerClients()
-{
-    $clients = DB::table('clients')
-        ->select('clients.id', 'clients.nom_client', 'clients.prenom_client', 'clients.email_client', 'clients.nom_entreprise', 'clients.adress_client', 'clients.tel_client', 'clients.user_id', 'clients.sousUtilisateur_id','clients.created_at', 'clients.updated_at', 'categorie_clients.nom_categorie as nom_categorie')
-        ->join('categorie_clients', 'clients.categorie_id', '=', 'categorie_clients.id')
-        ->get(); 
 
-    return response()->json(['clients' => $clients]);
+public function listerClients()
+{
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+        $clients = Client::with('categorie')
+            ->where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId)
+            ->get();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $clients = Client::with('categorie')
+            ->where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                $query->where('id_user', $userId);
+            })
+            ->get();
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $clients = $clients->map(function ($client) {
+        return [
+            'id' => $client->id,
+            'nom_client' => $client->nom_client,
+            'prenom_client' => $client->prenom_client,
+            'email_client' => $client->email_client,
+            'nom_entreprise' => $client->nom_entreprise,
+            'adress_client' => $client->adress_client,
+            'tel_client' => $client->tel_client,
+            'user_id' => $client->user_id,
+            'sousUtilisateur_id' => $client->sousUtilisateur_id,
+            'created_at' => $client->created_at,
+            'updated_at' => $client->updated_at,
+            'nom_categorie' => $client->categorie->nom_categorie,
+        ];
+    });
+
+    return response()->json($clients);
 }
 
 public function modifierClient(Request $request, $id)

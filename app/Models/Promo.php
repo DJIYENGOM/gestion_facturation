@@ -13,11 +13,17 @@ class Promo extends Model
 
     public function sousUtilisateur()
     {
-        return $this->belongsTo(Sous_Utilisateur::class);
+        return $this->belongsTo(Sous_Utilisateur::class, 'sousUtilisateur_id');
     }
 
+    
     public function articles()
     {
-        return $this->belongsToMany(Article::class);
+        return $this->belongsToMany(Article::class,);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

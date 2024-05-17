@@ -15,4 +15,9 @@ class Payement extends Model
     {
         return $this->belongsTo(Sous_Utilisateur::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

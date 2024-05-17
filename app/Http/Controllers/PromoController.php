@@ -55,15 +55,31 @@ public function ajouterPromo(Request $request)
 
     public function listerPromo()
     {
-        $promos = Promo::all();
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
-        // Modifier le pourcentage_promo pour l'afficher comme un pourcentage
-        foreach ($promos as $promo) {
-            $pourcentage = number_format($promo->pourcentage_promo * 100, 0);
-            $promo->pourcentage_promo = $pourcentage ;
+            $promos = Promo::where('sousUtilisateur_id', $sousUtilisateurId)
+                ->orWhere('user_id', $userId)
+                ->get();
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+    
+            $promos = Promo::where('user_id', $userId)
+                ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                    $query->where('id_user', $userId);
+                })
+                ->get();
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
     
-        return response()->json($promos);
+        foreach ($promos as $promo) {
+            $pourcentage = number_format($promo->pourcentage_promo * 100, 0);
+            $promo->pourcentage_promo = $pourcentage;
+        }
+    
+        return response()->json(['promos' => $promos]);
     }
     
 

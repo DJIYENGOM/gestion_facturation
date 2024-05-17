@@ -44,9 +44,17 @@ class RoleController extends Controller
 
     public function listerRole()
     {
-        $Role = Role::all();
-        return response()->json($Role);
+        // Vérifier si l'utilisateur est authentifié
+        if (auth()->check()) {
+            $user = auth()->user();
+    
+            $roles = Role::where('id_user', $user->id)->get();
+                return response()->json($roles);
+        }
+    
+        return response()->json(['error' => 'Unauthorized'], 401);
     }
+    
 
     public function modifierRole(Request $request, $id)
    {

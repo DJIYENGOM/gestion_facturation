@@ -43,10 +43,28 @@ class CategorieClientController extends Controller
     
     
     public function listerCategorieClient()
-{
-    $CategorieClient = CategorieClient::all();
-    return response()->json(['CategorieClient' => $CategorieClient]);
-}
+    {
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+    
+            $categories = CategorieClient::where('sousUtilisateur_id', $sousUtilisateurId)
+                ->orWhere('user_id', $userId)
+                ->get();
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+    
+            $categories = CategorieClient::where('user_id', $userId)
+                ->orWhereHas('sousUtilisateurs', function($query) use ($userId) {
+                    $query->where('id_user', $userId);
+                })
+                ->get();
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    
+        return response()->json(['CategorieClient' => $categories]);
+    }    
 
     public function modifierCategorie(Request $request, $id)
 {

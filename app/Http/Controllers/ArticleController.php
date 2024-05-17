@@ -131,9 +131,28 @@ class ArticleController extends Controller
 
 public function listerArticles()
 {
-    $Article = Article::all();
-    return response()->json($Article);
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+        $articles = Article::where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId)
+            ->get();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $articles = Article::where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                $query->where('id_user', $userId);
+            })
+            ->get();
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    return response()->json(['articles' => $articles]);
 }
+
 
 public function affecterPromoArticle(Request $request, $id)
 {
