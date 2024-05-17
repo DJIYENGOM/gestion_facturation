@@ -6,6 +6,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CategorieClientController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\Info_SupplementaireController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SousUtilisateurController;
@@ -21,6 +22,13 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('listerUser', 'listerUser');
 });
 
+
+Route::controller(Info_SupplementaireController::class)->group(function () {
+    Route::post('completerInfoEntreprise', 'completerInfoEntreprise');
+    Route::get('afficherInfoEntreprise', 'afficherInfoEntreprise');
+    Route::post('modifierInfoEntreprise', 'completerEntreprise');
+    
+});
 
 Route::controller(RoleController::class)->group(function () {
     Route::post('ajouterRole', 'ajouterRole');
