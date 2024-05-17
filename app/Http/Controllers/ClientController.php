@@ -26,10 +26,10 @@ class ClientController extends Controller
         $validator=Validator::make($request->all(),[
             'nom_client' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
             'prenom_client' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
-            'nom_entreprise' => 'required|string|max:255',
+            'nom_entreprise' => 'required|string|max:50|min:2',
             'adress_client' => 'required|string|max:255',
             'email_client' => 'required|email|max:255',
-            'tel_client' => 'required|string|max:255',
+            'tel_client' => 'required|string|max:20|min:9',
             'categorie_id' => 'required|exists:categorie_clients,id',
         ]);
 

@@ -198,6 +198,30 @@ return [
         'id_user' => [
             'exists' => 'il ya un probleme avec cet utilisateur qui est connecté',
         ],
+
+        'description_entreprise' => [
+            'regex' => 'Le champ description est invalide maximum 255 caractères',
+        ],
+
+        'logo' => [
+            'regex' => 'Le champ logo est invalide, le type de fichier doit etre jpg, png ou jpeg et max:2048', 
+        ],
+
+        'nom_entreprise' => [
+            'regex' => 'Le champ nom de l\'entreprise est invalide, pas de caracteres speciaux et au moins 2 caractères',
+        ],
+
+        'adress_entreprise' => [
+            'regex' => 'Le champ adresse est invalide, au moins 2 caractères',
+        ],
+
+        'tel_entreprise' => [
+            'regex' => 'Le champ telephone est invalide, au moins 9 caractères',
+        ],
+
+        'tel_client' => [
+            'regex' => 'Le champ telephone est invalide, au moins 9 caractères',
+        ],
     ],
 
     /*

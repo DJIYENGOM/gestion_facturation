@@ -13,11 +13,11 @@ class Info_SupplementaireController extends Controller
     if (auth()->check()) {
         // Valider les données envoyées par l'utilisateur
         $validator = Validator::make($request->all(), [
-            'nom_entreprise' => 'required|string|unique:users,nom_entreprise,' . auth()->id(),
-            'description_entreprise' => 'nullable|string',
+            'nom_entreprise' => ['required', 'string', 'min:2', 'max:255','regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
+            'description_entreprise' => 'nullable|string|max:255',
             'logo' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'adress_entreprise' => 'nullable|string',
-            'tel_entreprise' => 'nullable|string',
+            'adress_entreprise' => 'nullable|string|max:255|min:2,',
+            'tel_entreprise' => 'nullable|string|max:20|min:9',
         ]);
 
         if ($validator->fails()) {
@@ -54,6 +54,7 @@ public function afficherInfoEntreprise()
 
         return response()->json([
             'user' => [
+                'id' => $user->id,
                 'nom_entreprise' => $user->nom_entreprise,
                 'description_entreprise' => $user->description_entreprise,
                 'logo' => $logoUrl, 
