@@ -88,6 +88,7 @@ class ArticleController extends Controller
         'prix_unitaire' => 'required|numeric|min:0',
         'type_article' => 'required|in:produit,service',
         'promo_id' => 'nullable|exists:promos,id',
+        'categorie_article_id' => 'nullable|exists:categorie_articles,id',
 
         'prix_achat' => 'nullable|numeric|min:0',
         'quantite' => 'nullable|numeric|min:0',
@@ -135,31 +136,21 @@ class ArticleController extends Controller
     return response()->json(['message' => 'Article supprimé avec succès']);
 }
 
-// public function listerArticles()
-// {
-//    // $articles = Article::all();
-
-//    $articles = DB::table('articles')
-//    ->select('articles.*', 'promos.pourcentage_promo as pourcentage_promo', 'promos.date_expiration as date_expiration', 'promos.nom_promo as nom_promo')
-//    ->join('promos', 'articles.promo_id', '=', 'promos.id')
-//    ->get();
-
-//     return response()->json(['articles' => $articles]);
-// }
-
 public function listerArticles()
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-        $articles = Article::where('sousUtilisateur_id', $sousUtilisateurId)
+        $articles = Article::with('categorieArticle')
+            ->where('sousUtilisateur_id', $sousUtilisateurId)
             ->orWhere('user_id', $userId)
             ->get();
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $articles = Article::where('user_id', $userId)
+        $articles = Article::with('categorieArticle')
+            ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);
             })
@@ -168,6 +159,28 @@ public function listerArticles()
         return response()->json(['error' => 'Unauthorized'], 401);
     }
 
+    $articles = $articles->map(function ($article) {
+        return [
+            'id' => $article->id,
+            'nom_article' => $article->nom_article,
+            'description' => $article->description,
+            'prix_unitaire' => $article->prix_unitaire,
+            'quantite' => $article->quantite,
+            'prix_achat' => $article->prix_achat,
+            'benefice' => $article->benefice,
+            'prix_promo' => $article->prix_promo,
+            'benefice_promo' => $article->benefice_promo,
+            'quantite_alert' => $article->quantite_alert,
+            'type_article' => $article->type_article,
+            'promo_id' => $article->promo_id,
+            'sousUtilisateur_id' => $article->sousUtilisateur_id,
+            'user_id' => $article->user_id,
+            'id_categorie_article' => $article->id_categorie_article,
+            'nom_categorie' => $article->categorieArticle->nom_categorie_article ?? null,
+            'created_at' => $article->created_at,
+            'updated_at' => $article->updated_at,
+        ];
+    });
     return response()->json(['articles' => $articles]);
 }
 

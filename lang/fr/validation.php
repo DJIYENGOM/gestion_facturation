@@ -110,7 +110,7 @@ return [
     'multiple_of' => 'Le champ :attribute doit être un multiple de :value.',
     'not_in' => 'Le champ :attribute sélectionné n\'est pas valide.',
     'not_regex' => 'Le champ :attribute a un format invalide.',
-    'numeric' => 'Le champ :attribute doit contenir un nombre.',
+    'numeric' => 'Le champ :attribute doit contenir un nombre sans virgule.',
     'password' => [
         'letters' => 'Le champ :attribute doit contenir au moins une lettre.',
         'mixed' => 'Le champ :attribute doit contenir au moins une majuscule et une minuscule.',

@@ -63,7 +63,7 @@ class CategorieArticleController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
     
-        return response()->json(['CategorieClient' => $categories]);
+        return response()->json(['CategorieArticle' => $categories]);
     }    
 
     public function modifierCategorie(Request $request, $id)
