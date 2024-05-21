@@ -29,11 +29,11 @@ class ArticleController extends Controller
             'description' => 'nullable|string',
             'prix_unitaire' => 'required|numeric|min:0',
             'type_article' => 'required|in:produit,service',
-            'categorie_article_id' => 'required|exists:categorie_articles,id',
+            'categorie_article_id' => 'nullable|exists:categorie_articles,id',
             'promo_id' => 'nullable|exists:promos,id', // Vérifie si l'ID du promo existe dans la table promos
             'prix_achat' => 'nullable|numeric|min:0',
             'quantite' => 'nullable|numeric|min:0',
-            'quantite_alerte' => 'nullable|numeric|min:0',
+            'quantite_alert' => 'nullable|numeric|min:0',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -70,7 +70,7 @@ class ArticleController extends Controller
 
         $article->prix_achat = $request->prix_achat;
         $article->quantite = $request->quantite;
-        $article->quantite_alerte = $request->quantite_alerte;
+        $article->quantite_alert = $request->quantite_alert;
         $article->benefice=$request->prix_unitaire - $request->prix_achat;
         $article->benefice_promo = $prixPromo - $request->prix_achat;
         $article->save();
@@ -91,7 +91,7 @@ class ArticleController extends Controller
 
         'prix_achat' => 'nullable|numeric|min:0',
         'quantite' => 'nullable|numeric|min:0',
-        'quantite_alerte' => 'nullable|numeric|min:0',
+        'quantite_alert' => 'nullable|numeric|min:0',
     ]);
     if ($validator->fails()) {
         return response()->json([
@@ -109,7 +109,7 @@ class ArticleController extends Controller
 
         'prix_achat' => $request->prix_achat,
         'quantite' => $request->quantite,
-        'quantite_alerte' => $request->quantite_alerte,
+        'quantite_alert' => $request->quantite_alert,
         'benefice'=>$request->prix_unitaire - $request->prix_achat,
     ]);
 
