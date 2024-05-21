@@ -92,6 +92,7 @@ public function listerClients()
             'sousUtilisateur_id' => $client->sousUtilisateur_id,
             'created_at' => $client->created_at,
             'updated_at' => $client->updated_at,
+            'categorie_id'=> $client->categorie_id,
             'nom_categorie' => $client->categorie->nom_categorie,
         ];
     });
