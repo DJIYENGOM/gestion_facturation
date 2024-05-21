@@ -17,9 +17,10 @@ return new class extends Migration
             $table->string('prenom');
             $table->string('email')->unique();
             $table->string('password');
-            $table->foreignId('id_role')->constrained('roles')->onDelete('cascade');
+           // $table->foreignId('id_role')->constrained('roles')->onDelete('cascade');
             $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->enum('archiver', ['oui', 'non'])->default('non');
+            $table->enum('role', ['administrateur', 'utilisateur_simple'])->default('utilisateur_simple');
             $table->timestamps();
         });
     }

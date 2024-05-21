@@ -15,12 +15,18 @@ return new class extends Migration
             $table->id();
             $table->string('nom_article');
             $table->text('description')->nullable();
-            $table->decimal('prix_unitaire'); 
-            $table->decimal('prix_promo')->nullable();
+            $table->integer('prix_unitaire'); 
+            $table->integer('quantite')->nullable();
+            $table->integer('prix_achat')->nullable();
+            $table->integer('benefice')->nullable();
+            $table->integer('prix_promo')->nullable();
+            $table->integer('benefice_promo')->nullable();
+            $table->integer('quantite_alert')->nullable();
             $table->enum('type_article', ['produit', 'service']);
             $table->foreignId('promo_id')->nullable()->constrained('promos')->onDelete('set null')->nullable();
-            $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');            
+            $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');        //de lui affecter la valeu NULL si l'utilisateur est supprimer  
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('id_categorie_article')->nullable()->constrained('categorie_articles')->onDelete('restrict');   //garder sa valeur meme si la categorie article est supprimer
             $table->timestamps();
         });
     }

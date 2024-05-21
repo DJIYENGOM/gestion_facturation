@@ -17,13 +17,13 @@ class Sous_Utilisateur extends Authenticatable implements JWTSubject
 
 
     protected $fillable = [
-        'nom', 'prenom', 'email', 'password', 'archiver','id_role', 'id_user',
+        'nom', 'prenom', 'email', 'password', 'archiver','role', 'id_user',
     ];
 
     // Définir la relation entre Sous_Utilisateur et son rôle
     public function role()
     {
-        return $this->belongsTo(Role::class, 'id_role');
+        return $this->belongsTo(Role::class);
     }
 
     // Définir la relation entre le Sous_Utilisateur et son propriétaire
@@ -57,6 +57,18 @@ class Sous_Utilisateur extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Payement::class, 'sousUtilisateur_id');
     }
+
+
+    public function categorie_article()
+    {
+        return $this->hasMany(CategorieArticle::class, 'sousUtilisateur_id');
+    }
+
+    public function notejustificatives()
+    {
+        return $this->hasMany(NoteJustificative::class, 'sousUtilisateur_id');
+    }
+    
 
     public function getJWTIdentifier()
     {

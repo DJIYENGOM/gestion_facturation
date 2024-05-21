@@ -9,7 +9,7 @@ class Article extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nom_article', 'description', 'prix_unitaire', 'type_article','prix_promo', 'promo_id', 'sousUtilisateur_id','user_id'];
+    protected $fillable = ['nom_article', 'description', 'prix_unitaire','quantite','prix_achat','benefice', 'type_article','prix_promo','benefice_promo', 'promo_id','quantite_alert', 'sousUtilisateur_id','user_id','id_categorie_article'];
 
     public function promotion()
     {
@@ -25,5 +25,16 @@ class Article extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+
+    public function categorieArticle()
+    {
+        return $this->belongsTo(CategorieArticle::class, 'id_categorie_article');
+    }
+
+    public function notejustificatives()
+    {
+        return $this->hasMany(NoteJustificative::class, 'article_id');
     }
 }

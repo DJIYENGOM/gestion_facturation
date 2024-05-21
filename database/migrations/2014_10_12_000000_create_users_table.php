@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('password');
             $table->string('email')->unique();
-            $table->string('role')->default('admin');
+            $table->string('role')->default('super_admin');
             $table->string('nom_entreprise')->nullable()->unique();
             $table->string('description_entreprise')->nullable();
             $table->string('logo')->nullable();

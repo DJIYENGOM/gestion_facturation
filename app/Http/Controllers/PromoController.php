@@ -106,15 +106,13 @@ public function modifierPromo(Request $request, $id)
         'date_expiration' => $request->date_expiration,
     ]);
 
-    // Retourner la réponse avec un message de succès et les données du promo mis à jour
     return response()->json(['message' => 'Promo modifiée avec succès', 'promo' => $promo]);
 }
 
 
     public function supprimerPromo($id)
     {    
-        $promo = Promo::findOrFail($id); // Rechercher la promo par son ID
-        // Supprimer la promo
+        $promo = Promo::findOrFail($id); 
         $promo->delete();
     
         return response()->json(['message' => 'Promo supprimée avec succès']);

@@ -29,7 +29,11 @@ class ArticleController extends Controller
             'description' => 'nullable|string',
             'prix_unitaire' => 'required|numeric|min:0',
             'type_article' => 'required|in:produit,service',
+            'categorie_article_id' => 'required|exists:categorie_articles,id',
             'promo_id' => 'nullable|exists:promos,id', // Vérifie si l'ID du promo existe dans la table promos
+            'prix_achat' => 'nullable|numeric|min:0',
+            'quantite' => 'nullable|numeric|min:0',
+            'quantite_alerte' => 'nullable|numeric|min:0',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -60,11 +64,15 @@ class ArticleController extends Controller
         $article->prix_promo = $prixPromo;
         $article->type_article = $request->type_article;
         $article->promo_id = $request->promo_id;
-        // Le sous_utilisateur_id peut être récupéré à partir de l'utilisateur authentifié
         $article->sousUtilisateur_id = $sousUtilisateur_id;
         $article->user_id = $user_id;
-        
-        // Enregistrer l'article dans la base de données
+        $article->id_categorie_article = $request->id_categorie_article;
+
+        $article->prix_achat = $request->prix_achat;
+        $article->quantite = $request->quantite;
+        $article->quantite_alerte = $request->quantite_alerte;
+        $article->benefice=$request->prix_unitaire - $request->prix_achat;
+        $article->benefice_promo = $prixPromo - $request->prix_achat;
         $article->save();
 
         return response()->json(['message' => 'Article ajouté avec succès', 'article' => $article]);
@@ -80,6 +88,10 @@ class ArticleController extends Controller
         'prix_unitaire' => 'required|numeric|min:0',
         'type_article' => 'required|in:produit,service',
         'promo_id' => 'nullable|exists:promos,id',
+
+        'prix_achat' => 'nullable|numeric|min:0',
+        'quantite' => 'nullable|numeric|min:0',
+        'quantite_alerte' => 'nullable|numeric|min:0',
     ]);
     if ($validator->fails()) {
         return response()->json([
@@ -87,13 +99,18 @@ class ArticleController extends Controller
         ],422);
     }
 
-    // Mise à jour des champs de l'article
     $article->update([
         'nom_article' => $request->nom_article,
         'description' => $request->description,
         'prix_unitaire' => $request->prix_unitaire,
         'type_article' => $request->type_article,
         'promo_id' => $request->promo_id,
+        'id_categorie_article' => $request->id_categorie_article,
+
+        'prix_achat' => $request->prix_achat,
+        'quantite' => $request->quantite,
+        'quantite_alerte' => $request->quantite_alerte,
+        'benefice'=>$request->prix_unitaire - $request->prix_achat,
     ]);
 
     // Recalcul du prix promo si un promo est associé
@@ -101,6 +118,7 @@ class ArticleController extends Controller
         $promo = Promo::find($article->promo_id);
         if ($promo) {
             $article->prix_promo = $article->prix_unitaire * $promo->pourcentage_promo;
+            $article->benefice_promo = $article->prix_promo - $article->prix_achat;
             $article->save();
         }
     }
@@ -171,6 +189,7 @@ public function affecterPromoArticle(Request $request, $id)
         $promo = Promo::find($article->promo_id);
         if ($promo) {
             $article->prix_promo = $article->prix_unitaire * $promo->pourcentage_promo;
+            $article->benefice_promo = $article->prix_promo - $article->prix_achat;
             $article->save();
         }
     } else {
@@ -180,6 +199,22 @@ public function affecterPromoArticle(Request $request, $id)
     }
 
     return response()->json(['message' => 'Promo affectée à l\'article avec succès', 'article' => $article]);
+}
+
+
+public function affecterCategorieArticle(Request $request, $id)
+{
+    $article = Article::findOrFail($id);
+
+    $request->validate([
+        'id_categorie_article' => 'required|exists:categorie_articles,id',
+    ]);
+
+    // Mettre à jour le champ id_categorie_article de l'article
+    $article->id_categorie_article = $request->id_categorie_article;
+    $article->save();
+
+    return response()->json(['message' => 'categorie affectée à l\'article avec succès', 'article' => $article]);
 }
 
 }

@@ -25,7 +25,8 @@ class SousUtilisateurController extends Controller
             'prenom' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
             'email' => 'required|string|email|unique:sous__utilisateurs|max:255',
             'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/'],
-            'id_role' => 'required|exists:roles,id', 
+            'role'=> 'required|in:administrateur,utilisateur_simple',
+           // 'id_role' => 'required|exists:roles,id', 
         ]);
 
         if ($validator->fails()) {
@@ -42,13 +43,14 @@ class SousUtilisateurController extends Controller
             'id_role' => $request->input('id_role'), 
             'id_user' => $user->id, 
             'archiver' => 'non', 
+            'role' => $request->input('role')
         ]);
 
         //dd($utilisateur);
 
         $utilisateur->save();
     
-        return response()->json(['message' => 'Utilisateur ajouté avec succès']);
+        return response()->json(['message' => 'Utilisateur ajouté avec succès' , 'utilisateur' => $utilisateur]);
     }
 
     /**
@@ -60,10 +62,9 @@ class SousUtilisateurController extends Controller
             $user = auth()->user();
 
         $utilisateurs = DB::table('sous__utilisateurs')
-        ->select('sous__utilisateurs.id', 'sous__utilisateurs.nom', 'sous__utilisateurs.prenom', 'sous__utilisateurs.email', 'sous__utilisateurs.password', 'sous__utilisateurs.id_role', 'sous__utilisateurs.id_user', 'sous__utilisateurs.archiver', 'sous__utilisateurs.created_at', 'sous__utilisateurs.updated_at', 'roles.role as nom_role')
+        ->select('sous__utilisateurs.id', 'sous__utilisateurs.nom', 'sous__utilisateurs.prenom', 'sous__utilisateurs.email', 'sous__utilisateurs.password', 'sous__utilisateurs.role', 'sous__utilisateurs.id_user', 'sous__utilisateurs.archiver', 'sous__utilisateurs.created_at', 'sous__utilisateurs.updated_at')
         ->where('sous__utilisateurs.archiver', 'non' )
         ->where('sous__utilisateurs.id_user', $user->id)
-        ->join('roles', 'sous__utilisateurs.id_role', '=', 'roles.id')
         ->get();
 
          return response()->json($utilisateurs);
@@ -79,10 +80,9 @@ class SousUtilisateurController extends Controller
             $user = auth()->user();
 
         $utilisateurs = DB::table('sous__utilisateurs')
-        ->select('sous__utilisateurs.id', 'sous__utilisateurs.nom', 'sous__utilisateurs.prenom', 'sous__utilisateurs.email', 'sous__utilisateurs.password', 'sous__utilisateurs.id_role', 'sous__utilisateurs.id_user', 'sous__utilisateurs.archiver', 'sous__utilisateurs.created_at', 'sous__utilisateurs.updated_at', 'roles.role as nom_role')
+        ->select('sous__utilisateurs.id', 'sous__utilisateurs.nom', 'sous__utilisateurs.prenom', 'sous__utilisateurs.email', 'sous__utilisateurs.password', 'sous__utilisateurs.role', 'sous__utilisateurs.id_user', 'sous__utilisateurs.archiver', 'sous__utilisateurs.created_at', 'sous__utilisateurs.updated_at',)
         ->where('sous__utilisateurs.archiver', 'oui')
         ->where('sous__utilisateurs.id_user', $user->id)
-        ->join('roles', 'sous__utilisateurs.id_role', '=', 'roles.id')
         ->get();  
 
           return response()->json($utilisateurs);
@@ -101,7 +101,7 @@ class SousUtilisateurController extends Controller
             'prenom' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
             'email' => 'required|string|email|max:255|unique:sous__utilisateurs,email,'.$id,
             'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/'],
-            'id_role' => 'required|exists:roles,id', 
+            'role'=> 'required|in:administrateur,utilisateur_simple',
             'archiver' => 'required|in:oui,non' 
         ]);
         if ($validator->fails()) {
@@ -115,12 +115,12 @@ class SousUtilisateurController extends Controller
         $utilisateur->prenom = $request->input('prenom');
         $utilisateur->email = $request->input('email');
         $utilisateur->password = Hash::make($request->password);
-        $utilisateur->id_role = $request->input('id_role'); 
+        $utilisateur->role = $request->input('role'); 
         $utilisateur->archiver = $request->input('archiver'); 
         $utilisateur->id_user = $user->id; 
         $utilisateur->save();
     
-        return response()->json(['message' => 'Utilisateur modifié avec succès']);
+        return response()->json(['message' => 'Utilisateur modifié avec succès', 'utilisateur' => $utilisateur]);
     }
     
     public function ArchiverSousUtilisateur(Request $request, $id)
