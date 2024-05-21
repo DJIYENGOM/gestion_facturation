@@ -31,7 +31,7 @@ class CategorieArticleController extends Controller
         }
     
         $categorie = new CategorieArticle([
-            'nom_categorie_article' => $request->categorie_articles,
+            'nom_categorie_article' => $request->nom_categorie_article,
             'sousUtilisateur_id' => $sousUtilisateur_id,
             'user_id' => $user_id,
         ]);
