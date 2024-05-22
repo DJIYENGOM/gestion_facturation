@@ -103,7 +103,7 @@ class AuthController extends Controller
 
         $sousUtilisateur = Auth::guard('apisousUtilisateur')->user();
         return response()->json([
-            'sousUtilisateur' => $sousUtilisateur,
+            'user' => $sousUtilisateur,
             'authorization' => [
                 'token' => $token,
                 'type' => 'bearer',
