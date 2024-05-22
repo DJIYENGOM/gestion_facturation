@@ -10,7 +10,7 @@ use App\Http\Controllers\Info_SupplementaireController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SousUtilisateurController;
-use App\Models\CategorieArticle;
+use App\Http\Controllers\NoteJustificativeController;
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -62,6 +62,12 @@ Route::post('modifierArticle/{id}', [ArticleController::class, 'modifierArticle'
 Route::delete('supprimerArticle/{id}', [ArticleController::class, 'supprimerArticle']);
 Route::post('affecterPromoArticle/{id}', [ArticleController::class, 'affecterPromoArticle']);
 Route::post('affecterCategorieArticle/{id}', [ArticleController::class, 'affecterCategorieArticle']);
+Route::post('articles_modifier_quantite/{id}', [ArticleController::class, 'modifierQuantite']);
+
+
+Route::get('listerNotes', [NoteJustificativeController::class, 'listerNotes']);
+Route::post('modifierNote/{id}', [NoteJustificativeController::class, 'modifierNote']);
+Route::delete('supprimerNote/{id}', [NoteJustificativeController::class, 'supprimerNote']);
 
 
 Route::controller(CategorieClientController::class)->group(function () {

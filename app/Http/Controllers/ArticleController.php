@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\Promo;
 use Illuminate\Http\Request;
+use App\Models\NoteJustificative;
 
 class ArticleController extends Controller
 {
@@ -241,6 +242,42 @@ public function affecterCategorieArticle(Request $request, $id)
     $article->save();
 
     return response()->json(['message' => 'categorie affectée à l\'article avec succès', 'article' => $article]);
+}
+
+
+public function modifierQuantite(Request $request, $id)
+{
+    $request->validate([
+        'quantite' => 'required|integer',
+        'note' => 'required|string|max:255',
+    ]);
+
+    $article = Article::findOrFail($id);
+
+    // Authentification du sous-utilisateur ou de l'utilisateur
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+        $sousUtilisateurId = null;
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    // Modifier la quantité de l'article
+    $article->quantite = $request->input('quantite');
+    $article->save();
+
+    // Ajouter la note justificative
+    NoteJustificative::create([
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+        'article_id' => $article->id,
+        'note' => $request->input('note'),
+    ]);
+
+    return response()->json(['message' => 'Quantité modifiée avec succès', 'article' => $article]);
 }
 
 }
