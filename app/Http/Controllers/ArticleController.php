@@ -80,6 +80,17 @@ class ArticleController extends Controller
 
     public function modifierArticle(Request $request, $id)
     {
+        
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = null;
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
     $article = Article::findOrFail($id);
 
     $validator=Validator::make($request->all(),[
@@ -112,6 +123,8 @@ class ArticleController extends Controller
         'quantite' => $request->quantite,
         'quantite_alert' => $request->quantite_alert,
         'benefice'=>$request->prix_unitaire - $request->prix_achat,
+        'sousUtilisateur_id' => $sousUtilisateur_id,
+        'user_id' => $user_id,
     ]);
 
     // Recalcul du prix promo si un promo est associé

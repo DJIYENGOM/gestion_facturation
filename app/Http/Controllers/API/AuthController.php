@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Sous_Utilisateur;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -84,24 +85,36 @@ class AuthController extends Controller
             ]
         ]);
     }
-
-
     public function login_sousUtilisateur(Request $request)
     {
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
-        $credentials = $request->only('email', 'password');
-        $token = Auth::guard('apisousUtilisateur')->attempt($credentials);
-        
-        if (!$token) {
+    
+        $sousUtilisateur = Sous_Utilisateur::where('email', $request->email)->first();
+    
+        if (!$sousUtilisateur) {
             return response()->json([
-                'message' => 'Unauthorized',
+                'message' => 'Unauthorized - User not found',
             ], 401);
         }
-
-        $sousUtilisateur = Auth::guard('apisousUtilisateur')->user();
+    
+        if ($sousUtilisateur->archiver == 'oui') {
+            return response()->json([
+                'message' => 'Unauthorized - This account is archived',
+            ], 401);
+        }
+    
+        $credentials = $request->only('email', 'password');
+        $token = Auth::guard('apisousUtilisateur')->attempt($credentials);
+    
+        if (!$token) {
+            return response()->json([
+                'message' => 'Unauthorized - Invalid credentials',
+            ], 401);
+        }
+    
         return response()->json([
             'user' => $sousUtilisateur,
             'authorization' => [
@@ -110,6 +123,8 @@ class AuthController extends Controller
             ]
         ]);
     }
+    
+
 
     public function logout_sousUtilisateur()
 {
