@@ -63,7 +63,7 @@ public function afficherInfoEntreprise()
         ->first();
 
     if (!$user) {
-        return response()->json(['error' => 'User not found'], 404);
+        return response()->json(['error' => 'utilisateur non trouve'], 404);
     }
 
     $logoUrl = $user->logo ? asset('storage/' . $user->logo) : null;
@@ -79,7 +79,5 @@ public function afficherInfoEntreprise()
         ]
     ]);
 }
-
-
 
 }

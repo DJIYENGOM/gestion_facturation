@@ -119,6 +119,19 @@ public function modifierClient(Request $request, $id)
         return response()->json(['errors' => $validator->errors()], 422);
     }
 
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        if ($client->sousUtilisateur_id !== $sousUtilisateurId) {
+            return response()->json(['error' => 'cette sous utilisateur ne peut pas modifier ce client car il ne l\'a pas creer'], 401);
+        }
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+        if ($client->user_id !== $userId) {
+            return response()->json(['error' => 'cet utilisateur ne peut pas modifier ce client, car il ne l\'a pas creer'], 401);
+        }
+    } else {
+        return response()->json(['error' => 'non autorisé'], 401);
+    }
     $client->update($request->all());
 
     return response()->json(['message' => 'Client modifié avec succès', 'client' => $client]);
@@ -126,9 +139,38 @@ public function modifierClient(Request $request, $id)
 
 public function supprimerClient($id)
 {
-    $client = Client::findOrFail($id);
-    $client->delete();
 
-    return response()->json(['message' => 'Client supprimé avec succès']);
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+       if( $client = Client::findOrFail($id)
+            ->where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId)
+            ->delete()){
+
+            return response()->json(['message' => 'client supprimé avec succès']);
+            }else {
+                return response()->json(['error' => 'ce sous utilisateur ne peut pas modifier ce client'], 401);
+            }
+
+    }elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        if($client = Client::findOrFail($id)
+            ->where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                $query->where('id_user', $userId);
+            })
+            ->delete()){
+                return response()->json(['message' => 'client supprimé avec succès']);
+            }else {
+                return response()->json(['error' => 'cet utilisateur ne peut pas modifier ce client'], 401);
+            }
+
+    }else {
+        return response()->json(['error' => 'Unauthorizedd'], 401);
+    }
+
 }
 }

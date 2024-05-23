@@ -81,18 +81,24 @@ class ArticleController extends Controller
 
     public function modifierArticle(Request $request, $id)
     {
+        $article = Article::findOrFail($id);
         
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        if ($article->sousUtilisateur_id !== $sousUtilisateur_id) {
+            return response()->json(['error' => 'cette sous utilisateur ne peut pas modifier ce article car il ne l\'a pas creer'], 401);
+        }
         $user_id = null;
     } elseif (auth()->check()) {
         $user_id = auth()->id();
+        if ($article->user_id !== $user_id) {
+            return response()->json(['error' => 'cet utilisateur ne peut pas modifier ce article, car il ne l\'a pas creer'], 401);
+        }
         $sousUtilisateur_id = null;
     } else {
         return response()->json(['error' => 'Unauthorized'], 401);
     }
 
-    $article = Article::findOrFail($id);
 
     $validator=Validator::make($request->all(),[
         'nom_article' => 'required|string|max:255',
@@ -142,13 +148,43 @@ class ArticleController extends Controller
     }
 
 
-    public function supprimerArticle($id)
+public function supprimerArticle($id)
 {
-    $article = Article::findOrFail($id);
-    $article->delete();
 
-    return response()->json(['message' => 'Article supprimé avec succès']);
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+       if( $Article = Article::findOrFail($id)
+            ->where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId)
+            ->delete()){
+
+            return response()->json(['message' => 'Article supprimé avec succès']);
+            }else {
+                return response()->json(['error' => 'ce sous utilisateur ne peut pas supprimé cet Article'], 401);
+            }
+
+    }elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        if($Article = Article::findOrFail($id)
+            ->where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                $query->where('id_user', $userId);
+            })
+            ->delete()){
+                return response()->json(['message' => 'Article supprimé avec succès']);
+            }else {
+                return response()->json(['error' => 'cet utilisateur ne peut pas supprimé cet Article'], 401);
+            }
+
+    }else {
+        return response()->json(['error' => 'Unauthorizedd'], 401);
+    }
+
 }
+
 
 public function listerArticles()
 {

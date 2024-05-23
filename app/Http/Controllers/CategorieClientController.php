@@ -68,17 +68,24 @@ class CategorieClientController extends Controller
 
     public function modifierCategorie(Request $request, $id)
 {
+    $categorie = CategorieClient::findOrFail($id);
+
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        if ($categorie->sousUtilisateur_id !== $sousUtilisateur_id) {
+            return response()->json(['error' => 'cette sous utilisateur ne peut pas modifier ce categorie car il ne l\'a pas creer'], 401);
+        }
         $user_id = null;
     } elseif (auth()->check()) {
         $user_id = auth()->id();
+        if ($categorie->user_id !== $user_id) {
+            return response()->json(['error' => 'cet utilisateur ne peut pas modifier ce categorie, car il ne l\'a pas creer'], 401);
+        }
         $sousUtilisateur_id = null;
     } else {
         return response()->json(['error' => 'Unauthorized'], 401);
     }
 
-    $categorie = CategorieClient::findOrFail($id);
 
     $request->validate([
         'nom_categorie' => 'required|string|max:255',
@@ -93,12 +100,41 @@ class CategorieClientController extends Controller
     return response()->json(['message' => 'Catégorie modifiée avec succès', 'categorie' => $categorie]);
 }
 
-   
+
 public function supprimerCategorie($id)
 {
-    $categorie = CategorieClient::findOrFail($id);
-    $categorie->delete();
 
-    return response()->json(['message' => 'Catégorie supprimée avec succès']);
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+       if( $CategorieClient = CategorieClient::findOrFail($id)
+            ->where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId)
+            ->delete()){
+
+            return response()->json(['message' => 'CategorieClient supprimé avec succès']);
+            }else {
+                return response()->json(['error' => 'ce sous utilisateur ne peut pas modifier ce CategorieClient'], 401);
+            }
+
+    }elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        if($CategorieClient = CategorieClient::findOrFail($id)
+            ->where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                $query->where('id_user', $userId);
+            })
+            ->delete()){
+                return response()->json(['message' => 'CategorieClient supprimé avec succès']);
+            }else {
+                return response()->json(['error' => 'cet utilisateur ne peut pas modifier ce CategorieClient'], 401);
+            }
+
+    }else {
+        return response()->json(['error' => 'Unauthorizedd'], 401);
+    }
+
 }
 }
