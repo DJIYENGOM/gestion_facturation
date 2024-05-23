@@ -11,6 +11,7 @@ use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SousUtilisateurController;
 use App\Http\Controllers\NoteJustificativeController;
+use App\Http\Controllers\PayementController;
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -91,4 +92,12 @@ Route::controller(CategorieArticleController::class)->group(function () {
     Route::get('listerCategorieArticle', 'listerCategorie');
     Route::post('modifierCategorieArticle/{id}', 'modifierCategorie');
     Route::delete('supprimerCategorieArticle/{id}', 'supprimerCategorie');
+});
+
+Route::controller(PayementController::class)->group(function () {
+    Route::post('ajouterPayement', 'ajouterPayement');
+    Route::get('listerPayements', 'listerPayements');
+    Route::post('modifierPayement/{id}', 'modifierPayement');
+    Route::delete('supprimerPayement/{id}', 'supprimerPayement');
+
 });

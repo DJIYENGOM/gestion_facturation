@@ -96,13 +96,13 @@ class AuthController extends Controller
     
         if (!$sousUtilisateur) {
             return response()->json([
-                'message' => 'Unauthorized - User not found',
+                'message' => 'non autorisé - utilisateur non trouver',
             ], 401);
         }
     
         if ($sousUtilisateur->archiver == 'oui') {
             return response()->json([
-                'message' => 'Unauthorized - This account is archived',
+                'message' => 'non autorisé - Ce compte a été archivé',
             ], 401);
         }
     
@@ -111,7 +111,7 @@ class AuthController extends Controller
     
         if (!$token) {
             return response()->json([
-                'message' => 'Unauthorized - Invalid credentials',
+                'message' => 'Non autorisé - Identifiants invalides ',               
             ], 401);
         }
     

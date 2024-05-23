@@ -13,11 +13,11 @@ class Payement extends Model
 
     public function sousUtilisateur()
     {
-        return $this->belongsTo(Sous_Utilisateur::class);
+        return $this->belongsTo(Sous_Utilisateur::class, 'sousUtilisateur_id');
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

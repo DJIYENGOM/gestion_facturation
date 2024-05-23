@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -45,24 +46,40 @@ class Info_SupplementaireController extends Controller
 
 public function afficherInfoEntreprise()
 {
-    if (auth()->check()) {
-        $user = auth()->user();
-
-        // Récupérer l'URL du logo si disponible
-        $logoUrl = $user->logo ? asset('storage/' . $user->logo) : null;
-
-        return response()->json([
-            'user' => [
-                'id' => $user->id,
-                'nom_entreprise' => $user->nom_entreprise,
-                'description_entreprise' => $user->description_entreprise,
-                'logo' => $logoUrl, 
-                'adress_entreprise' => $user->adress_entreprise,
-                'tel_entreprise' => $user->tel_entreprise,
-            ]
-        ]);
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
     }
-    return response()->json(['error' => 'Unauthorized'], 401);
+
+    // Récupérer l'utilisateur principal ou le sous-utilisateur lié
+    $user = User::where('id', $userId)
+        ->orWhereHas('Sous_utilisateur', function ($query) use ($userId) {
+            $query->where('id_user', $userId);
+        })
+        ->first();
+
+    if (!$user) {
+        return response()->json(['error' => 'User not found'], 404);
+    }
+
+    $logoUrl = $user->logo ? asset('storage/' . $user->logo) : null;
+
+    return response()->json([
+        'user' => [
+            'id' => $user->id,
+            'nom_entreprise' => $user->nom_entreprise,
+            'description_entreprise' => $user->description_entreprise,
+            'logo' => $logoUrl,
+            'adresse_entreprise' => $user->adresse_entreprise,
+            'tel_entreprise' => $user->tel_entreprise,
+        ]
+    ]);
 }
+
+
 
 }
