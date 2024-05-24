@@ -144,11 +144,13 @@ public function supprimerClient($id)
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-       if( $client = Client::findOrFail($id)
+       $client = Client::findOrFail($id)
             ->where('sousUtilisateur_id', $sousUtilisateurId)
             ->orWhere('user_id', $userId)
-            ->delete()){
-
+            ->first();
+            
+            if($client){
+                $client->delete();
             return response()->json(['message' => 'client supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'ce sous utilisateur ne peut pas modifier ce client'], 401);
@@ -157,12 +159,14 @@ public function supprimerClient($id)
     }elseif (auth()->check()) {
         $userId = auth()->id();
 
-        if($client = Client::findOrFail($id)
+        $client = Client::findOrFail($id)
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);
             })
-            ->delete()){
+            ->first();
+            if($client){
+                $client->delete();
                 return response()->json(['message' => 'client supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'cet utilisateur ne peut pas modifier ce client'], 401);

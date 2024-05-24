@@ -119,11 +119,13 @@ public function supprimerPayement($id)
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-       if( $payement = Payement::findOrFail($id)
+       $payement = Payement::findOrFail($id)
             ->where('sousUtilisateur_id', $sousUtilisateurId)
             ->orWhere('user_id', $userId)
-            ->delete()){
-
+            ->first();
+            
+            if($payement){
+                $payement->delete();
             return response()->json(['message' => 'Payement supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'Unauthorized'], 401);
@@ -132,12 +134,15 @@ public function supprimerPayement($id)
     }elseif (auth()->check()) {
         $userId = auth()->id();
 
-        if($payement = Payement::findOrFail($id)
+        $payement = Payement::findOrFail($id)
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);
             })
-            ->delete()){
+            ->first();
+            
+            if ($payement) {
+                $payement->delete();
                 return response()->json(['message' => 'Payement supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'Unauthorized'], 401);

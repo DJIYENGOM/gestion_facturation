@@ -108,11 +108,13 @@ public function supprimerCategorie($id)
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-       if( $CategorieClient = CategorieClient::findOrFail($id)
+       $CategorieClient = CategorieClient::findOrFail($id)
             ->where('sousUtilisateur_id', $sousUtilisateurId)
             ->orWhere('user_id', $userId)
-            ->delete()){
-
+            ->first();
+            
+            if($CategorieClient){
+                $CategorieClient->delete();
             return response()->json(['message' => 'CategorieClient supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'ce sous utilisateur ne peut pas modifier ce CategorieClient'], 401);
@@ -121,12 +123,15 @@ public function supprimerCategorie($id)
     }elseif (auth()->check()) {
         $userId = auth()->id();
 
-        if($CategorieClient = CategorieClient::findOrFail($id)
+        $CategorieClient = CategorieClient::findOrFail($id)
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);
             })
-            ->delete()){
+            ->first();
+            
+            if($CategorieClient){
+                $CategorieClient->delete();
                 return response()->json(['message' => 'CategorieClient supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'cet utilisateur ne peut pas modifier ce CategorieClient'], 401);

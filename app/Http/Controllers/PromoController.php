@@ -131,11 +131,12 @@ public function modifierPromo(Request $request, $id)
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
-           if( $Promo = Promo::findOrFail($id)
+           $Promo = Promo::findOrFail($id)
                 ->where('sousUtilisateur_id', $sousUtilisateurId)
                 ->orWhere('user_id', $userId)
-                ->delete()){
-    
+                ->first();
+                if($Promo){
+                    $Promo->delete();
                 return response()->json(['message' => 'Promo supprimé avec succès']);
                 }else {
                     return response()->json(['error' => 'ce sous utilisateur ne peut pas supprimé cet Promo'], 401);
@@ -144,12 +145,16 @@ public function modifierPromo(Request $request, $id)
         }elseif (auth()->check()) {
             $userId = auth()->id();
     
-            if($Promo = Promo::findOrFail($id)
+            $Promo = Promo::findOrFail($id)
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                     $query->where('id_user', $userId);
                 })
-                ->delete()){
+                ->first();
+                
+                    if($Promo){
+                        $Promo->delete();
+                    
                     return response()->json(['message' => 'Promo supprimé avec succès']);
                 }else {
                     return response()->json(['error' => 'cet utilisateur ne peut pas supprimé cet Promo'], 401);

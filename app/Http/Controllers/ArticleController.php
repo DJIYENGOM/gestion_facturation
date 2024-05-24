@@ -155,11 +155,13 @@ public function supprimerArticle($id)
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-       if( $Article = Article::findOrFail($id)
+       $Article = Article::findOrFail($id)
             ->where('sousUtilisateur_id', $sousUtilisateurId)
             ->orWhere('user_id', $userId)
-            ->delete()){
-
+            ->first();
+        if ($Article)
+            {
+                $Article->delete();
             return response()->json(['message' => 'Article supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'ce sous utilisateur ne peut pas supprimé cet Article'], 401);
@@ -168,12 +170,16 @@ public function supprimerArticle($id)
     }elseif (auth()->check()) {
         $userId = auth()->id();
 
-        if($Article = Article::findOrFail($id)
+        $Article = Article::findOrFail($id)
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);
             })
-            ->delete()){
+            ->first();
+
+            if ($Article)
+            {
+                $Article->delete();
                 return response()->json(['message' => 'Article supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'cet utilisateur ne peut pas supprimé cet Article'], 401);
