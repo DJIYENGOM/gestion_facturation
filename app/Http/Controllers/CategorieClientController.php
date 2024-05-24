@@ -125,7 +125,7 @@ public function supprimerCategorie($id)
 
         $CategorieClient = CategorieClient::findOrFail($id)
             ->where('user_id', $userId)
-            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+            ->orWhereHas('sousUtilisateurs', function($query) use ($userId) {
                 $query->where('id_user', $userId);
             })
             ->first();
