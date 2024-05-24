@@ -109,10 +109,9 @@ public function supprimerCategorie($id)
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-       $CategorieArticle = CategorieArticle::findOrFail($id)
+       $CategorieArticle = CategorieArticle::where('id', $id)
             ->where('sousUtilisateur_id', $sousUtilisateurId)
-            ->orWhere('user_id', $userId)
-            ->first();
+            ->orWhere('user_id', $userId);
 
             if($CategorieArticle)
             {
@@ -125,12 +124,11 @@ public function supprimerCategorie($id)
     }elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $CategorieArticle = CategorieArticle::findOrFail($id)
+        $CategorieArticle = CategorieArticle::where('id', $id)
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateurs', function($query) use ($userId) {
                 $query->where('id_user', $userId);
-            })
-            ->first();
+            });
 
             if($CategorieArticle)
             {

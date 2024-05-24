@@ -108,7 +108,7 @@ public function supprimerCategorie($id)
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-       $CategorieClient = CategorieClient::findOrFail($id)
+       $CategorieClient = CategorieClient::where('id',$id)
             ->where('sousUtilisateur_id', $sousUtilisateurId)
             ->orWhere('user_id', $userId)
             ->first();
@@ -123,7 +123,7 @@ public function supprimerCategorie($id)
     }elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $CategorieClient = CategorieClient::findOrFail($id)
+        $CategorieClient = CategorieClient::where('id',$id)
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateurs', function($query) use ($userId) {
                 $query->where('id_user', $userId);

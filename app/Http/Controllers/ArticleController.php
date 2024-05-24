@@ -155,7 +155,7 @@ public function supprimerArticle($id)
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-       $Article = Article::findOrFail($id)
+       $Article = Article::where('id',$id)
             ->where('sousUtilisateur_id', $sousUtilisateurId)
             ->orWhere('user_id', $userId)
             ->first();
@@ -170,7 +170,7 @@ public function supprimerArticle($id)
     }elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $Article = Article::findOrFail($id)
+        $Article = Article::where('id',$id)
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);

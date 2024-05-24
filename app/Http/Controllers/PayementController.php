@@ -119,7 +119,7 @@ public function supprimerPayement($id)
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-       $payement = Payement::findOrFail($id)
+       $payement = Payement::where('id',$id)
             ->where('sousUtilisateur_id', $sousUtilisateurId)
             ->orWhere('user_id', $userId)
             ->first();
@@ -134,7 +134,7 @@ public function supprimerPayement($id)
     }elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $payement = Payement::findOrFail($id)
+        $payement = Payement::where('id',$id)
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);
