@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('artcle_factures', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('facture_id')->constrained()->onDelete('cascade');
-            $table->foreignId('article_id')->constrained()->onDelete('cascade');
+            $table->foreignId('id_facture')->constrained('factures')->onDelete('cascade');
+            $table->foreignId('id_article')->constrained('articles')->onDelete('cascade');
             $table->decimal('reduction_article')->nullable();
             $table->decimal('TVA_article')->nullable();
             $table->decimal('prix_unitaire_article')->nullable();
             $table->integer('quantite_article')->nullable();
             $table->decimal('prix_total_article')->nullable();
+            $table->decimal('prix_total_tva_article')->nullable();
             $table->timestamps();
         });
     }

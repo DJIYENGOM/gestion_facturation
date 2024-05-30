@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 class Article extends Model
 {
     use HasFactory;
@@ -36,5 +37,10 @@ class Article extends Model
     public function notejustificatives()
     {
         return $this->hasMany(NoteJustificative::class, 'article_id');
+    }
+
+    public function articlesFacture()
+    {
+        return $this->hasMany(ArtcleFacture::class);
     }
 }
