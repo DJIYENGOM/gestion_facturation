@@ -23,6 +23,846 @@
         "multipart/form-data"
     ],
     "paths": {
+        "/api/listerFactures": {
+            "get": {
+                "summary": "lister les Factures",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listeArticlesFacture/2": {
+            "post": {
+                "summary": "liste des Articles d'une Facture",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/creerFacture": {
+            "post": {
+                "summary": "creer facture",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "client_id": {
+                                        "type": "integer"
+                                    },
+                                    "note_fact": {
+                                        "type": "string"
+                                    },
+                                    "reduction_facture": {
+                                        "type": "integer"
+                                    },
+                                    "articles": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "client_id": 1,
+                                "note_fact": "Some notes about the facture",
+                                "reduction_facture": 1000,
+                                "articles": [
+                                    {
+                                        "id_article": 1,
+                                        "quantite_article": 2,
+                                        "prix_unitaire_article": 5000,
+                                        "TVA_article": 0,
+                                        "reduction_article": 500
+                                    },
+                                    {
+                                        "id_article": 2,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 1000,
+                                        "TVA_article": 0,
+                                        "reduction_article": 500
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/supprimerPayement/7": {
+            "delete": {
+                "summary": "supprimer service",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des services de payement"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/modifierPayement/8": {
+            "post": {
+                "summary": "modifier service de payement",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des services de payement"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nom_payement": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nom_payement": "ka pay"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/listerPayements": {
+            "get": {
+                "summary": "liste payement",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des services de payement"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/ajouterPayement": {
+            "post": {
+                "summary": "ajouter un service de payement",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des services de payement"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nom_payement": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nom_payement": "wave"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/supprimerNote/1": {
+            "delete": {
+                "summary": "supprimer Note",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Notes des quantités modifiees"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/modifierNote/1": {
+            "post": {
+                "summary": "modifier Note",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Notes des quantités modifiees"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "note": {
+                                        "type": "string"
+                                    },
+                                    "quantite": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "note": "100 ajouter",
+                                "quantite": "100"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/listerNotes": {
+            "get": {
+                "summary": "lister Notes",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Notes des quantités modifiees"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/modifierInfoEntreprise": {
+            "post": {
+                "summary": "Modifier  les infos de l'entreprise ",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Infos Supplémentaire  "
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nom_entreprise": {
+                                        "type": "string"
+                                    },
+                                    "description_entreprise": {
+                                        "type": "string"
+                                    },
+                                    "adress_entreprise": {
+                                        "type": "string"
+                                    },
+                                    "tel_entreprise": {
+                                        "type": "string"
+                                    },
+                                    "logo": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nom_entreprise": "Ngom buness",
+                                "description_entreprise": "jhgfvbdfvdgvfbd",
+                                "adress_entreprise": "pikine",
+                                "tel_entreprise": "771316743",
+                                "logo": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/afficherInfoEntreprise": {
+            "get": {
+                "summary": "Afficher tes Info supplementaire",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Infos Supplémentaire  "
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/completerInfoEntreprise": {
+            "post": {
+                "summary": "completer son Profil",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Infos Supplémentaire  "
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nom_entreprise": {
+                                        "type": "string"
+                                    },
+                                    "description_entreprise": {
+                                        "type": "string"
+                                    },
+                                    "adress_entreprise": {
+                                        "type": "string"
+                                    },
+                                    "tel_entreprise": {
+                                        "type": "string"
+                                    },
+                                    "logo": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nom_entreprise": "TAktyl",
+                                "description_entreprise": "jhverfhryfyghfzbfhnbgf",
+                                "adress_entreprise": "liberté 5",
+                                "tel_entreprise": "771318103",
+                                "logo": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/supprimerClient/{id}": {
             "delete": {
                 "summary": "supprimer Client",
@@ -205,17 +1045,69 @@
                                     },
                                     "nom_entreprise": {
                                         "type": "string"
+                                    },
+                                    "num_id_fiscal": {
+                                        "type": "string"
+                                    },
+                                    "ville_client": {
+                                        "type": "string"
+                                    },
+                                    "pays_client": {
+                                        "type": "string"
+                                    },
+                                    "noteInterne_client": {
+                                        "type": "string"
+                                    },
+                                    "nom_destinataire": {
+                                        "type": "string"
+                                    },
+                                    "pays_livraison": {
+                                        "type": "string"
+                                    },
+                                    "code_postal_livraison": {
+                                        "type": "string"
+                                    },
+                                    "ville_livraison": {
+                                        "type": "string"
+                                    },
+                                    "tel_destinataire": {
+                                        "type": "string"
+                                    },
+                                    "email_destinataire": {
+                                        "type": "string"
+                                    },
+                                    "infoSupplemnt": {
+                                        "type": "string"
+                                    },
+                                    "type_client": {
+                                        "type": "string"
+                                    },
+                                    "statut_client": {
+                                        "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "prenom_client": "ibou",
-                                "nom_client": "diop",
+                                "prenom_client": "die",
+                                "nom_client": "ngom",
                                 "email_client": "ibou@gmail.com",
                                 "adress_client": "parcelle",
                                 "tel_client": "768947493",
                                 "categorie_id": "1",
-                                "nom_entreprise": "fa cosmetique"
+                                "nom_entreprise": "",
+                                "num_id_fiscal": "0012",
+                                "ville_client": "",
+                                "pays_client": "",
+                                "noteInterne_client": "",
+                                "nom_destinataire": "",
+                                "pays_livraison": "",
+                                "code_postal_livraison": "",
+                                "ville_livraison": "",
+                                "tel_destinataire": "",
+                                "email_destinataire": "",
+                                "infoSupplemnt": "",
+                                "type_client": "particulier",
+                                "statut_client": "client"
                             }
                         }
                     }
@@ -305,17 +1197,69 @@
                                     },
                                     "nom_entreprise": {
                                         "type": "string"
+                                    },
+                                    "num_id_fiscal": {
+                                        "type": "string"
+                                    },
+                                    "ville_client": {
+                                        "type": "string"
+                                    },
+                                    "pays_client": {
+                                        "type": "string"
+                                    },
+                                    "noteInterne_client": {
+                                        "type": "string"
+                                    },
+                                    "nom_destinataire": {
+                                        "type": "string"
+                                    },
+                                    "pays_livraison": {
+                                        "type": "string"
+                                    },
+                                    "code_postal_livraison": {
+                                        "type": "string"
+                                    },
+                                    "ville_livraison": {
+                                        "type": "string"
+                                    },
+                                    "tel_destinataire": {
+                                        "type": "string"
+                                    },
+                                    "email_destinataire": {
+                                        "type": "string"
+                                    },
+                                    "infoSupplemnt": {
+                                        "type": "string"
+                                    },
+                                    "type_client": {
+                                        "type": "string"
+                                    },
+                                    "statut_client": {
+                                        "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "prenom_client": "ibou",
-                                "nom_client": "diop",
-                                "email_client": "diopp@gmail.com",
+                                "prenom_client": "die",
+                                "nom_client": "diouf",
+                                "email_client": "ibou@gmail.com",
                                 "adress_client": "parcelle",
                                 "tel_client": "768947493",
-                                "categorie_id": "1",
-                                "nom_entreprise": "IBOU  buness"
+                                "categorie_id": "",
+                                "nom_entreprise": "",
+                                "num_id_fiscal": "",
+                                "ville_client": "",
+                                "pays_client": "",
+                                "noteInterne_client": "",
+                                "nom_destinataire": "",
+                                "pays_livraison": "",
+                                "code_postal_livraison": "",
+                                "ville_livraison": "",
+                                "tel_destinataire": "",
+                                "email_destinataire": "",
+                                "infoSupplemnt": "",
+                                "type_client": "particulier",
+                                "statut_client": "client"
                             }
                         }
                     }
@@ -566,7 +1510,409 @@
                                 }
                             },
                             "example": {
-                                "nom_categorie": " societe"
+                                "nom_categorie": "client simple"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/supprimerCategorieArticle/11": {
+            "delete": {
+                "summary": "supprimer Categorie article",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion categories articles"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/modifierCategorieArticle/{id}": {
+            "post": {
+                "summary": "modifier Categorie article",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion categories articles"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nom_categorie_article": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nom_categorie_article": "machine"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/listerCategorieArticle": {
+            "get": {
+                "summary": "lister Categorie Article",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion categories articles"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/ajouterCategorieArticle": {
+            "post": {
+                "summary": "ajouter categorie article",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion categories articles"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nom_categorie_article": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nom_categorie_article": "fer"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/articles_modifier_quantite/4": {
+            "post": {
+                "summary": "articles modifier quantite",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion article"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "quantite": {
+                                        "type": "string"
+                                    },
+                                    "note": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "quantite": "10",
+                                "note": "10 pc perdu"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/affecterCategorieArticle/{id}": {
+            "post": {
+                "summary": "affecter une Categorie à un Article",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion article"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id_categorie_article": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "id_categorie_article": "1"
                             }
                         }
                     }
@@ -575,7 +1921,7 @@
         },
         "/api/affecterPromoArticle/{id}": {
             "post": {
-                "summary": "affecter un Promo un Article",
+                "summary": "affecter un Promo à un Article",
                 "description": "",
                 "responses": {
                     "201": {
@@ -694,7 +2040,7 @@
                 ]
             }
         },
-        "/api/supprimerArticle/{id}": {
+        "/api/supprimerArticle/10": {
             "delete": {
                 "summary": "supprimer Article",
                 "description": "",
@@ -830,15 +2176,31 @@
                                     },
                                     "promo_id": {
                                         "type": "string"
+                                    },
+                                    "prix_achat": {
+                                        "type": "string"
+                                    },
+                                    "quantite": {
+                                        "type": "string"
+                                    },
+                                    "quantite_alert": {
+                                        "type": "string"
+                                    },
+                                    "id_categorie_article": {
+                                        "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "nom_article": "soin de visage",
+                                "nom_article": "ordinateur",
                                 "description": "ejnhbvhgfcfbnghk,n",
-                                "prix_unitaire": "20000",
+                                "prix_unitaire": "50000",
                                 "type_article": "service",
-                                "promo_id": "4"
+                                "promo_id": "",
+                                "prix_achat": "20000",
+                                "quantite": "",
+                                "quantite_alert": "",
+                                "id_categorie_article": "1"
                             }
                         }
                     }
@@ -917,15 +2279,31 @@
                                     },
                                     "promo_id": {
                                         "type": "string"
+                                    },
+                                    "id_categorie_article": {
+                                        "type": "string"
+                                    },
+                                    "prix_achat": {
+                                        "type": "string"
+                                    },
+                                    "quantite": {
+                                        "type": "string"
+                                    },
+                                    "quantite_alert": {
+                                        "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "nom_article": "service medical",
+                                "nom_article": "montre",
                                 "description": "jvhn nsmdljnvjknb jck",
-                                "prix_unitaire": "22000",
-                                "type_article": "service",
-                                "promo_id": "1"
+                                "prix_unitaire": "20000",
+                                "type_article": "produit",
+                                "promo_id": "",
+                                "id_categorie_article": "1",
+                                "prix_achat": "",
+                                "quantite": "10",
+                                "quantite_alert": ""
                             }
                         }
                     }
@@ -1054,7 +2432,7 @@
                             "example": {
                                 "nom_promo": "promo fin d'annee",
                                 "pourcentage_promo": "10",
-                                "date_expiration": "2024-5-20"
+                                "date_expiration": "2024-5-28"
                             }
                         }
                     }
@@ -1192,7 +2570,7 @@
                             "example": {
                                 "nom_promo": " promo 30%",
                                 "pourcentage_promo": "30",
-                                "date_expiration": "2024-05-17"
+                                "date_expiration": "2024-05-25"
                             }
                         }
                     }
@@ -1201,7 +2579,7 @@
         },
         "/api/Des_ArchiverSousUtilisateur/{id}": {
             "post": {
-                "summary": "Des_Archiver Sous Utilisateur",
+                "summary": "DesArchiver Sous Utilisateur",
                 "description": "",
                 "responses": {
                     "201": {
@@ -1528,17 +2906,21 @@
                                     "password": {
                                         "type": "string"
                                     },
-                                    "id_role": {
+                                    "role": {
+                                        "type": "string"
+                                    },
+                                    "archiver": {
                                         "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "nom": "ba",
+                                "nom": "Ibnou",
                                 "prenom": "diop",
-                                "email": "ba@gmail.com",
+                                "email": "Ibnou@gmail.com",
                                 "password": "123456p@",
-                                "id_role": "1"
+                                "role": "administrateur",
+                                "archiver": "oui"
                             }
                         }
                     }
@@ -1590,7 +2972,7 @@
                 ]
             }
         },
-        "/api/modifierRole/1": {
+        "/api/modifierRole/{id}": {
             "post": {
                 "summary": "modifier role",
                 "description": "",
@@ -2061,7 +3443,7 @@
                                 }
                             },
                             "example": {
-                                "email": "ba@gmail.com",
+                                "email": "fallou@gmail.com",
                                 "password": "123456p@"
                             }
                         }
@@ -2322,7 +3704,7 @@
                                 }
                             },
                             "example": {
-                                "name": " cisse",
+                                "name": "awa",
                                 "email": "cisse@gmail.com",
                                 "password": "ciss123@"
                             }
