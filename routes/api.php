@@ -1,17 +1,18 @@
 
 <?php
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\CategorieArticleController;
-use App\Http\Controllers\CategorieClientController;
-use App\Http\Controllers\ClientController;
-use App\Http\Controllers\Info_SupplementaireController;
-use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\SousUtilisateurController;
-use App\Http\Controllers\NoteJustificativeController;
+use App\Http\Controllers\PromoController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\FactureController;
+use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\PayementController;
+use App\Http\Controllers\CategorieClientController;
+use App\Http\Controllers\SousUtilisateurController;
+use App\Http\Controllers\CategorieArticleController;
+use App\Http\Controllers\NoteJustificativeController;
+use App\Http\Controllers\Info_SupplementaireController;
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -101,3 +102,10 @@ Route::controller(PayementController::class)->group(function () {
     Route::delete('supprimerPayement/{id}', 'supprimerPayement');
 
 });
+
+Route::post('creerFacture', [FactureController::class, 'creerFacture']);
+Route::post('listeArticlesFacture/{id_facture}', [FactureController::class, 'listeArticlesFacture']);
+Route::get('listerFactures', [FactureController::class, 'listerFactures']);
+Route::post('lireFacture/{id}', [FactureController::class, 'lireFacture']);
+Route::post('validerFacture/{id}', [FactureController::class, 'validerFacture']);
+Route::post('supprimerFacture/{id}', [FactureController::class, 'supprimerFacture']);

@@ -17,7 +17,21 @@ class Client extends Model
         'tel_client',
         'sousUtilisateur_id',
         'categorie_id',
-        'user_id'
+        'user_id',
+        'num_id_fiscal',
+        'type_client',
+        'statut_client',
+        'code_postal_client',
+        'ville_client',
+        'pays_client',
+        'noteInterne_client',
+        'nom_destinataire',
+        'pays_livraison',
+        'ville_livraison',
+        'code_postal_livraison',
+        'tel_destinataire',
+        'email_destinataire',
+        'infoSupplemnt'
     ];
 
     public function sousUtilisateur()
@@ -33,5 +47,9 @@ class Client extends Model
     public function categorie()
     {
         return $this->belongsTo(CategorieClient::class, 'categorie_id');
+    }
+    public function factures()
+    {
+        return $this->hasMany(Facture::class);
     }
 }
