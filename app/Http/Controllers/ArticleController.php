@@ -10,39 +10,64 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Promo;
 use Illuminate\Http\Request;
 use App\Models\NoteJustificative;
+use App\Models\CompteComptable;
+use App\Models\Lot;
+use App\Models\Variante;
+use App\Models\AutrePrix;
+use App\Models\EntrepotArticle;
 
 class ArticleController extends Controller
 {
     public function ajouterArticle(Request $request)
     {
-        
-    if (auth()->guard('apisousUtilisateur')->check()) {
-        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
-        $user_id = null;
-    } elseif (auth()->check()) {
-        $user_id = auth()->id();
-        $sousUtilisateur_id = null;
-    } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
-    }
-        $validator=Validator::make($request->all(),[
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+            $user_id = null;
+        } elseif (auth()->check()) {
+            $user_id = auth()->id();
+            $sousUtilisateur_id = null;
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    
+        $validator = Validator::make($request->all(), [
             'nom_article' => 'required|string|max:255',
             'description' => 'nullable|string',
             'prix_unitaire' => 'required|numeric|min:0',
             'type_article' => 'required|in:produit,service',
+            'unité' => 'required|in:unite,kg,tonne,cm,l,m,m2,m3,h,jour,semaine,mois',
             'categorie_article_id' => 'nullable|exists:categorie_articles,id',
-            'promo_id' => 'nullable|exists:promos,id', // Vérifie si l'ID du promo existe dans la table promos
+            'id_comptable' => 'nullable|exists:compte_comptables,id',
+            'promo_id' => 'nullable|exists:promos,id',
             'prix_achat' => 'nullable|numeric|min:0',
             'quantite' => 'nullable|numeric|min:0',
             'quantite_alert' => 'nullable|numeric|min:0',
+            'doc_externe' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'num_article' => 'nullable|string|unique:articles,num_article',
+            'autres_prix' => 'nullable|array',
+            'autres_prix.*.titrePrix' => 'required_with:autres_prix|string|max:255',
+            'autres_prix.*.montant' => 'required_with:autres_prix|numeric|min:0',
+            'autres_prix.*.tva' => 'nullable|numeric|min:0|max:100',
+            'variantes' => 'nullable|array',
+            'variantes.*.nomVariante' => 'required_with:variantes|string|max:255',
+            'variantes.*.quantite' => 'required_with:variantes|integer|min:0',
+            'lots' => 'nullable|array',
+            'lots.*.nomLot' => 'required_with:lots|string|max:255',
+            'lots.*.quantiteLot' => 'required_with:lots|integer|min:0',
+            'entrepots' => 'nullable|array',
+            'entrepots.*.id_entrepot' => 'required_with:entrepots|exists:entrepots,id',
+            'entrepots.*.quantiteArt_entrepot' => 'required_with:entrepots|integer|min:0',
         ]);
+    
         if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ],422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
-
-        // Récupérer le pourcentage de la promo associée
+    
+        $doc_externe = null;
+        if ($request->hasFile('doc_externe')) {
+            $doc_externe = $request->file('doc_externe')->store('file', 'public');
+        }
+    
         $pourcentagePromo = null;
         if ($request->promo_id) {
             $promo = Promo::find($request->promo_id);
@@ -50,15 +75,34 @@ class ArticleController extends Controller
                 $pourcentagePromo = $promo->pourcentage_promo;
             }
         }
-
-        // Calculer le prix promo en fonction du prix unitaire et du pourcentage de la promo
+    
         $prixPromo = null;
         if ($pourcentagePromo !== null) {
             $prixPromo = $request->prix_unitaire * $pourcentagePromo;
         }
-
-        // Créer un nouvel article en utilisant les données de la requête
+    
+        if (!$request->has('id_comptable')) {
+            if ($request->type_article === 'produit') {
+                $compte = CompteComptable::where('nom_compte_comptable', 'Ventes de marchandises')
+                                         ->where('user_id', $user_id)
+                                         ->first();
+            } elseif ($request->type_article === 'service') {
+                $compte = CompteComptable::where('nom_compte_comptable', 'Prestations de services')
+                                         ->where('user_id', $user_id)
+                                         ->first();
+            }
+    
+            if ($compte) {
+                $id_comptable = $compte->id;
+            } else {
+                return response()->json(['error' => 'Compte comptable par défaut introuvable pour cet utilisateur'], 404);
+            }
+        } else {
+            $id_comptable = $request->id_comptable;
+        }
+    
         $article = new Article();
+        $article->num_article = $request->num_article;
         $article->nom_article = $request->nom_article;
         $article->description = $request->description;
         $article->prix_unitaire = $request->prix_unitaire;
@@ -68,16 +112,67 @@ class ArticleController extends Controller
         $article->sousUtilisateur_id = $sousUtilisateur_id;
         $article->user_id = $user_id;
         $article->id_categorie_article = $request->id_categorie_article;
-
+        $article->id_comptable = $id_comptable;
+        $article->unité = $request->unité;
+        $article->doc_externe = $doc_externe;
         $article->prix_achat = $request->prix_achat;
         $article->quantite = $request->quantite;
         $article->quantite_alert = $request->quantite_alert;
-        $article->benefice=$request->prix_unitaire - $request->prix_achat;
-        $article->benefice_promo = $prixPromo - $request->prix_achat;
+        $article->benefice = $request->prix_unitaire - $request->prix_achat;
+        $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_achat : null;
+        
         $article->save();
-
+    
+        if ($request->has('autres_prix')) {
+            foreach ($request->autres_prix as $autre_prix) {
+                $autrePrix = new AutrePrix([
+                    'article_id' => $article->id,
+                    'titrePrix' => $autre_prix['titrePrix'],
+                    'montant' => $autre_prix['montant'],
+                    'tva' => $autre_prix['tva'],
+                ]);
+                $autrePrix->save();
+            }
+        }
+    
+        if ($request->has('variantes')) {
+            foreach ($request->variantes as $variante) {
+                $var = new Variante([
+                    'article_id' => $article->id,
+                    'nomVariante' => $variante['nomVariante'],
+                    'quantite' => $variante['quantite'],
+                ]);
+                $var->save();
+            }
+        }
+    
+        if ($request->has('lots')) {
+            foreach ($request->lots as $lot) {
+                $lotEntry = new Lot([
+                    'article_id' => $article->id,
+                    'nomLot' => $lot['nomLot'],
+                    'quantiteLot' => $lot['quantiteLot'],
+                ]);
+                $lotEntry->save();
+            }
+        }
+    
+        if ($request->has('entrepots')) {
+            foreach ($request->entrepots as $entrepot) {
+                $entrepotArticle = new EntrepotArticle([
+                    'article_id' => $article->id,
+                    'entrepot_id' => $entrepot['id_entrepot'],
+                    'quantiteArt_entrepot' => $entrepot['quantiteArt_entrepot'],
+                ]);
+                $entrepotArticle->save();
+            }
+        }
+    
         return response()->json(['message' => 'Article ajouté avec succès', 'article' => $article]);
     }
+    
+    
+    
 
     public function modifierArticle(Request $request, $id)
     {
@@ -107,15 +202,23 @@ class ArticleController extends Controller
         'type_article' => 'required|in:produit,service',
         'promo_id' => 'nullable|exists:promos,id',
         'categorie_article_id' => 'nullable|exists:categorie_articles,id',
-
+        'id_comptable' => 'nullable|exists:compte_comptables,id',
+        'unité' => 'nullable|in:unite,kg,g,tonne,cm,l,m,m2,m3,h,jour,semaine,mois',
+        'doc_externe' => 'nullable|mimes:pdf,doc,docx',
         'prix_achat' => 'nullable|numeric|min:0',
         'quantite' => 'nullable|numeric|min:0',
         'quantite_alert' => 'nullable|numeric|min:0',
+        'num_article' => 'required|string|unique:articles,num_article,' . $id,
     ]);
     if ($validator->fails()) {
         return response()->json([
             'errors' => $validator->errors(),
         ],422);
+    }
+
+    $doc_externe = null;
+    if ($request->hasFile('doc_externe')) {
+        $doc_externe = $request->file('doc_externe')->store('file', 'public');
     }
 
     $article->update([
@@ -125,6 +228,10 @@ class ArticleController extends Controller
         'type_article' => $request->type_article,
         'promo_id' => $request->promo_id,
         'id_categorie_article' => $request->id_categorie_article,
+        'id_comptable' => $request->id_comptable,
+        'unité' => $request->unité,
+        'doc_externe' => $doc_externe,
+        'num_article' => $request->num_article,
 
         'prix_achat' => $request->prix_achat,
         'quantite' => $request->quantite,
@@ -198,14 +305,14 @@ public function listerArticles()
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-        $articles = Article::with('categorieArticle')
+        $articles = Article::with('categorieArticle', 'CompteComptable')
             ->where('sousUtilisateur_id', $sousUtilisateurId)
             ->orWhere('user_id', $userId)
             ->get();
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $articles = Article::with('categorieArticle')
+        $articles = Article::with('categorieArticle', 'CompteComptable')
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);
@@ -215,29 +322,13 @@ public function listerArticles()
         return response()->json(['error' => 'Unauthorized'], 401);
     }
 
-    $articles = $articles->map(function ($article) {
-        return [
-            'id' => $article->id,
-            'nom_article' => $article->nom_article,
-            'description' => $article->description,
-            'prix_unitaire' => $article->prix_unitaire,
-            'quantite' => $article->quantite,
-            'prix_achat' => $article->prix_achat,
-            'benefice' => $article->benefice,
-            'prix_promo' => $article->prix_promo,
-            'benefice_promo' => $article->benefice_promo,
-            'quantite_alert' => $article->quantite_alert,
-            'type_article' => $article->type_article,
-            'promo_id' => $article->promo_id,
-            'sousUtilisateur_id' => $article->sousUtilisateur_id,
-            'user_id' => $article->user_id,
-            'id_categorie_article' => $article->id_categorie_article,
-            'nom_categorie' => $article->categorieArticle->nom_categorie_article ?? null,
-            'created_at' => $article->created_at,
-            'updated_at' => $article->updated_at,
-        ];
+    $articlesArray = $articles->map(function ($article) {
+        $articleArray = $article->toArray();
+        $articleArray['nom_categorie'] = optional($article->categorieArticle)->nom_categorie;
+        $articleArray['nom_comptable'] = optional($article->ComptaComptable)->nom_compte_comptable;
+        return $articleArray;
     });
-    return response()->json(['articles' => $articles]);
+    return response()->json($articlesArray);
 }
 
 
@@ -321,5 +412,44 @@ public function modifierQuantite(Request $request, $id)
 
     return response()->json(['message' => 'Quantité modifiée avec succès', 'article' => $article]);
 }
+
+public function affecterComptableArticle(Request $request, $id)
+{
+    $article = Article::findOrFail($id);
+
+    $request->validate([
+        'id_comptable' => 'nullable|exists:compte_comptables,id',
+    ]);
+
+    // Si l'utilisateur ne fournit pas un id_comptable
+    if (!$request->has('id_comptable')) {
+        if ($article->type_article === 'produit') {
+            // Rechercher l'ID du compte comptable 'Ventes de marchandises' pour l'utilisateur courant
+            $compte = CompteComptable::where('nom_compte_comptable', 'Ventes de marchandises')
+                                     ->where('user_id', auth()->id())
+                                     ->first();
+        } elseif ($article->type_article === 'service') {
+            // Rechercher l'ID du compte comptable 'Prestations de services' pour l'utilisateur courant
+            $compte = CompteComptable::where('nom_compte_comptable', 'Prestations de services')
+                                     ->where('user_id', auth()->id())
+                                     ->first();
+        }
+
+        // Assigner l'ID du compte comptable par défaut trouvé
+        if ($compte) {
+            $article->id_comptable = $compte->id;
+        } else {
+            return response()->json(['error' => 'Compte comptable par défaut introuvable pour cet utilisateur'], 404);
+        }
+    } else {
+        // Si l'utilisateur a fourni un id_comptable, l'utiliser
+        $article->id_comptable = $request->id_comptable;
+    }
+
+    $article->save();
+
+    return response()->json(['message' => 'Comptable affecté à l\'article avec succès', 'article' => $article]);
+}
+
 
 }

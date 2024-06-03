@@ -9,8 +9,10 @@ use App\Http\Controllers\FactureController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\PayementController;
 use App\Http\Controllers\CategorieClientController;
+use App\Http\Controllers\CompteComptableController;
 use App\Http\Controllers\SousUtilisateurController;
 use App\Http\Controllers\CategorieArticleController;
+use App\Http\Controllers\EntrepotController;
 use App\Http\Controllers\NoteJustificativeController;
 use App\Http\Controllers\Info_SupplementaireController;
 
@@ -109,3 +111,16 @@ Route::get('listerFactures', [FactureController::class, 'listerFactures']);
 Route::post('lireFacture/{id}', [FactureController::class, 'lireFacture']);
 Route::post('validerFacture/{id}', [FactureController::class, 'validerFacture']);
 Route::post('supprimerFacture/{id}', [FactureController::class, 'supprimerFacture']);
+
+Route::post('ajouterCompteComptable', [CompteComptableController::class, 'ajouterCompteComptable']);
+Route::get('listerCompteComptables', [CompteComptableController::class, 'listerCompteComptables']);
+Route::post('modifierCompteComptable/{id}', [CompteComptableController::class, 'modifierCompteComptable']);
+Route::delete('supprimerCompteComptable/{id}', [CompteComptableController::class, 'supprimerCompteComptable']);
+
+Route::controller(EntrepotController::class)->group(function () {
+    Route::post('ajouterEntrepot', 'ajouterEntrepot');
+    Route::get('listerEntrepots', 'listerEntrepots');
+    Route::post('modifierEntrepot/{id}', 'modifierEntrepot');
+    Route::delete('supprimerEntrepot/{id}', 'supprimerEntrepot');
+
+});

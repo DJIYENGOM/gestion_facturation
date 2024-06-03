@@ -110,4 +110,25 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Payement::class, 'user_id');
     }
+
+    public function Entrepot()
+    {
+        return $this->hasMany(Entrepot::class, 'user_id');
+    }
+
+
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            $defaultComptes = CompteComptable::whereNull('user_id')->get();
+
+            foreach ($defaultComptes as $defaultCompte) {
+                CompteComptable::create([
+                    'nom_compte_comptable' => $defaultCompte->nom_compte_comptable,
+                    'code_compte_comptable' => $defaultCompte->code_compte_comptable,
+                    'user_id' => $user->id,
+                ]);
+            }
+        });
+    }
 }

@@ -3,3 +3,5 @@ facture =>date de payment,
 si la facture est validé le stck doit duminuer
 
 devis => date d'expiration
+
+distinguerles categorie de produits

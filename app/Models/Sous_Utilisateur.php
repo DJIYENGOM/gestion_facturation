@@ -57,7 +57,10 @@ class Sous_Utilisateur extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Payement::class, 'sousUtilisateur_id');
     }
-
+    public function Entrepot()
+    {
+        return $this->hasMany(Entrepot::class, 'sousUtilisateur_id');
+    }
 
     public function categorie_article()
     {
@@ -69,6 +72,10 @@ class Sous_Utilisateur extends Authenticatable implements JWTSubject
         return $this->hasMany(NoteJustificative::class, 'sousUtilisateur_id');
     }
     
+    public function CompteComptable()
+    {
+        return $this->hasMany(CompteComptable::class, 'sousUtilisateur_id');
+    }
 
     public function getJWTIdentifier()
     {

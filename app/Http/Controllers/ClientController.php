@@ -117,39 +117,13 @@ class ClientController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
     
-        $clients = $clients->map(function ($client) {
-            return [
-                'id' => $client->id,
-                'nom_client' => $client->nom_client,
-                'prenom_client' => $client->prenom_client,
-                'email_client' => $client->email_client,
-                'nom_entreprise' => $client->nom_entreprise,
-                'adress_client' => $client->adress_client,
-                'tel_client' => $client->tel_client,
-                'user_id' => $client->user_id,
-                'sousUtilisateur_id' => $client->sousUtilisateur_id,
-                'created_at' => $client->created_at,
-                'updated_at' => $client->updated_at,
-                'categorie_id'=> $client->categorie_id,
-                'nom_categorie' => optional($client->categorie)->nom_categorie, // Utiliser 'optional' pour éviter l'erreur
-                'type_client' => $client->type_client,
-                'statut_client' => $client->statut_client,
-                'num_id_fiscal' => $client->num_id_fiscal,
-                'code_postal_client' => $client->code_postal_client,
-                'ville_client' => $client->ville_client,
-                'pays_client' => $client->pays_client,
-                'noteInterne_client' => $client->noteInterne_client,
-                'nom_destinataire' => $client->nom_destinataire,
-                'pays_livraison' => $client->pays_livraison,
-                'ville_livraison' => $client->ville_livraison,
-                'code_postal_livraison' => $client->code_postal_livraison,
-                'tel_destinataire' => $client->tel_destinataire,
-                'email_destinataire' => $client->email_destinataire,
-                'infoSupplemnt' => $client->infoSupplemnt,
-            ];
+        $clientsArray = $clients->map(function ($client) {
+            $clientArray = $client->toArray();
+            $clientArray['nom_categorie'] = optional($client->categorie)->nom_categorie;
+            return $clientArray;
         });
     
-        return response()->json($clients);
+        return response()->json($clientsArray);
     }
     
 
