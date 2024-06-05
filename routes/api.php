@@ -7,12 +7,13 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\EntrepotController;
 use App\Http\Controllers\PayementController;
 use App\Http\Controllers\CategorieClientController;
 use App\Http\Controllers\CompteComptableController;
+use App\Http\Controllers\GrilleTarifaireController;
 use App\Http\Controllers\SousUtilisateurController;
 use App\Http\Controllers\CategorieArticleController;
-use App\Http\Controllers\EntrepotController;
 use App\Http\Controllers\NoteJustificativeController;
 use App\Http\Controllers\Info_SupplementaireController;
 
@@ -67,6 +68,11 @@ Route::delete('supprimerArticle/{id}', [ArticleController::class, 'supprimerArti
 Route::post('affecterPromoArticle/{id}', [ArticleController::class, 'affecterPromoArticle']);
 Route::post('affecterCategorieArticle/{id}', [ArticleController::class, 'affecterCategorieArticle']);
 Route::post('articles_modifier_quantite/{id}', [ArticleController::class, 'modifierQuantite']);
+
+Route::get('listerLotsArticle/{articleId}', [ArticleController::class, 'listerLotsArticle']);
+Route::get('listerAutrePrixArticle/{articleId}', [ArticleController::class, 'listerAutrePrixArticle']);
+Route::get('listerEntrepotsArticle/{articleId}', [ArticleController::class, 'listerEntrepotsArticle']);
+Route::get('afficherArticleAvecPrix/{articleId}', [ArticleController::class, 'afficherArticleAvecPrix']);
 
 
 Route::get('listerNotes', [NoteJustificativeController::class, 'listerNotes']);
@@ -124,3 +130,8 @@ Route::controller(EntrepotController::class)->group(function () {
     Route::delete('supprimerEntrepot/{id}', 'supprimerEntrepot');
 
 });
+
+Route::post('creerGrilleTarifaire', [GrilleTarifaireController::class, 'creerGrilleTarifaire']);
+Route::get('listerTariPourClientSurArticle/{clientId}/{articleId}', [GrilleTarifaireController::class, 'listerTariPourClientSurArticle']);
+Route::post('modifierGrilleTarifaire/{idTarif}', [GrilleTarifaireController::class, 'modifierGrilleTarifaire']);
+Route::delete('supprimerGrilleTarifaire/{idTarif}', [GrilleTarifaireController::class, 'supprimerGrilleTarifaire']);

@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('categorie_articles', function (Blueprint $table) {
+        Schema::create('grille_tarifaires', function (Blueprint $table) {
             $table->id();
-            $table->string('nom_categorie_article');
-            $table->enum('type_categorie_article', ['produit', 'service']);
+            $table->decimal('montantTarif', 8, 2);
+            $table->decimal('tva', 5, 2)->nullable();
+            $table->decimal('montantTva', 8, 2)->nullable();
+            $table->foreignId('idArticle')->constrained('articles')->onDelete('cascade');
+            $table->foreignId('idClient')->constrained('clients')->onDelete('cascade');
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');            
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
@@ -26,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('categorie_articles');
+        Schema::dropIfExists('grille_tarifaires');
     }
 };

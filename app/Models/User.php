@@ -116,6 +116,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Entrepot::class, 'user_id');
     }
 
+    public function GrilleTarifaire()
+    {
+        return $this->hasMany(GrilleTarifaire::class, 'user_id');
+    }
 
     protected static function booted()
     {

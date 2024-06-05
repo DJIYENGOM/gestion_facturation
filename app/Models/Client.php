@@ -52,4 +52,9 @@ class Client extends Model
     {
         return $this->hasMany(Facture::class);
     }
+    
+    public function GrilleTarifaire()
+    {
+        return $this->hasMany(GrilleTarifaire::class);
+    }
 }

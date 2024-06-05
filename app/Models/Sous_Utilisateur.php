@@ -77,6 +77,11 @@ class Sous_Utilisateur extends Authenticatable implements JWTSubject
         return $this->hasMany(CompteComptable::class, 'sousUtilisateur_id');
     }
 
+    public function GrilleTarifaire()
+    {
+        return $this->hasMany(GrilleTarifaire::class, 'sousUtilisateur_id');
+    }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();

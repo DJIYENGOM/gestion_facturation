@@ -24,6 +24,8 @@ class CategorieArticleController extends Controller
     
         $validator = Validator::make($request->all(), [
             'nom_categorie_article' => 'required|string|max:255',
+            'type_categorie_article' => 'required|in:produit,service',
+
         ]);
     
         if ($validator->fails()) {
@@ -32,6 +34,7 @@ class CategorieArticleController extends Controller
     
         $categorie = new CategorieArticle([
             'nom_categorie_article' => $request->nom_categorie_article,
+            'type_categorie_article' => $request->type_categorie_article,
             'sousUtilisateur_id' => $sousUtilisateur_id,
             'user_id' => $user_id,
         ]);
@@ -88,9 +91,11 @@ class CategorieArticleController extends Controller
 
     $request->validate([
         'nom_categorie_article' => 'required|string|max:255',
+        'type_categorie_article' => 'required|in:produit,service',
     ]);
 
     $categorie->nom_categorie_article = $request->nom_categorie_article;
+    $categorie->type_categorie_article = $request->type_categorie_article;
     $categorie->sousUtilisateur_id = $sousUtilisateur_id; 
     $categorie->user_id = $user_id;
 
@@ -98,8 +103,6 @@ class CategorieArticleController extends Controller
 
     return response()->json(['message' => 'Catégorie modifiée avec succès', 'categorie' => $categorie]);
 }
-
-   
 
 
 public function supprimerCategorie($id)

@@ -49,11 +49,11 @@ public function listerPayements()
         return response()->json(['error' => 'Unauthorized'], 401);
     }
 
-    $notes = Payement::where('user_id', $userId)
+    $payments = Payement::where('user_id', $userId)
         ->orWhere('sousUtilisateur_id', $sousUtilisateurId ?? 0)
         ->get();
 
-    return response()->json($notes);
+    return response()->json($payments);
 }
 
 public function modifierPayement(Request $request, $id)

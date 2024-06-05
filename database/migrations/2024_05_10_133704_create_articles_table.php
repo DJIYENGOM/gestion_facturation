@@ -21,7 +21,9 @@ return new class extends Migration
             $table->decimal('benefice')->nullable();
             $table->decimal('prix_achat')->nullable();
             $table->decimal('prix_promo')->nullable();
+            $table->decimal('prix_tva')->nullable();
             $table->string('doc_externe')->nullable();
+            $table->decimal('tva', 5, 2)->nullable();
             $table->decimal('benefice_promo')->nullable();
             $table->integer('quantite_alert')->nullable();
             $table->enum('type_article', ['produit', 'service']);
