@@ -9,7 +9,9 @@ class AutrePrix extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['article_id', 'titrePrix', 'montant', 'tva'];
+    protected $table = 'autre_prix'; // Spécifiez explicitement la table
+
+    protected $fillable = ['article_id', 'titrePrix', 'montant', 'tva','montantTva'];
 
     public function article()
     {

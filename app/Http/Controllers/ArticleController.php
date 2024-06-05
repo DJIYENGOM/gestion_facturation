@@ -1,10 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Storage;
 use App\Models\Article;
-use App\Http\Requests\StoreArticleRequest;
-use App\Http\Requests\UpdateArticleRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\Promo;
@@ -34,6 +32,7 @@ class ArticleController extends Controller
             'nom_article' => 'required|string|max:255',
             'description' => 'nullable|string',
             'prix_unitaire' => 'required|numeric|min:0',
+            'tva'=>'nullable|numeric|min:0',
             'type_article' => 'required|in:produit,service',
             'unité' => 'required|in:unite,kg,tonne,cm,l,m,m2,m3,h,jour,semaine,mois',
             'categorie_article_id' => 'nullable|exists:categorie_articles,id',
@@ -80,15 +79,18 @@ class ArticleController extends Controller
         if ($pourcentagePromo !== null) {
             $prixPromo = $request->prix_unitaire * $pourcentagePromo;
         }
-    
+        $prixTva = null;
+        $tva=$request->tva;
+        if ($request->tva !== null) {
+            $prixTva = $request->prix_unitaire * ((100 + $tva) / 100);
+        }
+
         if (!$request->has('id_comptable')) {
             if ($request->type_article === 'produit') {
                 $compte = CompteComptable::where('nom_compte_comptable', 'Ventes de marchandises')
-                                         ->where('user_id', $user_id)
                                          ->first();
             } elseif ($request->type_article === 'service') {
                 $compte = CompteComptable::where('nom_compte_comptable', 'Prestations de services')
-                                         ->where('user_id', $user_id)
                                          ->first();
             }
     
@@ -106,6 +108,8 @@ class ArticleController extends Controller
         $article->nom_article = $request->nom_article;
         $article->description = $request->description;
         $article->prix_unitaire = $request->prix_unitaire;
+        $article->tva = $request->tva;
+        $article->prix_tva = $prixTva;
         $article->prix_promo = $prixPromo;
         $article->type_article = $request->type_article;
         $article->promo_id = $request->promo_id;
@@ -122,14 +126,15 @@ class ArticleController extends Controller
         $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_achat : null;
         
         $article->save();
-    
-        if ($request->has('autres_prix')) {
+     
+        if ($request->has('autres_prix')) {  
             foreach ($request->autres_prix as $autre_prix) {
                 $autrePrix = new AutrePrix([
                     'article_id' => $article->id,
                     'titrePrix' => $autre_prix['titrePrix'],
                     'montant' => $autre_prix['montant'],
                     'tva' => $autre_prix['tva'],
+                    'montantTva' => $autre_prix['montant'] * ((100 + $autre_prix['tva']) / 100),
                 ]);
                 $autrePrix->save();
             }
@@ -176,83 +181,167 @@ class ArticleController extends Controller
 
     public function modifierArticle(Request $request, $id)
     {
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+            $user_id = null;
+        } elseif (auth()->check()) {
+            $user_id = auth()->id();
+            $sousUtilisateur_id = null;
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    
+        $validator = Validator::make($request->all(), [
+            'nom_article' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'prix_unitaire' => 'required|numeric|min:0',
+            'tva' => 'nullable|numeric|min:0',
+            'type_article' => 'required|in:produit,service',
+            'unité' => 'required|in:unite,kg,tonne,cm,l,m,m2,m3,h,jour,semaine,mois',
+            'categorie_article_id' => 'nullable|exists:categorie_articles,id',
+            'id_comptable' => 'nullable|exists:compte_comptables,id',
+            'promo_id' => 'nullable|exists:promos,id',
+            'prix_achat' => 'nullable|numeric|min:0',
+            'quantite' => 'nullable|numeric|min:0',
+            'quantite_alert' => 'nullable|numeric|min:0',
+            'doc_externe' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'num_article' => 'required|string|unique:articles,num_article,' . $id,
+            'autres_prix' => 'nullable|array',
+            'autres_prix.*.titrePrix' => 'required_with:autres_prix|string|max:255',
+            'autres_prix.*.montant' => 'required_with:autres_prix|numeric|min:0',
+            'autres_prix.*.tva' => 'nullable|numeric|min:0|max:100',
+            'variantes' => 'nullable|array',
+            'variantes.*.nomVariante' => 'required_with:variantes|string|max:255',
+            'variantes.*.quantite' => 'required_with:variantes|integer|min:0',
+            'lots' => 'nullable|array',
+            'lots.*.nomLot' => 'required_with:lots|string|max:255',
+            'lots.*.quantiteLot' => 'required_with:lots|integer|min:0',
+            'entrepots' => 'nullable|array',
+            'entrepots.*.id_entrepot' => 'required_with:entrepots|exists:entrepots,id',
+            'entrepots.*.quantiteArt_entrepot' => 'required_with:entrepots|integer|min:0',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+    
         $article = Article::findOrFail($id);
-        
-    if (auth()->guard('apisousUtilisateur')->check()) {
-        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
-        if ($article->sousUtilisateur_id !== $sousUtilisateur_id) {
-            return response()->json(['error' => 'cette sous utilisateur ne peut pas modifier ce article car il ne l\'a pas creer'], 401);
+    
+        $doc_externe = $article->doc_externe;
+        if ($request->hasFile('doc_externe')) {
+            if ($doc_externe) {
+                Storage::disk('public')->delete($doc_externe);
+            }
+            $doc_externe = $request->file('doc_externe')->store('file', 'public');
         }
-        $user_id = null;
-    } elseif (auth()->check()) {
-        $user_id = auth()->id();
-        if ($article->user_id !== $user_id) {
-            return response()->json(['error' => 'cet utilisateur ne peut pas modifier ce article, car il ne l\'a pas creer'], 401);
+    
+        $pourcentagePromo = null;
+        if ($request->promo_id) {
+            $promo = Promo::find($request->promo_id);
+            if ($promo) {
+                $pourcentagePromo = $promo->pourcentage_promo;
+            }
         }
-        $sousUtilisateur_id = null;
-    } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
-    }
-
-
-    $validator=Validator::make($request->all(),[
-        'nom_article' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'prix_unitaire' => 'required|numeric|min:0',
-        'type_article' => 'required|in:produit,service',
-        'promo_id' => 'nullable|exists:promos,id',
-        'categorie_article_id' => 'nullable|exists:categorie_articles,id',
-        'id_comptable' => 'nullable|exists:compte_comptables,id',
-        'unité' => 'nullable|in:unite,kg,g,tonne,cm,l,m,m2,m3,h,jour,semaine,mois',
-        'doc_externe' => 'nullable|mimes:pdf,doc,docx',
-        'prix_achat' => 'nullable|numeric|min:0',
-        'quantite' => 'nullable|numeric|min:0',
-        'quantite_alert' => 'nullable|numeric|min:0',
-        'num_article' => 'required|string|unique:articles,num_article,' . $id,
-    ]);
-    if ($validator->fails()) {
-        return response()->json([
-            'errors' => $validator->errors(),
-        ],422);
-    }
-
-    $doc_externe = null;
-    if ($request->hasFile('doc_externe')) {
-        $doc_externe = $request->file('doc_externe')->store('file', 'public');
-    }
-
-    $article->update([
-        'nom_article' => $request->nom_article,
-        'description' => $request->description,
-        'prix_unitaire' => $request->prix_unitaire,
-        'type_article' => $request->type_article,
-        'promo_id' => $request->promo_id,
-        'id_categorie_article' => $request->id_categorie_article,
-        'id_comptable' => $request->id_comptable,
-        'unité' => $request->unité,
-        'doc_externe' => $doc_externe,
-        'num_article' => $request->num_article,
-
-        'prix_achat' => $request->prix_achat,
-        'quantite' => $request->quantite,
-        'quantite_alert' => $request->quantite_alert,
-        'benefice'=>$request->prix_unitaire - $request->prix_achat,
-        'sousUtilisateur_id' => $sousUtilisateur_id,
-        'user_id' => $user_id,
-    ]);
-
-    // Recalcul du prix promo si un promo est associé
-    if ($article->promo_id) {
-        $promo = Promo::find($article->promo_id);
-        if ($promo) {
-            $article->prix_promo = $article->prix_unitaire * $promo->pourcentage_promo;
-            $article->benefice_promo = $article->prix_promo - $article->prix_achat;
-            $article->save();
+    
+        $prixPromo = null;
+        if ($pourcentagePromo !== null) {
+            $prixPromo = $request->prix_unitaire * $pourcentagePromo;
         }
+    
+        if (!$request->has('id_comptable')) {
+            if ($request->type_article === 'produit') {
+                $compte = CompteComptable::where('nom_compte_comptable', 'Ventes de marchandises')->first();
+            } elseif ($request->type_article === 'service') {
+                $compte = CompteComptable::where('nom_compte_comptable', 'Prestations de services')->first();
+            }
+    
+            if ($compte) {
+                $id_comptable = $compte->id;
+            } else {
+                return response()->json(['error' => 'Compte comptable par défaut introuvable pour cet utilisateur'], 404);
+            }
+        } else {
+            $id_comptable = $request->id_comptable;
+        }
+    
+        $article->num_article = $request->num_article;
+        $article->nom_article = $request->nom_article;
+        $article->description = $request->description;
+        $article->prix_unitaire = $request->prix_unitaire;
+        $article->tva = $request->tva;
+        $article->prix_promo = $prixPromo;
+        $article->type_article = $request->type_article;
+        $article->promo_id = $request->promo_id;
+        $article->sousUtilisateur_id = $sousUtilisateur_id;
+        $article->user_id = $user_id;
+        $article->id_categorie_article = $request->id_categorie_article;
+        $article->id_comptable = $id_comptable;
+        $article->unité = $request->unité;
+        $article->doc_externe = $doc_externe;
+        $article->prix_achat = $request->prix_achat;
+        $article->quantite = $request->quantite;
+        $article->quantite_alert = $request->quantite_alert;
+        $article->benefice = $request->prix_unitaire - $request->prix_achat;
+        $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_achat : null;
+    
+        $article->save();
+    
+        // Gérer les autres prix
+        if ($request->has('autres_prix')) {
+            AutrePrix::where('article_id', $id)->delete();
+            foreach ($request->autres_prix as $autre_prix) {
+                $autrePrix = new AutrePrix([
+                    'article_id' => $article->id,
+                    'titrePrix' => $autre_prix['titrePrix'],
+                    'montant' => $autre_prix['montant'],
+                    'tva' => $autre_prix['tva'],
+                ]);
+                $autrePrix->save();
+            }
+        }
+    
+        // Gérer les variantes
+        if ($request->has('variantes')) {
+            Variante::where('article_id', $id)->delete();
+            foreach ($request->variantes as $variante) {
+                $var = new Variante([
+                    'article_id' => $article->id,
+                    'nomVariante' => $variante['nomVariante'],
+                    'quantite' => $variante['quantite'],
+                ]);
+                $var->save();
+            }
+        }
+    
+        // Gérer les lots
+        if ($request->has('lots')) {
+            Lot::where('article_id', $id)->delete();
+            foreach ($request->lots as $lot) {
+                $lotEntry = new Lot([
+                    'article_id' => $article->id,
+                    'nomLot' => $lot['nomLot'],
+                    'quantiteLot' => $lot['quantiteLot'],
+                ]);
+                $lotEntry->save();
+            }
+        }
+    
+        // Gérer les entrepôts
+        if ($request->has('entrepots')) {
+            EntrepotArticle::where('article_id', $id)->delete();
+            foreach ($request->entrepots as $entrepot) {
+                $entrepotArticle = new EntrepotArticle([
+                    'article_id' => $article->id,
+                    'entrepot_id' => $entrepot['id_entrepot'],
+                    'quantiteArt_entrepot' => $entrepot['quantiteArt_entrepot'],
+                ]);
+                $entrepotArticle->save();
+            }
+        }
+    
+        return response()->json(['message' => 'Article modifié avec succès', 'article' => $article]);
     }
-
-    return response()->json(['message' => 'Article modifié avec succès', 'article' => $article]);
-    }
+    
 
 
 public function supprimerArticle($id)
@@ -325,7 +414,7 @@ public function listerArticles()
     $articlesArray = $articles->map(function ($article) {
         $articleArray = $article->toArray();
         $articleArray['nom_categorie'] = optional($article->categorieArticle)->nom_categorie;
-        $articleArray['nom_comptable'] = optional($article->ComptaComptable)->nom_compte_comptable;
+        $articleArray['nom_comptable'] = optional($article->CompteComptable)->nom_compte_comptable;
         return $articleArray;
     });
     return response()->json($articlesArray);
@@ -451,5 +540,46 @@ public function affecterComptableArticle(Request $request, $id)
     return response()->json(['message' => 'Comptable affecté à l\'article avec succès', 'article' => $article]);
 }
 
+public function listerLotsArticle($articleId)
+{
+    $lots = Lot::where('article_id', $articleId)->get();
+    return response()->json(['lots' => $lots]);
+}
+
+public function listerAutrePrixArticle($articleId)
+{
+    $prixAlternatifs = AutrePrix::where('article_id', $articleId)->get();
+    return response()->json(['autre_prix' => $prixAlternatifs]);
+}
+
+public function listerEntrepotsArticle($articleId)
+{
+    $entrepots = EntrepotArticle::where('article_id', $articleId)->get();
+    return response()->json(['entrepots' => $entrepots]);
+}
+
+public function afficherArticleAvecPrix($articleId)
+{
+
+    $article = Article::find($articleId); //recuperer l'article pour obtenir son prix unitaire
+
+    if (!$article) {
+        return response()->json(['error' => 'Article non trouvé'], 404);
+    }
+    // Récupérer les autres prix de l'article
+    $autresPrix = AutrePrix::where('article_id', $articleId)->get();
+
+    // Formater les données à retourner
+    $response = [
+        'article' => [
+            'id' => $article->id,
+            'nom_article' => $article->nom_article,
+            'prix_unitaire' => $article->prix_unitaire,
+        ],
+        'autres_prix' => $autresPrix
+    ];
+
+    return response()->json($response);
+}
 
 }
