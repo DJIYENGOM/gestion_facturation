@@ -30,4 +30,9 @@ class CompteComptable extends Model
     {
         return $this->hasMany(Article::class, 'id_comptable');
     }
+
+    public function clients()
+    {
+        return $this->hasMany(Client::class, 'id_comptable');
+    }
 }

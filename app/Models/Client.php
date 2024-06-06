@@ -9,6 +9,7 @@ class Client extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'num_client',
         'nom_client',
         'prenom_client',
         'nom_entreprise',
@@ -31,8 +32,34 @@ class Client extends Model
         'code_postal_livraison',
         'tel_destinataire',
         'email_destinataire',
-        'infoSupplemnt'
+        'infoSupplemnt',
+        'id_comptable'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($Client) {
+            // Générer le num_client s'il n'est pas fourni ou s'il existe déjà
+            if (empty($Client->num_client) || self::where('num_client', $Client->num_client)->exists()) {
+                $Client->num_client = self::generateUniqueNumClient();
+            }
+        });
+    }
+
+    private static function generateUniqueNumClient()
+    {
+        $latestClient = self::latest('id')->first();
+        $nextId = $latestClient ? $latestClient->id + 1 : 1;
+        $numClient = str_pad($nextId, 6, '0', STR_PAD_LEFT);
+
+        while (self::where('num_client', $numClient)->exists()) {
+            $nextId++;
+            $numClient = str_pad($nextId, 6, '0', STR_PAD_LEFT);
+        }
+        return $numClient;
+    }
 
     public function sousUtilisateur()
     {
@@ -56,5 +83,10 @@ class Client extends Model
     public function GrilleTarifaire()
     {
         return $this->hasMany(GrilleTarifaire::class);
+    }
+
+    public function compteComptable()
+    {
+        return $this->belongsTo(CompteComptable::class, 'id_comptable');
     }
 }

@@ -82,6 +82,18 @@ class Sous_Utilisateur extends Authenticatable implements JWTSubject
         return $this->hasMany(GrilleTarifaire::class, 'sousUtilisateur_id');
     }
 
+    public function lot()
+    {
+        return $this->hasMany(Lot::class, 'sousUtilisateur_id');
+    }
+
+    public function AutrePrix()
+    {
+        return $this->hasMany(AutrePrix::class, 'sousUtilisateur_id');
+    }
+
+   
+
     public function getJWTIdentifier()
     {
         return $this->getKey();

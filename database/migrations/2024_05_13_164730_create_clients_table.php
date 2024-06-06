@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
+            $table->string('num_client')->unique();
             $table->string('nom_client')->nullable();
             $table->string('prenom_client')->nullable();
             $table->string('nom_entreprise')->nullable();
@@ -37,6 +38,7 @@ return new class extends Migration
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');            
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('categorie_id')->nullable()->constrained('categorie_clients')->onDelete('set null');
+            $table->foreignId('id_comptable')->nullable()->constrained('compte_comptables')->onDelete('set null');
 
             $table->timestamps();
         });

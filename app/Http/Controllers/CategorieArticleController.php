@@ -45,29 +45,65 @@ class CategorieArticleController extends Controller
     }
     
     
-    public function listerCategorie()
+    public function listerCategorieProduit()
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
-            $categories = CategorieArticle::where('sousUtilisateur_id', $sousUtilisateurId)
-                ->orWhere('user_id', $userId)
-                ->get();
+            $categories = CategorieArticle::where(function($query) use ($sousUtilisateurId, $userId) {
+                $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                      ->orWhere('user_id', $userId);
+            })
+            ->where('type_categorie_article', 'produit')
+            ->get();
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $categories = CategorieArticle::where('user_id', $userId)
-                ->orWhereHas('sousUtilisateurs', function($query) use ($userId) {
-                    $query->where('id_user', $userId);
-                })
-                ->get();
+            $categories = CategorieArticle::where(function($query) use ($userId) {
+                $query->where('user_id', $userId)
+                      ->orWhereHas('sousUtilisateurs', function($subQuery) use ($userId) {
+                          $subQuery->where('id_user', $userId);
+                      });
+            })
+            ->where('type_categorie_article', 'produit')
+            ->get();
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
     
         return response()->json(['CategorieArticle' => $categories]);
-    }    
+    }
+
+    public function listerCategorieService()
+    {
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+    
+            $categories = CategorieArticle::where(function($query) use ($sousUtilisateurId, $userId) {
+                $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                      ->orWhere('user_id', $userId);
+            })
+            ->where('type_categorie_article', 'service')
+            ->get();
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+    
+            $categories = CategorieArticle::where(function($query) use ($userId) {
+                $query->where('user_id', $userId)
+                      ->orWhereHas('sousUtilisateurs', function($subQuery) use ($userId) {
+                          $subQuery->where('id_user', $userId);
+                      });
+            })
+            ->where('type_categorie_article', 'service')
+            ->get();
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    
+        return response()->json(['CategorieArticle' => $categories]);
+    } 
 
     public function modifierCategorie(Request $request, $id)
 {

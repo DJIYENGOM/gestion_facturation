@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
+use App\Models\CompteComptable;
+
 
 class ClientController extends Controller
 {
@@ -27,6 +29,8 @@ class ClientController extends Controller
             'type_client' => 'required|in:particulier,entreprise',
             'statut_client' => 'required|in:client,prospect',
             'categorie_id' => 'nullable|exists:categorie_clients,id',
+            'num_client' => 'nullable|string|unique:clients,num_client',
+
         ];
     
         $particulierRules = [
@@ -61,8 +65,22 @@ class ClientController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
+
+        
+        if (!$request->has('id_comptable')) {
+                $compte = CompteComptable::where('nom_compte_comptable', 'Clients divers')
+                                         ->first();
+            if ($compte) {
+                $id_comptable = $compte->id;
+            } else {
+                return response()->json(['error' => 'Compte comptable par défaut introuvable pour cet utilisateur'], 404);
+            }
+        } else {
+            $id_comptable = $request->id_comptable;
+        }
     
         $client = new Client([
+            'num_client' => $request->num_client,
             'nom_client' => $request->nom_client,
             'prenom_client' => $request->prenom_client,
             'nom_entreprise' => $request->nom_entreprise,
@@ -86,6 +104,7 @@ class ClientController extends Controller
             'sousUtilisateur_id' => $sousUtilisateur_id,
             'user_id' => $user_id,
             'categorie_id' => $request->categorie_id,
+            'id_comptable' => $id_comptable,
         ]);
     
         $client->save();
@@ -100,14 +119,14 @@ class ClientController extends Controller
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
-            $clients = Client::with('categorie')
+            $clients = Client::with('categorie','CompteComptable')
                 ->where('sousUtilisateur_id', $sousUtilisateurId)
                 ->orWhere('user_id', $userId)
                 ->get();
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $clients = Client::with('categorie')
+            $clients = Client::with('categorie','CompteComptable')
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                     $query->where('id_user', $userId);
@@ -120,6 +139,7 @@ class ClientController extends Controller
         $clientsArray = $clients->map(function ($client) {
             $clientArray = $client->toArray();
             $clientArray['nom_categorie'] = optional($client->categorie)->nom_categorie;
+            $clientArray['nom_comptable'] = optional($client->CompteComptable)->nom_compte_comptable;
             return $clientArray;
         });
     

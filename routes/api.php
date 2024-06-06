@@ -98,7 +98,8 @@ Route::controller(ClientController::class)->group(function () {
 
 Route::controller(CategorieArticleController::class)->group(function () {
     Route::post('ajouterCategorieArticle', 'ajouterCategorie');
-    Route::get('listerCategorieArticle', 'listerCategorie');
+    Route::get('listerCategorieProduit', 'listerCategorieProduit');
+    Route::get('listerCategorieService', 'listerCategorieService');
     Route::post('modifierCategorieArticle/{id}', 'modifierCategorie');
     Route::delete('supprimerCategorieArticle/{id}', 'supprimerCategorie');
 });

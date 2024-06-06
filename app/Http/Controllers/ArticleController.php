@@ -542,19 +542,83 @@ public function affecterComptableArticle(Request $request, $id)
 
 public function listerLotsArticle($articleId)
 {
-    $lots = Lot::where('article_id', $articleId)->get();
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+             Article::findOrFail($articleId)
+            ->where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId);
+            $lots = Lot::where('article_id', $articleId)->get();
+
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+             Article::with('categorieArticle', 'CompteComptable')
+            ->where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                $query->where('id_user', $userId);
+            });
+            $lots = Lot::where('article_id', $articleId)->get();
+
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
     return response()->json(['lots' => $lots]);
 }
 
 public function listerAutrePrixArticle($articleId)
 {
-    $prixAlternatifs = AutrePrix::where('article_id', $articleId)->get();
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+             Article::findOrFail($articleId)
+            ->where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId);
+            $prixAlternatifs = AutrePrix::where('article_id', $articleId)->get();
+
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+             Article::with('categorieArticle', 'CompteComptable')
+            ->where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                $query->where('id_user', $userId);
+            });
+            $prixAlternatifs = AutrePrix::where('article_id', $articleId)->get();
+
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
     return response()->json(['autre_prix' => $prixAlternatifs]);
 }
 
 public function listerEntrepotsArticle($articleId)
 {
-    $entrepots = EntrepotArticle::where('article_id', $articleId)->get();
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+             Article::findOrFail($articleId)
+            ->where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId);
+            $entrepots = EntrepotArticle::where('article_id', $articleId)->get();
+
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+             Article::with('categorieArticle', 'CompteComptable')
+            ->where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                $query->where('id_user', $userId);
+            });
+            $entrepots = EntrepotArticle::where('article_id', $articleId)->get();
+
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
     return response()->json(['entrepots' => $entrepots]);
 }
 
@@ -574,9 +638,13 @@ public function afficherArticleAvecPrix($articleId)
         'article' => [
             'id' => $article->id,
             'nom_article' => $article->nom_article,
-            'prix_unitaire' => $article->prix_unitaire,
+            'prix_unitaire (HT)' => $article->prix_unitaire,
+            'prix_promo' => $article->prixPromo,
+            'prix_Tva (HTT)' => $article->prix_Tva,
+
         ],
-        'autres_prix' => $autresPrix
+        'autres_prix' => $autresPrix,
+
     ];
 
     return response()->json($response);

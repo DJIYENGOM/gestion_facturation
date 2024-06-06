@@ -23,6 +23,730 @@
         "multipart/form-data"
     ],
     "paths": {
+        "/api/supprimerGrilleTarifaire/{idTarif}": {
+            "delete": {
+                "summary": "supprimer tarif d'un client",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des grilles tarifaires"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "idTarif",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/modifierGrilleTarifaire/{idTarif}": {
+            "post": {
+                "summary": "modifier tarif d'un client",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des grilles tarifaires"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "idTarif",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "montantTarif": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "montantTarif": "30000"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/listerTariPourClientSurArticle/{clientId}/{articleId}": {
+            "get": {
+                "summary": "lister tarif d'un client sur un article",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des grilles tarifaires"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "clientId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "articleId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/creerGrilleTarifaire": {
+            "post": {
+                "summary": "creer Grille Tarifaire",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des grilles tarifaires"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "idArticle": {
+                                        "type": "string"
+                                    },
+                                    "idClient": {
+                                        "type": "string"
+                                    },
+                                    "montantTarif": {
+                                        "type": "string"
+                                    },
+                                    "tva": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "idArticle": "2",
+                                "idClient": "1",
+                                "montantTarif": "20000",
+                                "tva": "50"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/supprimerEntrepot/{id}": {
+            "delete": {
+                "summary": "supprimer Entrepot",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des entrepots"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/modifierEntrepot/{id}": {
+            "post": {
+                "summary": "modifier Entrepots",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des entrepots"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nomEntrepot": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nomEntrepot": "depot11"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/listerEntrepots": {
+            "get": {
+                "summary": "lister enterpots ",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des entrepots"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/ajouterEntrepot": {
+            "post": {
+                "summary": "ajouter entrepot",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des entrepots"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nomEntrepot": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nomEntrepot": "depot1"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/modifierCompteComptable/{id}": {
+            "post": {
+                "summary": "modifier Compte Comptable",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion Compte Comptable"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "code_compte_comptable": {
+                                        "type": "string"
+                                    },
+                                    "nom_compte_comptable": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "code_compte_comptable": "260600",
+                                "nom_compte_comptable": "TVA collectéeEE"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/listerCompteComptables": {
+            "get": {
+                "summary": "lister Compte Comptables",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion Compte Comptable"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/ajouterCompteComptable": {
+            "post": {
+                "summary": "ajouter Compte Comptable",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion Compte Comptable"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nom_compte_comptable": {
+                                        "type": "string"
+                                    },
+                                    "code_compte_comptable": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nom_compte_comptable": "comptable Die",
+                                "code_compte_comptable": "260600"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/listerFactures": {
             "get": {
                 "summary": "lister les Factures",
@@ -68,7 +792,7 @@
                 ]
             }
         },
-        "/api/listeArticlesFacture/2": {
+        "/api/listeArticlesFacture/{id_facture}": {
             "post": {
                 "summary": "liste des Articles d'une Facture",
                 "description": "",
@@ -114,6 +838,11 @@
                     "gestion facture"
                 ],
                 "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id_facture",
+                        "type": "string"
+                    },
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -221,7 +950,7 @@
                 }
             }
         },
-        "/api/supprimerPayement/7": {
+        "/api/supprimerPayement/{id}": {
             "delete": {
                 "summary": "supprimer service",
                 "description": "",
@@ -275,7 +1004,7 @@
                 ]
             }
         },
-        "/api/modifierPayement/8": {
+        "/api/modifierPayement/{id}": {
             "post": {
                 "summary": "modifier service de payement",
                 "description": "",
@@ -321,6 +1050,11 @@
                     "gestion des services de payement"
                 ],
                 "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -462,7 +1196,7 @@
                 }
             }
         },
-        "/api/supprimerNote/1": {
+        "/api/supprimerNote/{id}": {
             "delete": {
                 "summary": "supprimer Note",
                 "description": "",
@@ -509,6 +1243,11 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -516,7 +1255,7 @@
                 ]
             }
         },
-        "/api/modifierNote/1": {
+        "/api/modifierNote/{id}": {
             "post": {
                 "summary": "modifier Note",
                 "description": "",
@@ -562,6 +1301,11 @@
                     "Notes des quantités modifiees"
                 ],
                 "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -1088,7 +1832,7 @@
                                 }
                             },
                             "example": {
-                                "prenom_client": "die",
+                                "prenom_client": "bintou",
                                 "nom_client": "ngom",
                                 "email_client": "ibou@gmail.com",
                                 "adress_client": "parcelle",
@@ -1517,7 +2261,52 @@
                 }
             }
         },
-        "/api/supprimerCategorieArticle/11": {
+        "/api/listerCategorieService": {
+            "get": {
+                "summary": "lister categorie service",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion categories articles"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/supprimerCategorieArticle/{id}": {
             "delete": {
                 "summary": "supprimer Categorie article",
                 "description": "",
@@ -1652,9 +2441,9 @@
                 }
             }
         },
-        "/api/listerCategorieArticle": {
+        "/api/listerCategorieProduit": {
             "get": {
-                "summary": "lister Categorie Article",
+                "summary": "lister Categorie produit",
                 "description": "",
                 "responses": {
                     "200": {
@@ -1757,18 +2546,222 @@
                                 "properties": {
                                     "nom_categorie_article": {
                                         "type": "string"
+                                    },
+                                    "type_categorie_article": {
+                                        "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "nom_categorie_article": "fer"
+                                "nom_categorie_article": "soin de visage",
+                                "type_categorie_article": "service"
                             }
                         }
                     }
                 }
             }
         },
-        "/api/articles_modifier_quantite/4": {
+        "/api/afficherArticleAvecPrix/{articleId}": {
+            "get": {
+                "summary": "afficher un Article Avec ses Prix",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion article"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "articleId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listerEntrepotsArticle/{articleId}": {
+            "get": {
+                "summary": "Entrepot par Article",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion article"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "articleId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listerAutrePrixArticle/{articleId}": {
+            "get": {
+                "summary": "lister Autre Prix par Article",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion article"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "articleId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listerLotsArticle/{articleId}": {
+            "get": {
+                "summary": "liste Lot par article",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion article"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "articleId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/articles_modifier_quantite/{id}": {
             "post": {
                 "summary": "articles modifier quantite",
                 "description": "",
@@ -1814,6 +2807,11 @@
                     "gestion article"
                 ],
                 "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -1988,7 +2986,7 @@
                                 }
                             },
                             "example": {
-                                "promo_id": "3"
+                                "promo_id": "1"
                             }
                         }
                     }
@@ -2040,7 +3038,7 @@
                 ]
             }
         },
-        "/api/supprimerArticle/10": {
+        "/api/supprimerArticle/3": {
             "delete": {
                 "summary": "supprimer Article",
                 "description": "",
@@ -2165,42 +3163,84 @@
                                     "nom_article": {
                                         "type": "string"
                                     },
+                                    "num_article": {
+                                        "type": "string"
+                                    },
                                     "description": {
                                         "type": "string"
                                     },
+                                    "reduction_facture": {
+                                        "type": "integer"
+                                    },
                                     "prix_unitaire": {
-                                        "type": "string"
+                                        "type": "integer"
                                     },
                                     "type_article": {
                                         "type": "string"
                                     },
-                                    "promo_id": {
-                                        "type": "string"
-                                    },
-                                    "prix_achat": {
+                                    "unité": {
                                         "type": "string"
                                     },
                                     "quantite": {
                                         "type": "string"
                                     },
-                                    "quantite_alert": {
-                                        "type": "string"
+                                    "autres_prix": {
+                                        "type": "string",
+                                        "format": "binary"
                                     },
-                                    "id_categorie_article": {
-                                        "type": "string"
+                                    "variantes": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "lots": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "entrepots": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "nom_article": "ordinateur",
-                                "description": "ejnhbvhgfcfbnghk,n",
-                                "prix_unitaire": "50000",
-                                "type_article": "service",
-                                "promo_id": "",
-                                "prix_achat": "20000",
-                                "quantite": "",
-                                "quantite_alert": "",
-                                "id_categorie_article": "1"
+                                "nom_article": "parfums 100",
+                                "num_article": "000003",
+                                "description": "Some notes about the facture",
+                                "reduction_facture": 1000,
+                                "prix_unitaire": 20000,
+                                "type_article": "produit",
+                                "unité": "tonne",
+                                "quantite": "10",
+                                "autres_prix": [
+                                    {
+                                        "titrePrix": "prix client fidel",
+                                        "montant": 10000,
+                                        "tva": 50
+                                    },
+                                    {
+                                        "titrePrix": "prix des senegalais",
+                                        "montant": 15000,
+                                        "tva": 50
+                                    }
+                                ],
+                                "variantes": [
+                                    {
+                                        "nomVariante": "blanc",
+                                        "quantite": 50
+                                    }
+                                ],
+                                "lots": [
+                                    {
+                                        "nomLot": "lot2",
+                                        "quantiteLot": 5
+                                    }
+                                ],
+                                "entrepots": [
+                                    {
+                                        "id_entrepot": 1,
+                                        "quantiteArt_entrepot": 5
+                                    }
+                                ]
                             }
                         }
                     }
@@ -2271,39 +3311,85 @@
                                     "description": {
                                         "type": "string"
                                     },
+                                    "reduction_facture": {
+                                        "type": "integer"
+                                    },
                                     "prix_unitaire": {
-                                        "type": "string"
+                                        "type": "integer"
+                                    },
+                                    "promo_id": {
+                                        "type": "integer"
+                                    },
+                                    "tva": {
+                                        "type": "integer"
                                     },
                                     "type_article": {
                                         "type": "string"
                                     },
-                                    "promo_id": {
-                                        "type": "string"
-                                    },
-                                    "id_categorie_article": {
-                                        "type": "string"
-                                    },
-                                    "prix_achat": {
+                                    "unité": {
                                         "type": "string"
                                     },
                                     "quantite": {
                                         "type": "string"
                                     },
-                                    "quantite_alert": {
-                                        "type": "string"
+                                    "autres_prix": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "variantes": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "lots": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "entrepots": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "nom_article": "montre",
-                                "description": "jvhn nsmdljnvjknb jck",
-                                "prix_unitaire": "20000",
+                                "nom_article": "tele 50",
+                                "description": "Some notes about the facture",
+                                "reduction_facture": 1000,
+                                "prix_unitaire": 20000,
+                                "promo_id": 1,
+                                "tva": 50,
                                 "type_article": "produit",
-                                "promo_id": "",
-                                "id_categorie_article": "1",
-                                "prix_achat": "",
+                                "unité": "tonne",
                                 "quantite": "10",
-                                "quantite_alert": ""
+                                "autres_prix": [
+                                    {
+                                        "titrePrix": "prix client fidel",
+                                        "montant": 10000,
+                                        "tva": 50
+                                    },
+                                    {
+                                        "titrePrix": "prix des senegalais",
+                                        "montant": 15000,
+                                        "tva": 50
+                                    }
+                                ],
+                                "variantes": [
+                                    {
+                                        "nomVariante": "noire",
+                                        "quantite": 50
+                                    }
+                                ],
+                                "lots": [
+                                    {
+                                        "nomLot": "lot1",
+                                        "quantiteLot": 5
+                                    }
+                                ],
+                                "entrepots": [
+                                    {
+                                        "id_entrepot": 1,
+                                        "quantiteArt_entrepot": 5
+                                    }
+                                ]
                             }
                         }
                     }
@@ -2568,9 +3654,9 @@
                                 }
                             },
                             "example": {
-                                "nom_promo": " promo 30%",
-                                "pourcentage_promo": "30",
-                                "date_expiration": "2024-05-25"
+                                "nom_promo": " promo 50%",
+                                "pourcentage_promo": "50",
+                                "date_expiration": "2024-06-25"
                             }
                         }
                     }
@@ -3626,7 +4712,7 @@
                                 }
                             },
                             "example": {
-                                "email": "cisse@gmail.com",
+                                "email": "awa@gmail.com",
                                 "password": "ciss123@"
                             }
                         }
@@ -3705,7 +4791,7 @@
                             },
                             "example": {
                                 "name": "awa",
-                                "email": "cisse@gmail.com",
+                                "email": "awa@gmail.com",
                                 "password": "ciss123@"
                             }
                         }
