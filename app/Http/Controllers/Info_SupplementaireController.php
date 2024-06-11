@@ -65,7 +65,7 @@ public function afficherInfoEntreprise()
     if (!$user) {
         return response()->json(['error' => 'utilisateur non trouve'], 404);
     }
-
+//dd($user);
     $logoUrl = $user->logo ? asset('storage/' . $user->logo) : null;
 
     return response()->json([
@@ -74,7 +74,7 @@ public function afficherInfoEntreprise()
             'nom_entreprise' => $user->nom_entreprise,
             'description_entreprise' => $user->description_entreprise,
             'logo' => $logoUrl,
-            'adresse_entreprise' => $user->adresse_entreprise,
+            'adresse_entreprise' => $user->adress_entreprise,
             'tel_entreprise' => $user->tel_entreprise,
         ]
     ]);
