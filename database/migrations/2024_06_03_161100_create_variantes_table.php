@@ -12,7 +12,7 @@ class CreateVariantesTable extends Migration
             $table->id();
             $table->foreignId('article_id')->constrained('articles')->onDelete('cascade');
             $table->string('nomVariante')->nullable();
-            $table->integer('quantiteVariante')->default(0);
+            $table->integer('quantiteVariante')->nullable();
             $table->timestamps();
         });
     }

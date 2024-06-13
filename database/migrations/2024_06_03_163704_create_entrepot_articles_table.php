@@ -10,9 +10,9 @@ class CreateEntrepotArticlesTable extends Migration
     {
         Schema::create('entrepot_articles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('article_id')->constrained('articles')->onDelete('cascade');
-            $table->foreignId('entrepot_id')->constrained('entrepots')->onDelete('cascade');
-            $table->integer('quantiteArt_entrepot')->default(0);
+            $table->foreignId('article_id')->nullable()->constrained('articles')->onDelete('cascade');
+            $table->foreignId('entrepot_id')->nullable()->constrained('entrepots')->onDelete('cascade');
+            $table->integer('quantiteArt_entrepot')->nullable();
             $table->timestamps();
         });
     }
