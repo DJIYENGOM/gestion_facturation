@@ -34,7 +34,7 @@ class ArticleController extends Controller
             'prix_unitaire' => 'required|numeric|min:0',
             'tva'=>'nullable|numeric|min:0',
             'type_article' => 'required|in:produit,service',
-            'unité' => 'required|in:unite,kg,tonne,cm,l,m,m2,m3,h,jour,semaine,mois',
+            'unité' => 'required|in:unite,kg,tonne,cm,l,m,m2,m3,h,jour,semaine,mois,g',
             'categorie_article_id' => 'nullable|exists:categorie_articles,id',
             'id_comptable' => 'nullable|exists:compte_comptables,id',
             'promo_id' => 'nullable|exists:promos,id',

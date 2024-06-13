@@ -11,7 +11,7 @@ class CreateVariantesTable extends Migration
         Schema::create('variantes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('article_id')->constrained('articles')->onDelete('cascade');
-            $table->string('nomVariante');
+            $table->string('nomVariante')->nullable();
             $table->integer('quantiteVariante')->default(0);
             $table->timestamps();
         });

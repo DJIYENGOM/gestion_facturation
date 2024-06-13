@@ -11,7 +11,7 @@ class CreateLotsTable extends Migration
         Schema::create('lots', function (Blueprint $table) {
             $table->id();
             $table->foreignId('article_id')->constrained('articles')->onDelete('cascade');
-            $table->string('nomLot');
+            $table->string('nomLot')->nullable();
             $table->integer('quantiteLot')->default(0);
             $table->timestamps();
         });
