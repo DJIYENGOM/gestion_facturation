@@ -92,7 +92,20 @@ class Sous_Utilisateur extends Authenticatable implements JWTSubject
         return $this->hasMany(AutrePrix::class, 'sousUtilisateur_id');
     }
 
-   
+    public function echeances()
+    {
+        return $this->hasMany(Echeance::class, 'sousUtilisateur_id');
+    }
+
+    public function factureAccompts()
+    {
+        return $this->hasMany(FactureAccompt::class, 'sousUtilisateur_id');
+    }
+
+    public function PaiementRecu()
+    {
+        return $this->hasMany(PaiementRecu::class, 'sousUtilisateur_id');
+    }
 
     public function getJWTIdentifier()
     {

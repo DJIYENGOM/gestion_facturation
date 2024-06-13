@@ -121,6 +121,20 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(GrilleTarifaire::class, 'user_id');
     }
 
+    public function echeances()
+    {
+        return $this->hasMany(Echeance::class, 'user_id');
+    }
+
+    public function factureAccompts()
+    {
+        return $this->hasMany(FactureAccompt::class, 'user_id');
+    }
+
+    public function PaiementRecu()
+    {
+        return $this->hasMany(PaiementRecu::class, 'user_id');
+    }
     protected static function booted()
     {
         static::created(function ($user) {

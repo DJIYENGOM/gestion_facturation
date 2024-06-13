@@ -20,9 +20,202 @@
         }
     },
     "consumes": [
-        "multipart/form-data"
+        "multipart/form-data",
+        "application/json"
     ],
     "paths": {
+        "/api/supprimerEcheance/1": {
+            "delete": {
+                "summary": "supprimer Echeance",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture echeance"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listEcheanceParFacture/1": {
+            "post": {
+                "summary": "lister echeance par facture",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture echeance"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/factures_echeances/1": {
+            "post": {
+                "summary": "ajouter une echeance",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture echeance"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_pay_echeance": {
+                                        "type": "string"
+                                    },
+                                    "montant_echeance": {
+                                        "type": "string"
+                                    },
+                                    "commentaire": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_pay_echeance": "2024-06-15",
+                                "montant_echeance": "20000",
+                                "commentaire": "echeance de la facture 1"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/supprimerGrilleTarifaire/{idTarif}": {
             "delete": {
                 "summary": "supprimer tarif d'un client",
@@ -747,6 +940,227 @@
                 }
             }
         },
+        "/api/listerFacturesPayer": {
+            "post": {
+                "summary": "lister Factures Payer",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listerFacturesAccompt": {
+            "post": {
+                "summary": "lister Factures en Accompt",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listerFacturesEcheance": {
+            "post": {
+                "summary": "lister Factures en Echeance",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/supprimeArchiveFacture/5": {
+            "delete": {
+                "summary": "supprimer ou archiver facture",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/listerFactures": {
             "get": {
                 "summary": "lister les Factures",
@@ -918,6 +1332,12 @@
                                     "reduction_facture": {
                                         "type": "integer"
                                     },
+                                    "type_paiement": {
+                                        "type": "string"
+                                    },
+                                    "id_paiement": {
+                                        "type": "integer"
+                                    },
                                     "articles": {
                                         "type": "string",
                                         "format": "binary"
@@ -928,20 +1348,21 @@
                                 "client_id": 1,
                                 "note_fact": "Some notes about the facture",
                                 "reduction_facture": 1000,
+                                "type_paiement": "immediat",
+                                "id_paiement": 1,
                                 "articles": [
                                     {
                                         "id_article": 1,
                                         "quantite_article": 2,
                                         "prix_unitaire_article": 5000,
-                                        "TVA_article": 0,
-                                        "reduction_article": 500
+                                        "reduction_article": 5
                                     },
                                     {
                                         "id_article": 2,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 1000,
-                                        "TVA_article": 0,
-                                        "reduction_article": 500
+                                        "TVA_article": 10,
+                                        "reduction_article": 50
                                     }
                                 ]
                             }
@@ -1832,7 +2253,7 @@
                                 }
                             },
                             "example": {
-                                "prenom_client": "bintou",
+                                "prenom_client": "ima",
                                 "nom_client": "ngom",
                                 "email_client": "ibou@gmail.com",
                                 "adress_client": "parcelle",
@@ -2595,7 +3016,7 @@
                     }
                 },
                 "tags": [
-                    "gestion article"
+                    "gestion des articles"
                 ],
                 "parameters": [
                     {
@@ -2645,7 +3066,7 @@
                     }
                 },
                 "tags": [
-                    "gestion article"
+                    "gestion des articles"
                 ],
                 "parameters": [
                     {
@@ -2695,7 +3116,7 @@
                     }
                 },
                 "tags": [
-                    "gestion article"
+                    "gestion des articles"
                 ],
                 "parameters": [
                     {
@@ -2711,7 +3132,7 @@
                 ]
             }
         },
-        "/api/listerLotsArticle/{articleId}": {
+        "/api/listerLotsArticle/5": {
             "get": {
                 "summary": "liste Lot par article",
                 "description": "",
@@ -2745,7 +3166,7 @@
                     }
                 },
                 "tags": [
-                    "gestion article"
+                    "gestion des articles"
                 ],
                 "parameters": [
                     {
@@ -2804,7 +3225,7 @@
                     }
                 },
                 "tags": [
-                    "gestion article"
+                    "gestion des articles"
                 ],
                 "parameters": [
                     {
@@ -2884,7 +3305,7 @@
                     }
                 },
                 "tags": [
-                    "gestion article"
+                    "gestion des articles"
                 ],
                 "parameters": [
                     {
@@ -2960,7 +3381,7 @@
                     }
                 },
                 "tags": [
-                    "gestion article"
+                    "gestion des articles"
                 ],
                 "parameters": [
                     {
@@ -3027,7 +3448,7 @@
                     }
                 },
                 "tags": [
-                    "gestion article"
+                    "gestion des articles"
                 ],
                 "parameters": [
                     {
@@ -3081,7 +3502,7 @@
                     }
                 },
                 "tags": [
-                    "gestion article"
+                    "gestion des articles"
                 ],
                 "parameters": [
                     {
@@ -3140,7 +3561,7 @@
                     }
                 },
                 "tags": [
-                    "gestion article"
+                    "gestion des articles"
                 ],
                 "parameters": [
                     {
@@ -3156,7 +3577,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3290,7 +3711,7 @@
                     }
                 },
                 "tags": [
-                    "gestion article"
+                    "gestion des articles"
                 ],
                 "parameters": [
                     {
@@ -3301,7 +3722,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3351,7 +3772,7 @@
                                 }
                             },
                             "example": {
-                                "nom_article": "tele 50",
+                                "nom_article": "ordi",
                                 "description": "Some notes about the facture",
                                 "reduction_facture": 1000,
                                 "prix_unitaire": 20000,
@@ -3375,19 +3796,19 @@
                                 "variantes": [
                                     {
                                         "nomVariante": "noire",
-                                        "quantite": 50
+                                        "quantiteVariante": 50
                                     }
                                 ],
                                 "lots": [
                                     {
-                                        "nomLot": "lot1",
+                                        "nomLot": "lot 1",
                                         "quantiteLot": 5
                                     }
                                 ],
                                 "entrepots": [
                                     {
-                                        "id_entrepot": 1,
-                                        "quantiteArt_entrepot": 5
+                                        "entrepot_id": 1,
+                                        "quantiteArt_entrepot": 20
                                     }
                                 ]
                             }
@@ -4001,9 +4422,9 @@
                                 }
                             },
                             "example": {
-                                "nom": "Ibnou",
+                                "nom": "ima",
                                 "prenom": "diop",
-                                "email": "Ibnou@gmail.com",
+                                "email": "ima@gmail.com",
                                 "password": "123456p@",
                                 "role": "administrateur",
                                 "archiver": "oui"
@@ -4529,7 +4950,7 @@
                                 }
                             },
                             "example": {
-                                "email": "fallou@gmail.com",
+                                "email": "ima@gmail.com",
                                 "password": "123456p@"
                             }
                         }
@@ -4712,7 +5133,7 @@
                                 }
                             },
                             "example": {
-                                "email": "awa@gmail.com",
+                                "email": "fallou@gmail.com",
                                 "password": "ciss123@"
                             }
                         }
@@ -4790,8 +5211,8 @@
                                 }
                             },
                             "example": {
-                                "name": "awa",
-                                "email": "awa@gmail.com",
+                                "name": "fallou",
+                                "email": "fallou@gmail.com",
                                 "password": "ciss123@"
                             }
                         }

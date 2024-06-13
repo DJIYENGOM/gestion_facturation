@@ -1,7 +1,10 @@
-facture =>date de payment,
+//facture =>date de payment,
 
-si la facture est validé le stck doit duminuer
+// si la facture est validé le stck doit duminuer
 
-devis => date d'expiration
+// devis => date d'expiration
 
-distinguerles categorie de produits
+// distinguerles categorie de produits
+
+//   //$table->enum('validation', ['non', 'oui'])->default('non');  
+//   :de le definir comme activer le stock

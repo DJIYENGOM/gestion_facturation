@@ -15,12 +15,16 @@ class Facture extends Model
         'reduction_facture', 
         'montant_total_fact',
         'note_fact',
+        'date_paiement',
         'archiver',
-        'validation',
-        'statut',
+        'active_Stock',
+        'statut_paiement',
         'client_id',
         'sousUtilisateur_id',
-        'user_id'
+        'user_id',
+        'type_paiement',
+        'id_paiement',
+        'id_comptable',
     ];
 
     public function client()
@@ -33,6 +37,35 @@ class Facture extends Model
     {
         return $this->hasMany(ArtcleFacture::class);
     }
+    public function sousUtilisateur()
+    {
+        return $this->belongsTo(Sous_Utilisateur::class, 'sousUtilisateur_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function echeances()
+    {
+        return $this->hasMany(Echeance::class);
+    }
+
+    public function factureAccompts()
+    {
+        return $this->hasMany(FactureAccompt::class);
+    }
+
+    public function paiement()
+    {
+        return $this->belongsTo(Payement::class, 'id_paiement');
+    }
+    public function compteComptable()
+    {
+        return $this->belongsTo(CompteComptable::class, 'id_comptable');
+    }
+
 
     public static function generateNumFacture($id)
     {

@@ -10,7 +10,25 @@ class Article extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nom_article','num_article','tva','prix_tva','doc_externe','unité','id_comptable', 'description', 'prix_unitaire','quantite','prix_achat','benefice', 'type_article','prix_promo','benefice_promo', 'promo_id','quantite_alert', 'sousUtilisateur_id','user_id','id_categorie_article'];
+    protected $fillable = [
+        'nom_article',
+        'num_article',
+        'tva',
+        'prix_tva',
+        'doc_externe',
+        'unité',
+        'id_comptable', 
+        'description', 
+        'prix_unitaire',
+        'quantite',
+        'prix_achat',
+        'benefice',
+        'type_article',
+        'prix_promo',
+        'benefice_promo', 
+        'promo_id',
+        'quantite_alert', 
+        'sousUtilisateur_id','user_id','id_categorie_article'];
 
 
     protected static function boot()

@@ -49,12 +49,12 @@ class ArticleController extends Controller
             'autres_prix.*.tva' => 'nullable|numeric|min:0|max:100',
             'variantes' => 'nullable|array',
             'variantes.*.nomVariante' => 'required_with:variantes|string|max:255',
-            'variantes.*.quantite' => 'required_with:variantes|integer|min:0',
+            'variantes.*.quantiteVariante' => 'required_with:variantes|integer|min:0',
             'lots' => 'nullable|array',
             'lots.*.nomLot' => 'required_with:lots|string|max:255',
             'lots.*.quantiteLot' => 'required_with:lots|integer|min:0',
             'entrepots' => 'nullable|array',
-            'entrepots.*.id_entrepot' => 'required_with:entrepots|exists:entrepots,id',
+            'entrepots.*.entrepot_id' => 'required_with:entrepots|exists:entrepots,id',
             'entrepots.*.quantiteArt_entrepot' => 'required_with:entrepots|integer|min:0',
         ]);
     
@@ -145,7 +145,7 @@ class ArticleController extends Controller
                 $var = new Variante([
                     'article_id' => $article->id,
                     'nomVariante' => $variante['nomVariante'],
-                    'quantite' => $variante['quantite'],
+                    'quantiteVariante' => $variante['quantiteVariante'],
                 ]);
                 $var->save();
             }
@@ -166,7 +166,7 @@ class ArticleController extends Controller
             foreach ($request->entrepots as $entrepot) {
                 $entrepotArticle = new EntrepotArticle([
                     'article_id' => $article->id,
-                    'entrepot_id' => $entrepot['id_entrepot'],
+                    'entrepot_id' => $entrepot['entrepot_id'],
                     'quantiteArt_entrepot' => $entrepot['quantiteArt_entrepot'],
                 ]);
                 $entrepotArticle->save();
@@ -554,7 +554,7 @@ public function listerLotsArticle($articleId)
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-             Article::with('categorieArticle', 'CompteComptable')
+             Article::findOrFail($articleId)->with('categorieArticle', 'CompteComptable')
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);
@@ -582,7 +582,7 @@ public function listerAutrePrixArticle($articleId)
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-             Article::with('categorieArticle', 'CompteComptable')
+             Article::findOrFail($articleId)->with('categorieArticle', 'CompteComptable')
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);
@@ -609,7 +609,7 @@ public function listerEntrepotsArticle($articleId)
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-             Article::with('categorieArticle', 'CompteComptable')
+             Article::findOrFail($articleId)->with('categorieArticle', 'CompteComptable')
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);

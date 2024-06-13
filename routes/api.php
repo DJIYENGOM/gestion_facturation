@@ -7,6 +7,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\EcheanceController;
 use App\Http\Controllers\EntrepotController;
 use App\Http\Controllers\PayementController;
 use App\Http\Controllers\CategorieClientController;
@@ -114,10 +115,15 @@ Route::controller(PayementController::class)->group(function () {
 
 Route::post('creerFacture', [FactureController::class, 'creerFacture']);
 Route::post('listeArticlesFacture/{id_facture}', [FactureController::class, 'listeArticlesFacture']);
-Route::get('listerFactures', [FactureController::class, 'listerFactures']);
+Route::get('listerFactures', [FactureController::class, 'listerToutesFactures']);
 Route::post('lireFacture/{id}', [FactureController::class, 'lireFacture']);
 Route::post('validerFacture/{id}', [FactureController::class, 'validerFacture']);
-Route::post('supprimerFacture/{id}', [FactureController::class, 'supprimerFacture']);
+Route::delete('supprimeArchiveFacture/{id}', [FactureController::class, 'supprimeArchiveFacture']);
+
+Route::post('listerFacturesEcheance', [FactureController::class, 'listerFacturesEcheance']);
+Route::post('listerFacturesAccompt', [FactureController::class, 'listerFacturesAccompt']);
+Route::post('listerFacturesPayer', [FactureController::class, 'listerFacturesPayer']);
+
 
 Route::post('ajouterCompteComptable', [CompteComptableController::class, 'ajouterCompteComptable']);
 Route::get('listerCompteComptables', [CompteComptableController::class, 'listerCompteComptables']);
@@ -136,3 +142,8 @@ Route::post('creerGrilleTarifaire', [GrilleTarifaireController::class, 'creerGri
 Route::get('listerTariPourClientSurArticle/{clientId}/{articleId}', [GrilleTarifaireController::class, 'listerTariPourClientSurArticle']);
 Route::post('modifierGrilleTarifaire/{idTarif}', [GrilleTarifaireController::class, 'modifierGrilleTarifaire']);
 Route::delete('supprimerGrilleTarifaire/{idTarif}', [GrilleTarifaireController::class, 'supprimerGrilleTarifaire']);
+
+
+Route::post('factures_echeances/{factureId}', [EcheanceController::class, 'creerEcheance']);
+Route::post('listEcheanceParFacture/{factureId}', [EcheanceController::class, 'listEcheanceParFacture']);
+Route::delete('supprimerEcheance/{echeanceId}', [EcheanceController::class, 'supprimerEcheance']);
