@@ -56,26 +56,42 @@ class GrilleTarifaireController extends Controller
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
-            $grillesTarifaires = GrilleTarifaire::
-                where('sousUtilisateur_id', $sousUtilisateurId)
-                ->orWhere('user_id', $userId)
+            $grillesTarifaires = GrilleTarifaire::with(['client', 'article'])
+            ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                      ->orWhere('user_id', $userId);
+            })
                 -> where('idClient', $clientId)->where('idArticle', $article) ->get(); 
 
         } elseif (auth()->check()) {
             $userId = auth()->id();
-            $grillesTarifaires = GrilleTarifaire::
-                  where('user_id', $userId)
-                ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
-                    $query->where('id_user', $userId);
+            $grillesTarifaires = GrilleTarifaire::with(['client', 'article'])
+                ->where(function ($query) use ($userId) {
+                    $query->where('user_id', $userId)
+                          ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                              $query->where('id_user', $userId);
+                 });
                 })
                 -> where('idClient', $clientId)->where('idArticle', $article) ->get();
 
             } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        return response()->json(['grilles_tarifaires' => $grillesTarifaires]);
+        $response = [];
+        foreach ($grillesTarifaires as $grille) {
+            $response[] = [
+                'nom_client' => $grille->client->nom_client,
+                'prenom_client' => $grille->client->prenom_client, 
+                'nom_article' => $grille->article->nom_article, 
+                'montant_tarif' => $grille->montantTarif,
+                'tva' => $grille->tva,
+                'montant_tva' => $grille->montantTva,
+            ];
+        }
+    
+        return response()->json(['grilles_tarifaires' => $response]);
     }
-
+    
     public function modifierGrilleTarifaire(Request $request, $idTarif)
     {
         $grilleTarifaire = GrilleTarifaire::findOrFail($idTarif);
