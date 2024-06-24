@@ -307,7 +307,7 @@ class ArticleController extends Controller
                 $var = new Variante([
                     'article_id' => $article->id,
                     'nomVariante' => $variante['nomVariante'],
-                    'quantite' => $variante['quantite'],
+                    'quantiteVariante' => $variante['quantite'],
                 ]);
                 $var->save();
             }
