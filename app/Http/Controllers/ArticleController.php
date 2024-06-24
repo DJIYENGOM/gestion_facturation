@@ -217,7 +217,7 @@ class ArticleController extends Controller
             'lots.*.nomLot' => 'nullable|string|max:255',
             'lots.*.quantiteLot' => 'nullable|integer|min:0',
             'entrepots' => 'nullable|array',
-            'entrepots.*.id_entrepot' => 'nullable|exists:entrepots,id',
+            'entrepots.*.entrepot_id' => 'nullable|exists:entrepots,id',
             'entrepots.*.quantiteArt_entrepot' => 'nullable|integer|min:0',
         ]);
     
@@ -332,7 +332,7 @@ class ArticleController extends Controller
             foreach ($request->entrepots as $entrepot) {
                 $entrepotArticle = new EntrepotArticle([
                     'article_id' => $article->id,
-                    'entrepot_id' => $entrepot['id_entrepot'],
+                    'entrepot_id' => $entrepot['entrepot_id'],
                     'quantiteArt_entrepot' => $entrepot['quantiteArt_entrepot'],
                 ]);
                 $entrepotArticle->save();
