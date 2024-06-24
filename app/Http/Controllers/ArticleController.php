@@ -212,7 +212,7 @@ class ArticleController extends Controller
             'autres_prix.*.tva' => 'nullable|numeric|min:0|max:100',
             'variantes' => 'nullable|array',
             'variantes.*.nomVariante' => 'nullable|string|max:255',
-            'variantes.*.quantite' => 'nullable|integer|min:0',
+            'variantes.*.quantiteVariante' => 'nullable|integer|min:0',
             'lots' => 'nullable|array',
             'lots.*.nomLot' => 'nullable|string|max:255',
             'lots.*.quantiteLot' => 'nullable|integer|min:0',
@@ -307,7 +307,7 @@ class ArticleController extends Controller
                 $var = new Variante([
                     'article_id' => $article->id,
                     'nomVariante' => $variante['nomVariante'],
-                    'quantiteVariante' => $variante['quantite'],
+                    'quantiteVariante' => $variante['quantiteVariante'],
                 ]);
                 $var->save();
             }
