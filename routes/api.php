@@ -15,8 +15,10 @@ use App\Http\Controllers\CompteComptableController;
 use App\Http\Controllers\GrilleTarifaireController;
 use App\Http\Controllers\SousUtilisateurController;
 use App\Http\Controllers\CategorieArticleController;
+use App\Http\Controllers\DeviController;
 use App\Http\Controllers\NoteJustificativeController;
 use App\Http\Controllers\Info_SupplementaireController;
+use App\Http\Controllers\PaiementRecuController;
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -146,4 +148,20 @@ Route::delete('supprimerGrilleTarifaire/{idTarif}', [GrilleTarifaireController::
 
 Route::post('factures_echeances/{factureId}', [EcheanceController::class, 'creerEcheance']);
 Route::post('listEcheanceParFacture/{factureId}', [EcheanceController::class, 'listEcheanceParFacture']);
+Route::post('modifierEcheance/{echeanceId}', [EcheanceController::class, 'modifierEcheance']);
 Route::delete('supprimerEcheance/{echeanceId}', [EcheanceController::class, 'supprimerEcheance']);
+Route::post('transformerEcheanceEnPaiementRecu/{echeanceId}', [EcheanceController::class,'transformerEcheanceEnPaiementRecu']);
+
+
+Route::controller(PaiementRecuController::class)->group(function (){
+    Route::post('ajouterPaiementRecu','ajouterPaiementRecu');
+    Route::post('listPaiementsRecusParFacture/{factureId}', 'listPaiementsRecusParFacture');
+    Route::delete('supprimerPaiementRecu/{paiementRecuId}', 'supprimerPaiementRecu');
+    Route::post('transformerPaiementRecuEnEcheance/{paiementRecuId}', 'transformerPaiementRecuEnEcheance');
+ 
+});
+
+Route::controller(DeviController::class)->group(function(){
+    Route::post('creerDevi','creerDevi');
+    
+});

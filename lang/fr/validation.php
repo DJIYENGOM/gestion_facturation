@@ -222,6 +222,10 @@ return [
         'tel_client' => [
             'regex' => 'Le champ telephone est invalide, au moins 9 caractères',
         ],
+
+        'facture_id'=> [
+            'regex' => 'faut d\'abord associer à un payment',
+        ]
     ],
 
     /*
