@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
+use App\Models\Echeance;
 
 class PaiementRecuController extends Controller
 {
@@ -115,4 +116,43 @@ class PaiementRecuController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
     }
+
+    public function transformerPaiementRecuEnEcheance($paiementRecuId)
+{
+    // Vérifiez les permissions de l'utilisateur
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+        $sousUtilisateurId = null;
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    // Récupérer le paiement reçu
+    $paiementRecu = PaiementRecu::find($paiementRecuId);
+    if (!$paiementRecu) {
+        return response()->json(['error' => 'Paiement reçu non trouvé'], 404);
+    }
+
+    // Créez une nouvelle échéance à partir des informations du paiement reçu
+    $echeance = Echeance::create([
+        'facture_id' => $paiementRecu->facture_id,
+        'date_pay_echeance' => $paiementRecu->date_prevu,
+        'montant_echeance' => $paiementRecu->montant,
+        'commentaire' => null,
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+    ]);
+
+    // Supprimez le paiement reçu
+    $paiementRecu->delete();
+
+    return response()->json([
+        'message' => 'Paiement reçu transformé en échéance avec succès',
+        'echeance' => $echeance
+    ], 201);
+}
+
 }
