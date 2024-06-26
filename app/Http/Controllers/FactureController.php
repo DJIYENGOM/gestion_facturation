@@ -21,11 +21,13 @@ class FactureController extends Controller
             'note_fact' => 'nullable|string',
             'reduction_facture' => 'nullable|numeric',
             'active_Stock'=> 'nullable|in:oui,non',
+            'prix_HT'=> 'required|numeric',
+            'prix_TTC'=>'required|numeric',
             'type_paiement' => 'required|in:immediat,echeance,facture_Accompt',
             'id_paiement' => 'nullable|required_if:type_paiement,immediat|exists:payements,id',
             'echeances' => 'nullable|required_if:type_paiement,echeance|array',
-            'echeances.*.datePayEcheance' => 'required|date',
-            'echeances.*.montantEcheance' => 'required|numeric|min:0',
+            'echeances.*.date_pay_echeance' => 'required|date',
+            'echeances.*.montant_echeance' => 'required|numeric|min:0',
             'facture_accompts' => 'nullable|required_if:type_paiement,facture_Accompt|array',
             'facture_accompts.*.titreAccomp' => 'required|string',
             'facture_accompts.*.dateAccompt' => 'required|date',
@@ -38,6 +40,8 @@ class FactureController extends Controller
             'articles.*.prix_unitaire_article' => 'required|numeric',
             'articles.*.TVA_article' => 'nullable|numeric',
             'articles.*.reduction_article' => 'nullable|numeric',
+            'articles.*.prix_total_article'=>'nullable|numeric',
+            'articles.*.prix_total_tva_article'=>'nullable|numeric'
         ]);
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 422);
@@ -53,16 +57,6 @@ class FactureController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
     
-        // Calcul du montant total de la facture
-        $montantTotal = 0;
-        foreach ($request->articles as $article) {
-            $prixUnitaire = $article['prix_unitaire_article'];
-            $quantite = $article['quantite_article'];
-            $TVA = $article['TVA_article'] ?? 0;
-            $reduction = $article['reduction_article'] ?? 0;
-            $prixTotalArticle = $quantite * $prixUnitaire * (1 + $TVA / 100) * (1 - $reduction / 100);
-            $montantTotal += $prixTotalArticle;
-        }
 
         $statutPaiement = $request->type_paiement === 'immediat' ? 'payer' : 'en_attente';
 
@@ -74,7 +68,8 @@ class FactureController extends Controller
             'date_paiement' => $datePaiement,
             'reduction_facture' => $request->input('reduction_facture', 0),
             'active_Stock' => $request->active_Stock ?? 'oui',
-            'montant_total_fact' => $montantTotal,
+            'prix_HT'=>$request->prix_HT,
+            'prix_TTC' =>$request->prix_TTC,
             'note_fact' => $request->input('note_fact'),
             'archiver' => 'non',
             'sousUtilisateur_id' => $sousUtilisateurId,
@@ -93,9 +88,12 @@ class FactureController extends Controller
             $prixUnitaire = $articleData['prix_unitaire_article'];
             $TVA = $articleData['TVA_article'] ?? 0;
             $reduction = $articleData['reduction_article'] ?? 0;
-            $prixTotalArticleTva = $quantite * $prixUnitaire * (1 + $TVA / 100) * (1 - $reduction / 100);
-            $prixTotalArticle = $quantite * $prixUnitaire * (1 - $reduction / 100);
-    
+            // $prixTotalArticleTva = $quantite * $prixUnitaire * (1 + $TVA / 100) * (1 - $reduction / 100);
+            // $prixTotalArticle = $quantite * $prixUnitaire * (1 - $reduction / 100);
+
+            $prixTotalArticle=$articleData['prix_total_article'];
+            $prixTotalArticleTva=$articleData['prix_total_tva_article'];
+
             ArtcleFacture::create([
                 'id_facture' => $facture->id,
                 'id_article' => $articleData['id_article'],
@@ -113,8 +111,8 @@ class FactureController extends Controller
             foreach ($request->echeances as $echeanceData) {
                 Echeance::create([
                     'facture_id' => $facture->id,
-                    'date_pay_echeance' => $echeanceData['datePayEcheance'],
-                    'montant_echeance' => $echeanceData['montantEcheance'],
+                    'date_pay_echeance' => $echeanceData['date_pay_echeance'],
+                    'montant_echeance' => $echeanceData['montant_echeance'],
                     'sousUtilisateur_id' => $sousUtilisateurId,
                     'user_id' => $userId,
                 ]);
@@ -134,6 +132,13 @@ class FactureController extends Controller
                     'sousUtilisateur_id' => $sousUtilisateurId,
                     'user_id' => $userId,
                 ]);
+                Echeance::create([
+                    'facture_id' => $facture->id,
+                    'date_pay_echeance' => $accomptData['dateEcheance'],
+                    'montant_echeance' => $accomptData['montant'],
+                    'sousUtilisateur_id' => $sousUtilisateurId,
+                    'user_id' => $userId,
+                ]);
             }
         }
 
@@ -143,7 +148,7 @@ class FactureController extends Controller
                     'facture_id' => $facture->id,
                     'id_paiement' => $request->id_paiement,
                     'date_reçu' => now(),
-                    'montant' => $facture->montant_total_fact,
+                    'montant' => $facture->prix_TTC,
                     'sousUtilisateur_id' => $sousUtilisateurId,
                     'user_id' => $userId,
                 ]);
