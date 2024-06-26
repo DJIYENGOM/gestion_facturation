@@ -79,6 +79,11 @@ class Client extends Model
     {
         return $this->hasMany(Facture::class);
     }
+
+    public function devis()
+    {
+        return $this->hasMany(Devi::class);
+    }
     
     public function GrilleTarifaire()
     {

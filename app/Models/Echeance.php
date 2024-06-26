@@ -15,13 +15,20 @@ class Echeance extends Model
         'montant_echeance',
         'statut_paiement',
         'commentaire',
-        'user_id',
+        'devi_id',
         'sousUtilisateur_id',
+        'user_id',
+
     ];
 
     public function facture()
     {
         return $this->belongsTo(Facture::class, 'facture_id');
+    }
+
+    public function devi()
+    {
+        return $this->belongsTo(Devi::class, 'devi_id');
     }
 
     public function sousUtilisateur()

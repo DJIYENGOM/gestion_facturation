@@ -93,6 +93,11 @@ class Article extends Model
         return $this->hasMany(ArtcleFacture::class);
     }
 
+    public function articlesDevi()
+    {
+        return $this->hasMany(ArticleDevi::class);
+    }
+
     public function GrilleTarifaire()
     {
         return $this->hasMany(GrilleTarifaire::class);

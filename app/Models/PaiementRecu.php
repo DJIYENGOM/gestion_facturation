@@ -9,7 +9,15 @@ class PaiementRecu extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['facture_id', 'num_paiement','date_prevu', 'date_reçu', 'montant', 'commentaire','id_paiement', 'sousUtilisateur_id', 'user_id'];
+    protected $fillable = [
+        'facture_id',
+        'num_paiement',
+        'date_prevu', 
+        'date_reçu', 
+        'montant', 
+        'commentaire',
+        'id_paiement', 
+        'sousUtilisateur_id', 'user_id'];
 
     protected static function boot()
     {
@@ -34,7 +42,9 @@ class PaiementRecu extends Model
             $numPayement = str_pad($nextId, 4, '0', STR_PAD_LEFT);
         }
         return $numPayement;
-    }    public function facture()
+    }   
+    
+    public function facture()
     {
         return $this->belongsTo(Facture::class);
     }

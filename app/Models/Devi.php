@@ -2,32 +2,28 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Facture extends Model
+class Devi extends Model
 {
     use HasFactory;
 
+    
     protected $fillable = [
-        'num_fact',
-        'date_creation', 
-        'reduction_facture', 
+        'num_devi',
+        'date_devi', 
+        'date_limite', 
         'prix_HT',
         'prix_TTC',
-        'note_fact',
-        'date_paiement',
+        'note_devi',
+        'reduction_devi',
+        'statut_devi',
         'archiver',
-        'active_Stock',
-        'statut_paiement',
         'client_id',
         'sousUtilisateur_id',
         'user_id',
-        'type_paiement',
-        'id_paiement',
         'id_comptable',
-
-        'devi_id',
     ];
 
     public function client()
@@ -39,11 +35,6 @@ class Facture extends Model
     public function articles()
     {
         return $this->hasMany(ArtcleFacture::class);
-    }
-
-    public function devi()
-    {
-        return $this->belongsTo(Devi::class, 'devi_id');
     }
     public function sousUtilisateur()
     {
@@ -75,9 +66,9 @@ class Facture extends Model
     }
 
 
-    public static function generateNumFacture($id)
+    public static function generateNumdevi($id)
     {
         $year = date('Y');
-        return 'F' . $year . '00' . $id;
+        return 'D' . $year . '00' . $id;
     }
 }
