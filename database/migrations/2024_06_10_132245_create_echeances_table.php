@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('echeances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('facture_id')->constrained('factures')->onDelete('cascade');
+            $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('cascade');
+            $table->foreignId('devi_id')->nullable()->constrained('devis')->onDelete('cascade'); 
             $table->date('date_pay_echeance');
             $table->decimal('montant_echeance', 8, 2);
             $table->text('commentaire')->nullable();

@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -12,25 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('factures', function (Blueprint $table) {
+        Schema::create('devis', function (Blueprint $table) {
             $table->id();
-            $table->string('num_fact')->unique()->nullable();
-            $table->date('date_creation');
-            $table->decimal('reduction_facture')->nullable();
+            $table->string('num_devi')->unique()->nullable();
+            $table->date('date_devi');
+            $table->date('date_limite');
             $table->decimal('prix_HT');
             $table->decimal('prix_TTC');
-            $table->text('note_fact')->nullable();
-            $table->date('date_paiement')->nullable();
-            $table->enum('active_Stock', ['non', 'oui'])->default('oui');
-            $table->enum('statut_paiement', ['payer','en_attente']);
+            $table->text('note_devi')->nullable();
+            $table->decimal('reduction_devi')->nullable();
+            $table->enum('statut_devi',['en_attente','transformer','valider', 'annuler','brouillon'])->default('brouillon');
             $table->enum('archiver', ['oui', 'non'])->default('non');
-            $table->enum('type_paiement', ['immediat', 'echeance', 'facture_Accompt'])->default('immediat');
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
             $table->foreignId('id_comptable')->nullable()->constrained('compte_comptables')->onDelete('set null');
-            $table->foreignId('id_paiement')->nullable()->constrained('payements')->onDelete('set null');
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('devi_id')->nullable()->constrained('devis')->onDelete('set null');
             $table->timestamps();
         });
     }
@@ -40,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('factures');
+        Schema::dropIfExists('devis');
     }
 };

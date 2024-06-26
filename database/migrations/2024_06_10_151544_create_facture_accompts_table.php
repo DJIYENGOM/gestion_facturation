@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('facture_accompts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('facture_id')->constrained('factures')->onDelete('cascade'); 
+            $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('cascade'); 
+            $table->foreignId('devi_id')->nullable()->constrained('devis')->onDelete('cascade'); 
             $table->string('titreAccomp');
             $table->date('dateAccompt'); 
             $table->date('dateEcheance'); 
