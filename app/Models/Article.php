@@ -98,6 +98,11 @@ class Article extends Model
         return $this->hasMany(ArticleDevi::class);
     }
 
+    public function articlesBonCommande()
+    {
+        return $this->hasMany(ArticleBonCommande::class);
+    }
+
     public function GrilleTarifaire()
     {
         return $this->hasMany(GrilleTarifaire::class);

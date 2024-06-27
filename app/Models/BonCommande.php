@@ -2,33 +2,27 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Facture extends Model
+class BonCommande extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'num_fact',
-        'date_creation', 
-        'reduction_facture', 
+        'num_commande',
+        'date_commande', 
+        'date_limite_commande', 
         'prix_HT',
         'prix_TTC',
-        'note_fact',
-        'date_paiement',
+        'note_commande',
+        'reduction_commande',
+        'statut_commande',
         'archiver',
-        'active_Stock',
-        'statut_paiement',
         'client_id',
         'sousUtilisateur_id',
         'user_id',
-        'type_paiement',
-        'id_paiement',
         'id_comptable',
-
-        'devi_id',
-        'bonCommande_id',
     ];
 
     public function client()
@@ -41,17 +35,6 @@ class Facture extends Model
     {
         return $this->hasMany(ArtcleFacture::class);
     }
-
-    public function devi()
-    {
-        return $this->belongsTo(Devi::class, 'devi_id');
-    }
-
-    public function bonCommande()
-    {
-        return $this->belongsTo(BonCommande::class, 'bonCommande_id');
-    }
-
     public function sousUtilisateur()
     {
         return $this->belongsTo(Sous_Utilisateur::class, 'sousUtilisateur_id');
@@ -67,24 +50,16 @@ class Facture extends Model
         return $this->hasMany(Echeance::class);
     }
 
-    public function factureAccompts()
-    {
-        return $this->hasMany(FactureAccompt::class);
-    }
-
-    public function paiement()
-    {
-        return $this->belongsTo(Payement::class, 'id_paiement');
-    }
     public function compteComptable()
     {
         return $this->belongsTo(CompteComptable::class, 'id_comptable');
     }
 
 
-    public static function generateNumFacture($id)
+    public static function generateNumBoncommande($id)
     {
         $year = date('Y');
-        return 'F' . $year . '00' . $id;
+        return 'BC' . $year . '00' . $id;
     }
+
 }

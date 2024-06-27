@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ArticleDevi extends Model
+class ArticleBonCommande extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'id_devi' ,
+        'id_BonCommande' ,
         'id_article' , 
         'reduction_article', 
         'TVA_article',
@@ -20,9 +20,9 @@ class ArticleDevi extends Model
         'prix_total_tva_article'
     ];
 
-    public function devi()
+    public function BonCommande()
     {
-        return $this->belongsTo(Devi::class, 'id_devi');
+        return $this->belongsTo(BonCommande::class, 'id_BonCommande');
     }
 
     // Relation avec l'article

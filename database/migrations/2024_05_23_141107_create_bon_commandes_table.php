@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('devis', function (Blueprint $table) {
+        Schema::create('bon_commandes', function (Blueprint $table) {
             $table->id();
-            $table->string('num_devi')->unique()->nullable();
-            $table->date('date_devi');
-            $table->date('date_limite')->nullable();
+            $table->string('num_commande')->unique()->nullable();
+            $table->date('date_commande');
+            $table->date('date_limite_commande')->nullable();
             $table->decimal('prix_HT');
             $table->decimal('prix_TTC')->nullable();
-            $table->text('note_devi')->nullable();
-            $table->decimal('reduction_devi')->nullable();
-            $table->enum('statut_devi',['en_attente','transformer','valider', 'annuler','brouillon'])->default('brouillon');
+            $table->text('note_commande')->nullable();
+            $table->decimal('reduction_commande')->nullable();
+            $table->enum('statut_commande',['en_attente','transformer','valider', 'annuler','brouillon'])->default('brouillon');
             $table->enum('archiver', ['oui', 'non'])->default('non');
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
             $table->foreignId('id_comptable')->nullable()->constrained('compte_comptables')->onDelete('set null');
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('devis');
+        Schema::dropIfExists('bon_commandes');
     }
 };

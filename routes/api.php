@@ -7,6 +7,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\BonCommandeController;
 use App\Http\Controllers\EcheanceController;
 use App\Http\Controllers\EntrepotController;
 use App\Http\Controllers\PayementController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\DeviController;
 use App\Http\Controllers\NoteJustificativeController;
 use App\Http\Controllers\Info_SupplementaireController;
 use App\Http\Controllers\PaiementRecuController;
+use App\Models\BonCommande;
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -163,5 +165,16 @@ Route::controller(PaiementRecuController::class)->group(function (){
 
 Route::controller(DeviController::class)->group(function(){
     Route::post('creerDevi','creerDevi');
-    
+    Route::post('TransformeDeviEnFacture/{deviId}','TransformeDeviEnFacture');
+    Route::get('listerToutesDevi','listerToutesDevi');
+    Route::post('supprimerDevi/{id}','supprimerDevi');
+    Route::post('annulerDevi/{deviId}','annulerDevi');    
+});
+
+Route::controller(BonCommandeController::class)->group(function(){
+    Route::post('creerBonCommande','creerBonCommande');
+    Route::post('TransformerBonCommandeEnFacture/{BonCommandeId}','TransformerBonCommandeEnFacture');
+    Route::get('listerToutesBonCommande','listerToutesBonCommande');
+    Route::post('supprimerBonCommande/{id}','supprimerBonCommande');
+    Route::post('annulerBonCommande/{BonCommandeId}','annulerDevi');    
 });

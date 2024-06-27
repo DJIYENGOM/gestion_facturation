@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('date_creation');
             $table->decimal('reduction_facture')->nullable();
             $table->decimal('prix_HT');
-            $table->decimal('prix_TTC');
+            $table->decimal('prix_TTC')->nullable();
             $table->text('note_fact')->nullable();
             $table->date('date_paiement')->nullable();
             $table->enum('active_Stock', ['non', 'oui'])->default('oui');
@@ -31,6 +31,7 @@ return new class extends Migration
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('devi_id')->nullable()->constrained('devis')->onDelete('set null');
+            $table->foreignId('bonCommande_id')->nullable()->constrained('bon_commandes')->onDelete('set null');
             $table->timestamps();
         });
     }

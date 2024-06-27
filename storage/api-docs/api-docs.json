@@ -20,11 +20,917 @@
         }
     },
     "consumes": [
-        "multipart/form-data",
-        "application/json"
+        "multipart/form-data"
     ],
     "paths": {
-        "/api/supprimerEcheance/1": {
+        "/api/listerToutesDevi": {
+            "get": {
+                "summary": "lister Toutes Devi",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des devis"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/supprimerDevi/{id}": {
+            "post": {
+                "summary": "supprimer  un devi (archiver)",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des devis"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/annulerDevi/{deviId}": {
+            "post": {
+                "summary": "annuler un Devi",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des devis"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "deviId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/TransformeDeviEnFacture/{deviId}": {
+            "post": {
+                "summary": "Transformer Devi En Facture",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des devis"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "deviId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "client_id": {
+                                        "type": "integer"
+                                    },
+                                    "note_fact": {
+                                        "type": "string"
+                                    },
+                                    "reduction_facture": {
+                                        "type": "integer"
+                                    },
+                                    "prix_HT": {
+                                        "type": "integer"
+                                    },
+                                    "prix_TTC": {
+                                        "type": "integer"
+                                    },
+                                    "type_paiement": {
+                                        "type": "string"
+                                    },
+                                    "id_paiement": {
+                                        "type": "integer"
+                                    },
+                                    "articles": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "echeances": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "facture_accompts": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "client_id": 1,
+                                "note_fact": " facture importante",
+                                "reduction_facture": 1000,
+                                "prix_HT": 20000,
+                                "prix_TTC": 25000,
+                                "type_paiement": "facture_Accompt",
+                                "id_paiement": 3,
+                                "articles": [
+                                    {
+                                        "id_article": 1,
+                                        "quantite_article": 2,
+                                        "prix_unitaire_article": 5000,
+                                        "TVA_article": 50,
+                                        "reduction_article": 5,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    },
+                                    {
+                                        "id_article": 2,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 1000,
+                                        "TVA_article": 10,
+                                        "reduction_article": 50,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    }
+                                ],
+                                "echeances": [
+                                    {
+                                        "date_pay_echeance": "2024-06-28",
+                                        "montant_echeance": 4000
+                                    }
+                                ],
+                                "facture_accompts": [
+                                    {
+                                        "titreAccomp": "accompt 1",
+                                        "dateAccompt": "2024-06-29",
+                                        "dateEcheance": "2024-06-29",
+                                        "montant": 2000,
+                                        "commentaire": "jrnvvvejrnjern"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/creerDevi": {
+            "post": {
+                "summary": "creer un Devi",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des devis"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "client_id": {
+                                        "type": "integer"
+                                    },
+                                    "note_devi": {
+                                        "type": "string"
+                                    },
+                                    "reduction_devi": {
+                                        "type": "integer"
+                                    },
+                                    "date_devi": {
+                                        "type": "string"
+                                    },
+                                    "date_limite": {
+                                        "type": "string"
+                                    },
+                                    "prix_HT": {
+                                        "type": "integer"
+                                    },
+                                    "prix_TTC": {
+                                        "type": "integer"
+                                    },
+                                    "articles": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "echeances": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "facture_accompts": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "client_id": 1,
+                                "note_devi": "Some notes about the facture",
+                                "reduction_devi": 1000,
+                                "date_devi": "2024-06-29",
+                                "date_limite": "2024-06-30",
+                                "prix_HT": 20000,
+                                "prix_TTC": 25000,
+                                "articles": [
+                                    {
+                                        "id_article": 1,
+                                        "quantite_article": 2,
+                                        "prix_unitaire_article": 5000,
+                                        "reduction_article": 0,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    },
+                                    {
+                                        "id_article": 2,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 1000,
+                                        "TVA_article": 10,
+                                        "reduction_article": 0,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    }
+                                ],
+                                "echeances": [
+                                    {
+                                        "date_pay_echeance": "2024-06-28",
+                                        "montant_echeance": 4000
+                                    }
+                                ],
+                                "facture_accompts": [
+                                    {
+                                        "titreAccomp": "accompt 1",
+                                        "dateAccompt": "2024-06-29",
+                                        "dateEcheance": "2024-06-29",
+                                        "montant": 2000,
+                                        "commentaire": "jrnvvvejrnjern"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transformerPaiementRecuEnEcheance/{paiementRecuId}": {
+            "post": {
+                "summary": "transformer Paiement Recu En Echeance",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des PaiementReçus"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "paiementRecuId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/supprimerPaiementRecu/{paiementRecuId}": {
+            "delete": {
+                "summary": "supprimer Paiement Recu",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des PaiementReçus"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "paiementRecuId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listPaiementsRecusParFacture/1": {
+            "post": {
+                "summary": "lister Paiements Recus Par Facture",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des PaiementReçus"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "factureId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {}
+                            },
+                            "example": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/ajouterPaiementRecu": {
+            "post": {
+                "summary": "ajouter Paiement Recu",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des PaiementReçus"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "facture_id": {
+                                        "type": "string"
+                                    },
+                                    "date_prevu": {
+                                        "type": "string"
+                                    },
+                                    "date_reçu": {
+                                        "type": "string"
+                                    },
+                                    "montant": {
+                                        "type": "string"
+                                    },
+                                    "commentaire": {
+                                        "type": "string"
+                                    },
+                                    "id_paiement": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "facture_id": "1",
+                                "date_prevu": "2024-06-15",
+                                "date_reçu": "2024-06-15",
+                                "montant": "24000",
+                                "commentaire": "",
+                                "id_paiement": "1"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transformerEcheanceEnPaiementRecu/5": {
+            "post": {
+                "summary": "transformer Echeance En Paiement Recu",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture echeance"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "echeanceId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_prevu": {
+                                        "type": "string"
+                                    },
+                                    "date_reçu": {
+                                        "type": "string"
+                                    },
+                                    "montant": {
+                                        "type": "string"
+                                    },
+                                    "commentaire": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "id_paiement": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_prevu": "2024-06-29",
+                                "date_reçu": "2024-06-29",
+                                "montant": "24000",
+                                "commentaire": null,
+                                "id_paiement": "3"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/modifierEcheance/{echeanceId}": {
+            "post": {
+                "summary": "modifier Echeance",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture echeance"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "echeanceId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_pay_echeance": {
+                                        "type": "string"
+                                    },
+                                    "montant_echeance": {
+                                        "type": "string"
+                                    },
+                                    "commentaire": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_pay_echeance": "2024-06-20",
+                                "montant_echeance": "24000",
+                                "commentaire": "echeance de la facture 2"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/supprimerEcheance/{echeanceId}": {
             "delete": {
                 "summary": "supprimer Echeance",
                 "description": "",
@@ -70,6 +976,11 @@
                     "gestion facture echeance"
                 ],
                 "parameters": [
+                    {
+                        "in": "path",
+                        "name": "echeanceId",
+                        "type": "string"
+                    },
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -132,7 +1043,7 @@
                 ]
             }
         },
-        "/api/factures_echeances/1": {
+        "/api/factures_echeances/11": {
             "post": {
                 "summary": "ajouter une echeance",
                 "description": "",
@@ -207,7 +1118,7 @@
                                 }
                             },
                             "example": {
-                                "date_pay_echeance": "2024-06-15",
+                                "date_pay_echeance": "2024-06-27",
                                 "montant_echeance": "20000",
                                 "commentaire": "echeance de la facture 1"
                             }
@@ -1102,7 +2013,7 @@
                 ]
             }
         },
-        "/api/supprimeArchiveFacture/5": {
+        "/api/supprimeArchiveFacture/{id}": {
             "delete": {
                 "summary": "supprimer ou archiver facture",
                 "description": "",
@@ -1332,6 +2243,12 @@
                                     "reduction_facture": {
                                         "type": "integer"
                                     },
+                                    "prix_HT": {
+                                        "type": "integer"
+                                    },
+                                    "prix_TTC": {
+                                        "type": "integer"
+                                    },
                                     "type_paiement": {
                                         "type": "string"
                                     },
@@ -1341,6 +2258,14 @@
                                     "articles": {
                                         "type": "string",
                                         "format": "binary"
+                                    },
+                                    "echeances": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "facture_accompts": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 }
                             },
@@ -1348,21 +2273,43 @@
                                 "client_id": 1,
                                 "note_fact": "Some notes about the facture",
                                 "reduction_facture": 1000,
-                                "type_paiement": "immediat",
-                                "id_paiement": 1,
+                                "prix_HT": 20000,
+                                "prix_TTC": 25000,
+                                "type_paiement": "facture_Accompt",
+                                "id_paiement": 3,
                                 "articles": [
                                     {
                                         "id_article": 1,
                                         "quantite_article": 2,
                                         "prix_unitaire_article": 5000,
-                                        "reduction_article": 5
+                                        "TVA_article": 50,
+                                        "reduction_article": 5,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
                                     },
                                     {
                                         "id_article": 2,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 1000,
                                         "TVA_article": 10,
-                                        "reduction_article": 50
+                                        "reduction_article": 50,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    }
+                                ],
+                                "echeances": [
+                                    {
+                                        "date_pay_echeance": "2024-06-28",
+                                        "montant_echeance": 4000
+                                    }
+                                ],
+                                "facture_accompts": [
+                                    {
+                                        "titreAccomp": "accompt 1",
+                                        "dateAccompt": "2024-06-29",
+                                        "dateEcheance": "2024-06-29",
+                                        "montant": 2000,
+                                        "commentaire": "jrnvvvejrnjern"
                                     }
                                 ]
                             }
@@ -3577,7 +4524,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3722,7 +4669,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3731,9 +4678,6 @@
                                     },
                                     "description": {
                                         "type": "string"
-                                    },
-                                    "reduction_facture": {
-                                        "type": "integer"
                                     },
                                     "prix_unitaire": {
                                         "type": "integer"
@@ -3751,36 +4695,31 @@
                                         "type": "string"
                                     },
                                     "quantite": {
-                                        "type": "string"
+                                        "type": "integer"
+                                    },
+                                    "quantite_alert": {
+                                        "type": "integer"
                                     },
                                     "autres_prix": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "variantes": {
                                         "type": "string",
                                         "format": "binary"
                                     },
                                     "lots": {
                                         "type": "string",
                                         "format": "binary"
-                                    },
-                                    "entrepots": {
-                                        "type": "string",
-                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "nom_article": "ordi",
+                                "nom_article": "table",
                                 "description": "Some notes about the facture",
-                                "reduction_facture": 1000,
                                 "prix_unitaire": 20000,
                                 "promo_id": 1,
                                 "tva": 50,
                                 "type_article": "produit",
                                 "unité": "tonne",
-                                "quantite": "10",
+                                "quantite": 20,
+                                "quantite_alert": 10,
                                 "autres_prix": [
                                     {
                                         "titrePrix": "prix client fidel",
@@ -3793,22 +4732,10 @@
                                         "tva": 50
                                     }
                                 ],
-                                "variantes": [
-                                    {
-                                        "nomVariante": "noire",
-                                        "quantiteVariante": 50
-                                    }
-                                ],
                                 "lots": [
                                     {
                                         "nomLot": "lot 1",
                                         "quantiteLot": 5
-                                    }
-                                ],
-                                "entrepots": [
-                                    {
-                                        "entrepot_id": 1,
-                                        "quantiteArt_entrepot": 20
                                     }
                                 ]
                             }
@@ -4077,7 +5004,7 @@
                             "example": {
                                 "nom_promo": " promo 50%",
                                 "pourcentage_promo": "50",
-                                "date_expiration": "2024-06-25"
+                                "date_expiration": "2024-06-28"
                             }
                         }
                     }
@@ -5133,8 +6060,8 @@
                                 }
                             },
                             "example": {
-                                "email": "fallou@gmail.com",
-                                "password": "ciss123@"
+                                "email": "admin@example.com",
+                                "password": "password"
                             }
                         }
                     }

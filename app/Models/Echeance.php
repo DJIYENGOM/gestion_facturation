@@ -16,6 +16,7 @@ class Echeance extends Model
         'statut_paiement',
         'commentaire',
         'devi_id',
+        'id_BonCommande',
         'sousUtilisateur_id',
         'user_id',
 
@@ -29,6 +30,11 @@ class Echeance extends Model
     public function devi()
     {
         return $this->belongsTo(Devi::class, 'devi_id');
+    }
+
+    public function BonCommande()
+    {
+        return $this->belongsTo(BonCommande::class, 'id_BonCommande');
     }
 
     public function sousUtilisateur()
