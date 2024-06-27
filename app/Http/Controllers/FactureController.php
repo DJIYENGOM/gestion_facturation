@@ -225,7 +225,9 @@ foreach ($factures as $facture) {
         'id' => $facture->id,
         'num_fact' => $facture->num_fact,
         'date_creation' => $facture->date_creation,
-        'montant_total_fact' => $facture->montant_total_fact,
+        'date_paiement' => $facture->date_paiement,
+        'prix_HT' => $facture->prix_HT,
+        'prix_TTC' => $facture->prix_TTC,
         'note_fact' => $facture->note_fact,
         'prenom client' => $facture->client->prenom_client, 
         'nom client' => $facture->client->nom_client, 
@@ -337,14 +339,6 @@ public function listerFacturesPayer()
     return response()->json(['factures_Payer' => $factures], 200);
 }
 
-public function supprimeArchiveFacture($id)
-{
-    $facture = Facture::findOrFail($id);
-    $facture->archiver = 'oui';
-    $facture->save();
-    return response()->json(['message' => 'Facture archivee avec succes.'], 200);
-}
-
 public function listerFacturesSupprimer()
 {
     $factures = Facture::with('client')
@@ -352,6 +346,48 @@ public function listerFacturesSupprimer()
         ->get();
 
     return response()->json(['factures_accompt' => $factures], 200);
+}
+
+public function supprimeArchiveFacture($id)
+{    
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+       $facture = Facture::where('id',$id)
+            ->where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId)
+            ->first();
+            if($facture){
+                $facture->archiver = 'oui';
+                $facture->save();
+            return response()->json(['message' => 'facture supprimé avec succès']);
+            }else {
+                return response()->json(['error' => 'ce sous utilisateur ne peut pas supprimé cet facture'], 401);
+            }
+
+    }elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $facture = facture::where('id',$id)
+            ->where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                $query->where('id_user', $userId);
+            })
+            ->first();
+            
+                if($facture){
+                    $facture->archiver = 'oui';
+                    $facture->save();
+                return response()->json(['message' => 'facture supprimé avec succès']);
+            }else {
+                return response()->json(['error' => 'cet utilisateur ne peut pas supprimé cet facture'], 401);
+            }
+
+    }else {
+        return response()->json(['error' => 'Unauthorizedd'], 401);
+    }
+
 }
 
 }
