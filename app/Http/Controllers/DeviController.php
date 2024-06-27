@@ -215,9 +215,6 @@ if ($validator->fails()) {
         $prixUnitaire = $articleData['prix_unitaire_article'];
         $TVA = $articleData['TVA_article'] ?? 0;
         $reduction = $articleData['reduction_article'] ?? 0;
-        // $prixTotalArticleTva = $quantite * $prixUnitaire * (1 + $TVA / 100) * (1 - $reduction / 100);
-        // $prixTotalArticle = $quantite * $prixUnitaire * (1 - $reduction / 100);
-
         $prixTotalArticle=$articleData['prix_total_article'];
         $prixTotalArticleTva=$articleData['prix_total_tva_article'];
 
@@ -282,9 +279,127 @@ if ($validator->fails()) {
         
     }
 
+    $devi->statut_devi = 'transformer';
+    $devi->save();
+
     return response()->json(['message' => 'Facture créée avec succès', 'facture' => $facture], 201);
 }
 
+public function annulerDevi($deviId)
+{
+    $devi = Devi::find($deviId);
+
+    if (!$devi) {
+        return response()->json(['error' => 'Devi non trouvé'], 404);
+    }
+
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user;
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+        $sousUtilisateurId = null;
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    // Mettre à jour le statut du devis en "annuler"
+    $devi->statut_devi = 'annuler';
+    $devi->save();
+
+    return response()->json(['message' => 'Devi annulé avec succès', 'devi' => $devi], 200);
+}
+
+public function supprimerDevi($id)
+{    
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+       $devi = Devi::where('id',$id)
+            ->where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId)
+            ->first();
+            if($devi){
+                $devi->archiver = 'oui';
+                $devi->save();
+            return response()->json(['message' => 'devi supprimé avec succès']);
+            }else {
+                return response()->json(['error' => 'ce sous utilisateur ne peut pas supprimé cet devi'], 401);
+            }
+
+    }elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $devi = Devi::where('id',$id)
+            ->where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                $query->where('id_user', $userId);
+            })
+            ->first();
+            
+                if($devi){
+                    $devi->archiver = 'oui';
+                    $devi->save();
+                return response()->json(['message' => 'devi supprimé avec succès']);
+            }else {
+                return response()->json(['error' => 'cet utilisateur ne peut pas supprimé cet devi'], 401);
+            }
+
+    }else {
+        return response()->json(['error' => 'Unauthorizedd'], 401);
+    }
+
+}
+
+public function listerToutesDevi()
+{
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; 
+
+        $devis = devi::with('client')
+            ->where('archiver', 'non')
+            ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                    ->orWhere('user_id', $userId);
+            })
+            ->get();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $devis = Devi::with('client')
+            ->where('archiver', 'non')
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                        $query->where('id_user', $userId);
+                    });
+            })
+            ->get();
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+// Construire la réponse avec les détails des devis et les noms des clients
+$response = [];
+foreach ($devis as $devi) {
+    $response[] = [
+        'id' => $devi->id,
+        'num_devi' => $devi->num_devi,
+        'date_devi' => $devi->date_devi,
+        'statut_devi' => $devi->statut_devi,
+        'date_limite' => $devi->date_limite,
+        'prix_Ht' => $devi->prix_HT,
+        'prix_Ttc' => $devi->prix_TTC,
+        'note_devi' => $devi->note_devi,
+        'prenom client' => $devi->client->prenom_client, 
+        'nom client' => $devi->client->nom_client, 
+        'active_Stock' => $devi->active_Stock,
+    ];
+}
+
+return response()->json(['devis' => $response]);
+}
 
 }
   
