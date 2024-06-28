@@ -166,6 +166,7 @@ Route::controller(PaiementRecuController::class)->group(function (){
 Route::controller(DeviController::class)->group(function(){
     Route::post('creerDevi','creerDevi');
     Route::post('TransformeDeviEnFacture/{deviId}','TransformeDeviEnFacture');
+    Route::post('TransformeDeviEnBonCommande/{deviId}','TransformeDeviEnBonCommande');
     Route::get('listerToutesDevi','listerToutesDevi');
     Route::post('supprimerDevi/{id}','supprimerDevi');
     Route::post('annulerDevi/{deviId}','annulerDevi');    
@@ -173,8 +174,8 @@ Route::controller(DeviController::class)->group(function(){
 
 Route::controller(BonCommandeController::class)->group(function(){
     Route::post('creerBonCommande','creerBonCommande');
-    Route::post('TransformerBonCommandeEnFacture/{BonCommandeId}','TransformerBonCommandeEnFacture');
-    Route::get('listerToutesBonCommande','listerToutesBonCommande');
+    Route::post('TransformeBonCommandeEnFacture/{id}','TransformeBonCommandeEnFacture');
+    Route::get('listerTousBonCommande','listerTousBonCommande');
     Route::post('supprimerBonCommande/{id}','supprimerBonCommande');
-    Route::post('annulerBonCommande/{BonCommandeId}','annulerDevi');    
+    Route::post('annulerBonCommande/{id}','annulerBonCommande');    
 });
