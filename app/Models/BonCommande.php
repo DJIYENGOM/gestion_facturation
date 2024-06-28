@@ -17,6 +17,7 @@ class BonCommande extends Model
         'prix_TTC',
         'note_commande',
         'reduction_commande',
+        'active_Stock',
         'statut_commande',
         'archiver',
         'client_id',
