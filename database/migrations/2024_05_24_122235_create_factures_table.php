@@ -22,9 +22,9 @@ return new class extends Migration
             $table->text('note_fact')->nullable();
             $table->date('date_paiement')->nullable();
             $table->enum('active_Stock', ['non', 'oui'])->default('oui');
-            $table->enum('statut_paiement', ['payer','en_attente']);
+            $table->enum('statut_paiement', ['payer','en_attente','brouillon'])->default('brouillon');
             $table->enum('archiver', ['oui', 'non'])->default('non');
-            $table->enum('type_paiement', ['immediat', 'echeance', 'facture_Accompt'])->default('immediat');
+            $table->enum('type_paiement', ['immediat', 'echeance', 'facture_Accompt'])->default('facture_Accompt');
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
             $table->foreignId('id_comptable')->nullable()->constrained('compte_comptables')->onDelete('set null');
             $table->foreignId('id_paiement')->nullable()->constrained('payements')->onDelete('set null');

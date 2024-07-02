@@ -24,7 +24,7 @@ class FactureAccompt extends Model
     {
         return $this->belongsTo(Facture::class, 'facture_id');
     }
-    
+
     public function devi()
     {
         return $this->belongsTo(Devi::class, 'devi_id');

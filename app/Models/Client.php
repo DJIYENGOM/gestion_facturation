@@ -85,6 +85,10 @@ class Client extends Model
         return $this->hasMany(Devi::class);
     }
 
+    public function livraison()
+    {
+        return $this->hasMany(Livraison::class);
+    }
     public function BonCommande()
     {
         return $this->hasMany(BonCommande::class);

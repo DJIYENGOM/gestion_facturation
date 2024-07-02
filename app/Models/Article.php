@@ -103,6 +103,12 @@ class Article extends Model
         return $this->hasMany(ArticleBonCommande::class);
     }
 
+    public function articleLivraison()
+    {
+        return $this->hasMany(ArticleLivraison::class);
+    }
+
+    
     public function GrilleTarifaire()
     {
         return $this->hasMany(GrilleTarifaire::class);

@@ -1,26 +1,29 @@
 
 <?php
+use App\Models\BonCommande;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DeviController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\BonCommandeController;
 use App\Http\Controllers\EcheanceController;
 use App\Http\Controllers\EntrepotController;
 use App\Http\Controllers\PayementController;
+use App\Http\Controllers\LivraisonController;
+use App\Http\Controllers\BonCommandeController;
+use App\Http\Controllers\FournisseurController;
+use App\Http\Controllers\PaiementRecuController;
 use App\Http\Controllers\CategorieClientController;
 use App\Http\Controllers\CompteComptableController;
 use App\Http\Controllers\GrilleTarifaireController;
 use App\Http\Controllers\SousUtilisateurController;
 use App\Http\Controllers\CategorieArticleController;
-use App\Http\Controllers\DeviController;
+use App\Http\Controllers\FactureAccomptController;
 use App\Http\Controllers\NoteJustificativeController;
 use App\Http\Controllers\Info_SupplementaireController;
-use App\Http\Controllers\PaiementRecuController;
-use App\Models\BonCommande;
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -117,6 +120,9 @@ Route::controller(PayementController::class)->group(function () {
 
 });
 
+Route::post('creerFactureAccomp', [FactureAccomptController::class, 'creerFactureAccomp']);
+Route::get('listerfactureAccomptsParFacture/{id_facture}', [FactureAccomptController::class, 'listerfactureAccomptsParFacture']);
+
 Route::post('creerFacture', [FactureController::class, 'creerFacture']);
 Route::post('listeArticlesFacture/{id_facture}', [FactureController::class, 'listeArticlesFacture']);
 Route::get('listerFactures', [FactureController::class, 'listerToutesFactures']);
@@ -178,4 +184,21 @@ Route::controller(BonCommandeController::class)->group(function(){
     Route::get('listerTousBonCommande','listerTousBonCommande');
     Route::post('supprimerBonCommande/{id}','supprimerBonCommande');
     Route::post('annulerBonCommande/{id}','annulerBonCommande');    
+});
+
+Route::controller(FournisseurController::class)->group(function(){
+    Route::post('ajouterFournisseur','ajouterFournisseur');
+    Route::get('listerTousFournisseurs','listerTousFournisseurs');
+    Route::post('modifierFournisseur/{id}','modifierFournisseur');
+    Route::delete('supprimerFournisseur/{id}','supprimerFournisseur');
+});
+
+Route::controller(LivraisonController::class)->group(function(){
+    Route::post('ajouterLivraison','ajouterLivraison');
+    Route::get('listerToutesLivraisons','listerToutesLivraisons');
+    Route::post('LivraisonPreparer/{id}','LivraisonPreparer');
+    Route::delete('supprimerLivraison/{id}','supprimerLivraison');
+    Route::post('PlanifierLivraison/{id}','PlanifierLivraison');
+    Route::post('transformerLivraisonEnFacture/{id}','transformerLivraisonEnFacture');
+    Route::post('RealiserLivraison/{id}','RealiserLivraison');
 });
