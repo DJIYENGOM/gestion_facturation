@@ -23,9 +23,1350 @@
         "multipart/form-data"
     ],
     "paths": {
+        "/api/transformerLivraisonEnFacture/{id}": {
+            "post": {
+                "summary": "transformer Livraison En Facture",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des livraisons"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "client_id": {
+                                        "type": "integer"
+                                    },
+                                    "note_fact": {
+                                        "type": "string"
+                                    },
+                                    "reduction_facture": {
+                                        "type": "integer"
+                                    },
+                                    "prix_HT": {
+                                        "type": "integer"
+                                    },
+                                    "prix_TTC": {
+                                        "type": "integer"
+                                    },
+                                    "type_paiement": {
+                                        "type": "string"
+                                    },
+                                    "id_paiement": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "articles": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "echeances": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "facture_accompts": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "client_id": 1,
+                                "note_fact": " facture importante",
+                                "reduction_facture": 1000,
+                                "prix_HT": 20000,
+                                "prix_TTC": 25000,
+                                "type_paiement": "facture_Accompt",
+                                "id_paiement": null,
+                                "articles": [
+                                    {
+                                        "id_article": 1,
+                                        "quantite_article": 2,
+                                        "prix_unitaire_article": 5000,
+                                        "TVA_article": 50,
+                                        "reduction_article": 5,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    },
+                                    {
+                                        "id_article": 2,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 1000,
+                                        "TVA_article": 10,
+                                        "reduction_article": 50,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    }
+                                ],
+                                "echeances": [
+                                    {
+                                        "date_pay_echeance": "2024-06-28",
+                                        "montant_echeance": 4000
+                                    }
+                                ],
+                                "facture_accompts": [
+                                    {
+                                        "titreAccomp": "accompt 1",
+                                        "dateAccompt": "2024-06-29",
+                                        "dateEcheance": "2024-06-29",
+                                        "montant": 2000,
+                                        "commentaire": "jrnvvvejrnjern"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/RealiserLivraison/{id}": {
+            "post": {
+                "summary": "Livraison Realiser",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des livraisons"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/PlanifierLivraison/{id}": {
+            "post": {
+                "summary": "Planifier Livraison",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des livraisons"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/supprimerLivraison/{id}": {
+            "delete": {
+                "summary": "supprimer Livraison",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des livraisons"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/LivraisonPreparer/{id}": {
+            "post": {
+                "summary": "Livraison avec statut Preparer",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des livraisons"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listerToutesLivraisons": {
+            "get": {
+                "summary": "lister Toutes Livraisons",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des livraisons"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/ajouterLivraison": {
+            "post": {
+                "summary": "ajouter livraison",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des livraisons"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "client_id": {
+                                        "type": "integer"
+                                    },
+                                    "note_livraison": {
+                                        "type": "string"
+                                    },
+                                    "reduction_livraison": {
+                                        "type": "integer"
+                                    },
+                                    "date_livraison": {
+                                        "type": "string"
+                                    },
+                                    "prix_HT": {
+                                        "type": "integer"
+                                    },
+                                    "prix_TTC": {
+                                        "type": "integer"
+                                    },
+                                    "articles": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "client_id": 1,
+                                "note_livraison": "Some notes about the facture",
+                                "reduction_livraison": 1000,
+                                "date_livraison": "2024-06-29",
+                                "prix_HT": 20000,
+                                "prix_TTC": 25000,
+                                "articles": [
+                                    {
+                                        "id_article": 1,
+                                        "quantite_article": 2,
+                                        "prix_unitaire_article": 5000,
+                                        "reduction_article": 0,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    },
+                                    {
+                                        "id_article": 2,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 1000,
+                                        "TVA_article": 10,
+                                        "reduction_article": 0,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/supprimerFournisseur/{id}": {
+            "delete": {
+                "summary": "supprimer un fournisseur",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des fournisseurs"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/modifierFournisseur/{id}": {
+            "post": {
+                "summary": "modifier un Fournisseur",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des fournisseurs"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nom_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "prenom_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "nom_entreprise": {
+                                        "type": "string"
+                                    },
+                                    "adress_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "email_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "tel_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "type_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "num_id_fiscal": {
+                                        "type": "string"
+                                    },
+                                    "code_postal_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "ville_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "pays_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "noteInterne_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "doc_fournisseur": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nom_fournisseur": "fallou",
+                                "prenom_fournisseur": "ibou",
+                                "nom_entreprise": "",
+                                "adress_fournisseur": "dakar",
+                                "email_fournisseur": "ibou@gmail.com",
+                                "tel_fournisseur": "764538303",
+                                "type_fournisseur": "particulier",
+                                "num_id_fiscal": "1209",
+                                "code_postal_fournisseur": "0000",
+                                "ville_fournisseur": "dakar",
+                                "pays_fournisseur": "senegal",
+                                "noteInterne_fournisseur": "jvhbefg\"ehjfgyfeyfh\"ygf",
+                                "doc_fournisseur": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/ajouterFournisseur": {
+            "post": {
+                "summary": "ajouter un Fournisseur",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des fournisseurs"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nom_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "prenom_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "nom_entreprise": {
+                                        "type": "string"
+                                    },
+                                    "adress_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "email_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "tel_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "type_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "num_id_fiscal": {
+                                        "type": "string"
+                                    },
+                                    "code_postal_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "ville_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "pays_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "noteInterne_fournisseur": {
+                                        "type": "string"
+                                    },
+                                    "doc_fournisseur": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nom_fournisseur": "",
+                                "prenom_fournisseur": "fall",
+                                "nom_entreprise": "",
+                                "adress_fournisseur": "dakar",
+                                "email_fournisseur": "ibou@gmail.com",
+                                "tel_fournisseur": "764538303",
+                                "type_fournisseur": "entreprise",
+                                "num_id_fiscal": "1209",
+                                "code_postal_fournisseur": "0000",
+                                "ville_fournisseur": "dakar",
+                                "pays_fournisseur": "senegal",
+                                "noteInterne_fournisseur": "jvhbefg\"ehjfgyfeyfh\"ygf",
+                                "doc_fournisseur": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/listerTousFournisseurs": {
+            "get": {
+                "summary": "lister les fournisseurs",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des fournisseurs"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/supprimerBonCommande/{id}": {
+            "post": {
+                "summary": "supprimer Bon Commande",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des Bons de commandes"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listerTousBonCommande": {
+            "get": {
+                "summary": "Lister tous les bons de commande",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des Bons de commandes"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/annulerBonCommande/{id}": {
+            "post": {
+                "summary": "annuler Bon Commande",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des Bons de commandes"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/TransformeBonCommandeEnFacture/{id}": {
+            "post": {
+                "summary": "Transforme Bon Commande En Facture",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des Bons de commandes"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "client_id": {
+                                        "type": "integer"
+                                    },
+                                    "note_fact": {
+                                        "type": "string"
+                                    },
+                                    "reduction_facture": {
+                                        "type": "integer"
+                                    },
+                                    "prix_HT": {
+                                        "type": "integer"
+                                    },
+                                    "prix_TTC": {
+                                        "type": "integer"
+                                    },
+                                    "type_paiement": {
+                                        "type": "string"
+                                    },
+                                    "id_paiement": {
+                                        "type": "integer"
+                                    },
+                                    "articles": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "echeances": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "facture_accompts": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "client_id": 1,
+                                "note_fact": " facture importante",
+                                "reduction_facture": 1000,
+                                "prix_HT": 20000,
+                                "prix_TTC": 25000,
+                                "type_paiement": "facture_Accompt",
+                                "id_paiement": 1,
+                                "articles": [
+                                    {
+                                        "id_article": 1,
+                                        "quantite_article": 2,
+                                        "prix_unitaire_article": 5000,
+                                        "TVA_article": 50,
+                                        "reduction_article": 5,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    },
+                                    {
+                                        "id_article": 2,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 1000,
+                                        "TVA_article": 10,
+                                        "reduction_article": 50,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    }
+                                ],
+                                "echeances": [
+                                    {
+                                        "date_pay_echeance": "2024-06-28",
+                                        "montant_echeance": 4000
+                                    }
+                                ],
+                                "facture_accompts": [
+                                    {
+                                        "titreAccomp": "accompt 1",
+                                        "dateAccompt": "2024-06-29",
+                                        "dateEcheance": "2024-06-29",
+                                        "montant": 2000,
+                                        "commentaire": "jrnvvvejrnjern"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/creerBonCommande": {
+            "post": {
+                "summary": "creer un bon de commande",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des Bons de commandes"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "client_id": {
+                                        "type": "integer"
+                                    },
+                                    "note_commande": {
+                                        "type": "string"
+                                    },
+                                    "reduction_commande": {
+                                        "type": "integer"
+                                    },
+                                    "date_commande": {
+                                        "type": "string"
+                                    },
+                                    "date_limite_commande": {
+                                        "type": "string"
+                                    },
+                                    "prix_HT": {
+                                        "type": "integer"
+                                    },
+                                    "prix_TTC": {
+                                        "type": "integer"
+                                    },
+                                    "articles": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "echeances": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "client_id": 1,
+                                "note_commande": "Some notes about the facture",
+                                "reduction_commande": 1000,
+                                "date_commande": "2024-06-29",
+                                "date_limite_commande": "2024-06-30",
+                                "prix_HT": 20000,
+                                "prix_TTC": 25000,
+                                "articles": [
+                                    {
+                                        "id_article": 1,
+                                        "quantite_article": 2,
+                                        "prix_unitaire_article": 5000,
+                                        "reduction_article": 0,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    },
+                                    {
+                                        "id_article": 2,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 1000,
+                                        "TVA_article": 10,
+                                        "reduction_article": 0,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    }
+                                ],
+                                "echeances": [
+                                    {
+                                        "date_pay_echeance": "2024-06-28",
+                                        "montant_echeance": 4000
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/listerToutesDevi": {
             "get": {
-                "summary": "lister Toutes Devi",
+                "summary": "lister Tous les Devi",
                 "description": "",
                 "responses": {
                     "200": {
@@ -245,7 +1586,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -325,6 +1666,139 @@
                                         "dateEcheance": "2024-06-29",
                                         "montant": 2000,
                                         "commentaire": "jrnvvvejrnjern"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/TransformeDeviEnBonCommande/{deviId}": {
+            "post": {
+                "summary": "Transforme Devi En Bon Commande",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des devis"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "deviId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "client_id": {
+                                        "type": "integer"
+                                    },
+                                    "note_commande": {
+                                        "type": "string"
+                                    },
+                                    "reduction_commande": {
+                                        "type": "integer"
+                                    },
+                                    "date_commande": {
+                                        "type": "string"
+                                    },
+                                    "date_limite_commande": {
+                                        "type": "string"
+                                    },
+                                    "prix_HT": {
+                                        "type": "integer"
+                                    },
+                                    "prix_TTC": {
+                                        "type": "integer"
+                                    },
+                                    "articles": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "echeances": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "client_id": 1,
+                                "note_commande": "Some notes about the facture",
+                                "reduction_commande": 1000,
+                                "date_commande": "2024-06-29",
+                                "date_limite_commande": "2024-06-30",
+                                "prix_HT": 20000,
+                                "prix_TTC": 25000,
+                                "articles": [
+                                    {
+                                        "id_article": 1,
+                                        "quantite_article": 2,
+                                        "prix_unitaire_article": 5000,
+                                        "reduction_article": 0,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    },
+                                    {
+                                        "id_article": 2,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 1000,
+                                        "TVA_article": 10,
+                                        "reduction_article": 0,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    }
+                                ],
+                                "echeances": [
+                                    {
+                                        "date_pay_echeance": "2024-06-28",
+                                        "montant_echeance": 4000
                                     }
                                 ]
                             }
@@ -592,7 +2066,7 @@
                 ]
             }
         },
-        "/api/listPaiementsRecusParFacture/1": {
+        "/api/listPaiementsRecusParFacture/{factureId}": {
             "post": {
                 "summary": "lister Paiements Recus Par Facture",
                 "description": "",
@@ -753,7 +2227,7 @@
                 }
             }
         },
-        "/api/transformerEcheanceEnPaiementRecu/5": {
+        "/api/transformerEcheanceEnPaiementRecu/{echeanceId}": {
             "post": {
                 "summary": "transformer Echeance En Paiement Recu",
                 "description": "",
@@ -989,7 +2463,7 @@
                 ]
             }
         },
-        "/api/listEcheanceParFacture/1": {
+        "/api/listEcheanceParFacture/{factureId}": {
             "post": {
                 "summary": "lister echeance par facture",
                 "description": "",
@@ -1036,6 +2510,11 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "factureId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1043,7 +2522,7 @@
                 ]
             }
         },
-        "/api/factures_echeances/11": {
+        "/api/factures_echeances/{factureId}": {
             "post": {
                 "summary": "ajouter une echeance",
                 "description": "",
@@ -1091,7 +2570,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "",
+                        "name": "factureId",
                         "type": "string"
                     },
                     {
@@ -1851,6 +3330,155 @@
                 }
             }
         },
+        "/api/listerfactureAccomptsParFacture/{id}": {
+            "get": {
+                "summary": "lister factures Accompts Par Facture",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "": ""
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/creerFactureAccomp": {
+            "post": {
+                "summary": "creer Facture Accomp",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "titreAccomp": {
+                                        "type": "string"
+                                    },
+                                    "dateAccompt": {
+                                        "type": "string"
+                                    },
+                                    "dateEcheance": {
+                                        "type": "string"
+                                    },
+                                    "montant": {
+                                        "type": "integer"
+                                    },
+                                    "commentaire": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "titreAccomp": "accompt 1",
+                                "dateAccompt": "2024-06-29",
+                                "dateEcheance": "2024-06-29",
+                                "montant": 2000,
+                                "commentaire": "jrnvvvejrnjern"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/listerFacturesPayer": {
             "post": {
                 "summary": "lister Factures Payer",
@@ -2253,7 +3881,8 @@
                                         "type": "string"
                                     },
                                     "id_paiement": {
-                                        "type": "integer"
+                                        "type": "string",
+                                        "format": "binary"
                                     },
                                     "articles": {
                                         "type": "string",
@@ -2263,9 +3892,20 @@
                                         "type": "string",
                                         "format": "binary"
                                     },
-                                    "facture_accompts": {
-                                        "type": "string",
-                                        "format": "binary"
+                                    "titreAccomp": {
+                                        "type": "string"
+                                    },
+                                    "dateAccompt": {
+                                        "type": "string"
+                                    },
+                                    "dateEcheance": {
+                                        "type": "string"
+                                    },
+                                    "montant": {
+                                        "type": "integer"
+                                    },
+                                    "commentaire": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -2275,11 +3915,11 @@
                                 "reduction_facture": 1000,
                                 "prix_HT": 20000,
                                 "prix_TTC": 25000,
-                                "type_paiement": "facture_Accompt",
-                                "id_paiement": 3,
+                                "type_paiement": "echeance",
+                                "id_paiement": null,
                                 "articles": [
                                     {
-                                        "id_article": 1,
+                                        "id_article": 5,
                                         "quantite_article": 2,
                                         "prix_unitaire_article": 5000,
                                         "TVA_article": 50,
@@ -2288,7 +3928,7 @@
                                         "prix_total_tva_article": 8000
                                     },
                                     {
-                                        "id_article": 2,
+                                        "id_article": 6,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 1000,
                                         "TVA_article": 10,
@@ -2303,15 +3943,11 @@
                                         "montant_echeance": 4000
                                     }
                                 ],
-                                "facture_accompts": [
-                                    {
-                                        "titreAccomp": "accompt 1",
-                                        "dateAccompt": "2024-06-29",
-                                        "dateEcheance": "2024-06-29",
-                                        "montant": 2000,
-                                        "commentaire": "jrnvvvejrnjern"
-                                    }
-                                ]
+                                "titreAccomp": "accompt 1",
+                                "dateAccompt": "2024-06-29",
+                                "dateEcheance": "2024-06-29",
+                                "montant": 2000,
+                                "commentaire": "jrnvvvejrnjern"
                             }
                         }
                     }
@@ -4079,7 +5715,7 @@
                 ]
             }
         },
-        "/api/listerLotsArticle/5": {
+        "/api/listerLotsArticle/{articleId}": {
             "get": {
                 "summary": "liste Lot par article",
                 "description": "",
