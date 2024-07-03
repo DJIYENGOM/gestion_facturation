@@ -1148,7 +1148,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -1290,7 +1290,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3330,6 +3330,56 @@
                 }
             }
         },
+        "/api/DetailsFacture/{id}": {
+            "get": {
+                "summary": "details facture",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/listerfactureAccomptsParFacture/{id_facture}": {
             "get": {
                 "summary": "lister factures Accompts Par Facture",
@@ -3367,6 +3417,11 @@
                     "gestion facture"
                 ],
                 "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id_facture",
+                        "type": "string"
+                    },
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -3446,7 +3501,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
