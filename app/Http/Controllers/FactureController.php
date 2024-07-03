@@ -23,6 +23,7 @@ class FactureController extends Controller
             'active_Stock' => 'nullable|in:oui,non',
             'prix_HT' => 'required|numeric',
             'prix_TTC' => 'required|numeric',
+            'date_creation' => 'nullable|date',
             'type_paiement' => 'required|in:immediat,echeance,facture_Accompt',
             'statut_paiement' => 'nullable|in:en_attente,brouillon,payer',
             'id_paiement' => 'nullable|required_if:type_paiement,immediat|exists:payements,id',
@@ -61,7 +62,7 @@ class FactureController extends Controller
         // Création de la facture
         $facture = Facture::create([
             'client_id' => $request->client_id,
-            'date_creation' => now(),
+            'date_creation' => $request->input('date_creation') ?? now(),
             'date_paiement' => $datePaiement,
             'reduction_facture' => $request->input('reduction_facture', 0),
             'active_Stock' => $request->active_Stock ?? 'oui',
@@ -114,51 +115,8 @@ class FactureController extends Controller
     
         // Gestion des factures d'acompte si type_paiement est 'facture_Accompt'
         if ($request->type_paiement === 'facture_Accompt') {
-            $facture->update(['statut_paiement' => 'brouillon']);
-
-            $validator = Validator::make($request->all(), [
-                'titreAccomp' => 'required|string|max:255',
-                'dateAccompt' => 'required|date',
-                'dateEcheance' => 'required|date',
-                'montant' => 'required|numeric|min:0',
-                'commentaire' => 'nullable|string',
-            ]);
-    
-            if ($validator->fails()) {
-                return response()->json(['errors' => $validator->errors()], 422);
-            }
-    
-            // Création de la facture d'acompte
-            $factureAccomp = FactureAccompt::create([
-                'facture_id' => $facture->id,
-                'titreAccomp' => $request->titreAccomp,
-                'dateAccompt' => $request->dateAccompt,
-                'dateEcheance' => $request->dateEcheance,
-                'montant' => $request->montant,
-                'commentaire' => $request->input('commentaire', ''),
-                'sousUtilisateur_id' => $sousUtilisateurId,
-                'user_id' => $userId,
-            ]);
-    
-            Echeance::create([
-                'facture_id' => $facture->id,
-                'date_pay_echeance' => $factureAccomp->dateEcheance,
-                'montant_echeance' => $factureAccomp->montant,
-                'sousUtilisateur_id' => $sousUtilisateurId,
-                'user_id' => $userId,
-            ]);
-        }
-    
-        // Gestion des paiements reçus
-        if ($request->type_paiement === 'immediat') {
-            PaiementRecu::create([
-                'facture_id' => $facture->id,
-                'id_paiement' => $request->id_paiement,
-                'date_reçu' => now(),
-                'montant' => $facture->prix_TTC,
-                'sousUtilisateur_id' => $sousUtilisateurId,
-                'user_id' => $userId,
-            ]);
+            
+           
         }
     
         // Mettre à jour le statut de la facture si elle est initialement en brouillon
@@ -412,7 +370,7 @@ public function DetailsFacture($id)
 {
     // Rechercher la facture par son numéro
     $facture = Facture::where('id', $id)
-                ->with(['client', 'articles.article', 'echeances', 'factureAccompts'])
+                ->with(['client', 'articles.article', 'echeances', 'factureAccompts','paiement'])
                 ->first();
 
     // Vérifier si la facture existe
@@ -435,6 +393,7 @@ public function DetailsFacture($id)
         'prix_HT' => $facture->prix_HT,
         'prix_TTC' => $facture->prix_TTC,
         'type_paiement' => $facture->type_paiement,
+        'moyen_paiement' => $facture->paiement->nom_payement ?? null,
         'articles' => [],
         'echeances' => [],
         'nombre_echeance' => $facture->echeances ? $facture->echeances->count() : 0,
@@ -446,6 +405,7 @@ public function DetailsFacture($id)
         foreach ($facture->articles as $articleFacture) {
             $response['articles'][] = [
                 'nom_article' => $articleFacture->article->nom_article,
+                'TVA' => $articleFacture->TVA_article,
                 'quantite_article' => $articleFacture->quantite_article,
                 'prix_unitaire_article' => $articleFacture->prix_unitaire_article,
                 'prix_total_tva_article' => $articleFacture->prix_total_tva_article,
