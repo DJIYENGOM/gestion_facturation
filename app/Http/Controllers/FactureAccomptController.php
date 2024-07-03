@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Echeance;
 use App\Models\FactureAccompt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -48,6 +49,15 @@ public function creerFactureAccomp(Request $request)
         'dateEcheance' => $request->dateEcheance,
         'montant' => $request->montant,
         'commentaire' => $request->input('commentaire', ''),
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+    ]);
+    
+    Echeance::create([
+        'facture_id' => $factureAccomp->facture_id,
+        'devi_id' => $factureAccomp->devi_id,
+        'date_pay_echeance' => $factureAccomp->dateEcheance,
+        'montant_echeance' => $factureAccomp->montant,
         'sousUtilisateur_id' => $sousUtilisateurId,
         'user_id' => $userId,
     ]);

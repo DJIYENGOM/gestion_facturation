@@ -3330,7 +3330,7 @@
                 }
             }
         },
-        "/api/listerfactureAccomptsParFacture/{id}": {
+        "/api/listerfactureAccomptsParFacture/{id_facture}": {
             "get": {
                 "summary": "lister factures Accompts Par Facture",
                 "description": "",

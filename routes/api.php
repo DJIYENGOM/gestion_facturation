@@ -129,6 +129,7 @@ Route::get('listerFactures', [FactureController::class, 'listerToutesFactures'])
 Route::post('lireFacture/{id}', [FactureController::class, 'lireFacture']);
 Route::post('validerFacture/{id}', [FactureController::class, 'validerFacture']);
 Route::delete('supprimeArchiveFacture/{id}', [FactureController::class, 'supprimeArchiveFacture']);
+Route::get('DetailsFacture/{id}', [FactureController::class, 'DetailsFacture']);
 
 Route::post('listerFacturesEcheance', [FactureController::class, 'listerFacturesEcheance']);
 Route::post('listerFacturesAccompt', [FactureController::class, 'listerFacturesAccompt']);

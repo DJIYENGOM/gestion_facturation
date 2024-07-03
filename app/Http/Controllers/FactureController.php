@@ -9,7 +9,7 @@ use App\Models\Echeance;
 use App\Models\FactureAccompt;
 use App\Models\PaiementRecu;
 use Illuminate\Support\Facades\Validator;
-
+use Carbon\Carbon;
 
 
 class FactureController extends Controller
@@ -114,6 +114,8 @@ class FactureController extends Controller
     
         // Gestion des factures d'acompte si type_paiement est 'facture_Accompt'
         if ($request->type_paiement === 'facture_Accompt') {
+            $facture->update(['statut_paiement' => 'brouillon']);
+
             $validator = Validator::make($request->all(), [
                 'titreAccomp' => 'required|string|max:255',
                 'dateAccompt' => 'required|date',
@@ -405,5 +407,80 @@ public function supprimeArchiveFacture($id)
     }
 
 }
+
+public function DetailsFacture($id)
+{
+    // Rechercher la facture par son numéro
+    $facture = Facture::where('id', $id)
+                ->with(['client', 'articles.article', 'echeances', 'factureAccompts'])
+                ->first();
+
+    // Vérifier si la facture existe
+    if (!$facture) {
+        return response()->json(['error' => 'Facture non trouvée'], 404);
+    }
+
+    // Convertir date_creation en instance de Carbon si ce n'est pas déjà le cas
+    $dateCreation = Carbon::parse($facture->date_creation);
+
+    // Préparer la réponse
+    $response = [
+        'numero_facture' => $facture->num_fact,
+        'date_creation' => $dateCreation->format('Y-m-d H:i:s'),
+        'client' => [
+            'nom' => $facture->client->nom_client,
+            'prenom' => $facture->client->prenom_client,
+        ],
+        'note_facture' => $facture->note_fact,
+        'prix_HT' => $facture->prix_HT,
+        'prix_TTC' => $facture->prix_TTC,
+        'type_paiement' => $facture->type_paiement,
+        'articles' => [],
+        'echeances' => [],
+        'nombre_echeance' => $facture->echeances ? $facture->echeances->count() : 0,
+        'factures_accomptes' => [],
+    ];
+
+    // Vérifier si 'articles' est non nul et une collection
+    if ($facture->articles && $facture->articles->isNotEmpty()) {
+        foreach ($facture->articles as $articleFacture) {
+            $response['articles'][] = [
+                'nom_article' => $articleFacture->article->nom_article,
+                'quantite_article' => $articleFacture->quantite_article,
+                'prix_unitaire_article' => $articleFacture->prix_unitaire_article,
+                'prix_total_tva_article' => $articleFacture->prix_total_tva_article,
+                'reduction_article' => $articleFacture->reduction_article,
+            ];
+        }
+    }
+
+    // Vérifier si 'echeances' est non nul et une collection
+    if ($facture->echeances && $facture->echeances->isNotEmpty()) {
+        foreach ($facture->echeances as $echeance) {
+            $response['echeances'][] = [
+                'date_pay_echeance' => Carbon::parse($echeance->date_pay_echeance)->format('Y-m-d'),
+                'montant_echeance' => $echeance->montant_echeance,
+            ];
+        }
+    }
+
+    // Vérifier si 'factureAccompts' est non nul et une collection
+    if ($facture->factureAccompts && $facture->factureAccompts->isNotEmpty()) {
+        foreach ($facture->factureAccompts as $factureAccomp) {
+            $response['factures_accomptes'][] = [
+                'titreAccomp' => $factureAccomp->titreAccomp,
+                'dateAccompt' => Carbon::parse($factureAccomp->dateAccompt)->format('Y-m-d'),
+                'dateEcheance' => Carbon::parse($factureAccomp->dateEcheance)->format('Y-m-d'),
+                'montant' => $factureAccomp->montant,
+                'commentaire' => $factureAccomp->commentaire,
+            ];
+        }
+    }
+
+    // Retourner la réponse JSON
+    return response()->json(['facture_details' => $response], 200);
+}
+
+
 
 }

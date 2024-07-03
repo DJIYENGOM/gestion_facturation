@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
 class Facture extends Model
 {
     use HasFactory;
@@ -31,6 +30,8 @@ class Facture extends Model
         'bonCommande_id',
     ];
 
+ 
+
     public function client()
     {
         return $this->belongsTo(Client::class);
@@ -39,7 +40,7 @@ class Facture extends Model
     // Relation avec les articles de la facture
     public function articles()
     {
-        return $this->hasMany(ArtcleFacture::class);
+        return $this->hasMany(ArtcleFacture::class, 'id_facture');
     }
 
     public function devi()
