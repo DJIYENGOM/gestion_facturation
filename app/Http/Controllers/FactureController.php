@@ -114,8 +114,7 @@ class FactureController extends Controller
         }
     
         // Gestion des factures d'acompte si type_paiement est 'facture_Accompt'
-        if ($request->type_paiement === 'facture_Accompt') {
-            
+        if ($request->type_paiement === 'facture_Accompt') {   
            
         }
     
@@ -172,7 +171,7 @@ public function listerToutesFactures()
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
-        $factures = Facture::with('client')
+        $factures = Facture::with('client','paiement')
             ->where('archiver', 'non')
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
                 $query->where('sousUtilisateur_id', $sousUtilisateurId)
@@ -182,7 +181,7 @@ public function listerToutesFactures()
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $factures = Facture::with('client')
+        $factures = Facture::with('client','paiement')
             ->where('archiver', 'non')
             ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
@@ -205,9 +204,12 @@ foreach ($factures as $facture) {
         'prix_HT' => $facture->prix_HT,
         'prix_TTC' => $facture->prix_TTC,
         'note_fact' => $facture->note_fact,
-        'prenom client' => $facture->client->prenom_client, 
-        'nom client' => $facture->client->nom_client, 
+        'prenom_client' => $facture->client->prenom_client, 
+        'nom_client' => $facture->client->nom_client, 
         'active_Stock' => $facture->active_Stock,
+        'type_paiement' => $facture->type_paiement,
+        'moyen_paiement' => $facture->paiment->nom_payement,
+        'statut_paiement' => $facture->statut_paiement,
     ];
 }
 
