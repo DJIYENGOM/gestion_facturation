@@ -208,7 +208,7 @@ foreach ($factures as $facture) {
         'nom_client' => $facture->client->nom_client, 
         'active_Stock' => $facture->active_Stock,
         'type_paiement' => $facture->type_paiement,
-        'moyen_paiement' => $facture->paiment->nom_payement,
+        'moyen_paiement' => $facture->paiment->nom_payement ?? null,
         'statut_paiement' => $facture->statut_paiement,
     ];
 }
