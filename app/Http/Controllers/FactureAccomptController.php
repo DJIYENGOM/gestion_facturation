@@ -28,6 +28,7 @@ public function creerFactureAccomp(Request $request)
     // Validation des données
     $validator = Validator::make($request->all(), [
         'facture_id' => 'nullable|exists:factures,id',
+        'num_facture'=> 'nullable|exists:factures,num_facture',
         'devi_id' => 'nullable|exists:devis,id',
         'titreAccomp' => 'required|string|max:255',
         'dateAccompt' => 'required|date',
@@ -42,7 +43,7 @@ public function creerFactureAccomp(Request $request)
     }
 
     // Générer le numéro de facture d'acompte
-    $typeDocument = 'factureAccomp';
+    $typeDocument = 'facture';
     $numFactureAccomp = NumeroGeneratorService::genererNumero($userId, $typeDocument);
 
     // Créer la facture d'acompte
@@ -50,6 +51,7 @@ public function creerFactureAccomp(Request $request)
         'num_factureAccomp' => $numFactureAccomp,
         'titreAccomp' => $request->titreAccomp,
         'facture_id' => $request->facture_id,
+        'num_facture' => $request->num_facture,
         'devi_id' => $request->devi_id,
         'dateAccompt' => $request->dateAccompt,
         'dateEcheance' => $request->dateEcheance,
@@ -79,7 +81,7 @@ public function listerfactureAccomptsParFacture($numFacture)
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
         $factures = FactureAccompt::with('facture')
-            ->where('facture_id', $numFacture)
+            ->where('num_facture', $numFacture)
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
                 $query->where('sousUtilisateur_id', $sousUtilisateurId)
                     ->orWhere('user_id', $userId);
@@ -89,7 +91,7 @@ public function listerfactureAccomptsParFacture($numFacture)
         $userId = auth()->id();
 
         $factures = FactureAccompt::with('facture')
-            ->where('facture_id', $numFacture)
+            ->where('num_facture', $numFacture)
             ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
                     ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
@@ -113,8 +115,8 @@ foreach ($factures as $facture) {
         'montant' => $facture->montant,
         'commentaire' => $facture->commentaire,
         'prenom client' => $facture->facture->client->prenom_client, 
-        'nom client' => $facture->facture->client->nom_client,
-        'num facture' => $facture->facture->num_fact,
+        'nom_client' => $facture->facture->client->nom_client,
+        'num_facture' => $facture->facture->num_fact,
     ];
 }
 
