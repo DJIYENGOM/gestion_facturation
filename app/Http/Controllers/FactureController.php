@@ -128,13 +128,16 @@ class FactureController extends Controller
         // Mettre à jour le statut de la facture si elle est initialement en brouillon
         if ($facture->type_paiement === 'facture_Accompt' && $facture->statut_paiement === 'brouillon') {
             $facture->statut_paiement = 'en_attente';
+            $facture->update();
 
         }elseif($facture->type_paiement === 'immediat'){
             $facture->statut_paiement = 'payer';
+            $facture->save();
+
         }else{
             $facture->statut_paiement = 'en_attente';
-        }
             $facture->save();
+        }
         
         return response()->json(['message' => 'Facture créée avec succès', 'facture' => $facture], 201);
     }

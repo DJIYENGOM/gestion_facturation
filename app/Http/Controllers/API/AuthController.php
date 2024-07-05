@@ -69,10 +69,8 @@ class AuthController extends Controller
             'produit',
             'service',
             'client',
-            'factureAccomp',
             'devis',
             'commande',
-            'facture_avoir',
             'depense',
             'fournisseur',
             'commande_achat'
