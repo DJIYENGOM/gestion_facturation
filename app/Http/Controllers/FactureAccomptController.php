@@ -6,6 +6,8 @@ use App\Models\Echeance;
 use App\Models\FactureAccompt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Services\NumeroGeneratorService;
+
 
 
 class FactureAccomptController extends Controller
@@ -13,7 +15,17 @@ class FactureAccomptController extends Controller
 
 public function creerFactureAccomp(Request $request)
 {
-    // Validation des données d'entrée
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user;
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+        $sousUtilisateurId = null;
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    // Validation des données
     $validator = Validator::make($request->all(), [
         'facture_id' => 'nullable|exists:factures,id',
         'devi_id' => 'nullable|exists:devis,id',
@@ -24,27 +36,21 @@ public function creerFactureAccomp(Request $request)
         'commentaire' => 'nullable|string',
     ]);
 
-    // Vérification des erreurs de validation
+    // En cas d'échec de validation, retourner les erreurs
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 422);
     }
 
-    // Récupération de l'utilisateur authentifié
-    if (auth()->guard('apisousUtilisateur')->check()) {
-        $sousUtilisateurId = auth('apisousUtilisateur')->id();
-        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
-    } elseif (auth()->check()) {
-        $userId = auth()->id();
-        $sousUtilisateurId = null;
-    } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
-    }
+    // Générer le numéro de facture d'acompte
+    $typeDocument = 'factureAccomp';
+    $numFactureAccomp = NumeroGeneratorService::genererNumero($userId, $typeDocument);
 
-    // Création de la facture d'acompte
+    // Créer la facture d'acompte
     $factureAccomp = FactureAccompt::create([
+        'num_factureAccomp' => $numFactureAccomp,
+        'titreAccomp' => $request->titreAccomp,
         'facture_id' => $request->facture_id,
         'devi_id' => $request->devi_id,
-        'titreAccomp' => $request->titreAccomp,
         'dateAccompt' => $request->dateAccompt,
         'dateEcheance' => $request->dateEcheance,
         'montant' => $request->montant,
@@ -52,7 +58,8 @@ public function creerFactureAccomp(Request $request)
         'sousUtilisateur_id' => $sousUtilisateurId,
         'user_id' => $userId,
     ]);
-    
+
+    // Créer une échéance associée
     Echeance::create([
         'facture_id' => $factureAccomp->facture_id,
         'devi_id' => $factureAccomp->devi_id,
@@ -65,14 +72,14 @@ public function creerFactureAccomp(Request $request)
     return response()->json(['message' => 'Facture d\'acompte créée avec succès', 'factureAccomp' => $factureAccomp], 201);
 }
 
-public function listerfactureAccomptsParFacture($id_facture)
+public function listerfactureAccomptsParFacture($numFacture)
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
         $factures = FactureAccompt::with('facture')
-            ->where('facture_id', $id_facture)
+            ->where('facture_id', $numFacture)
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
                 $query->where('sousUtilisateur_id', $sousUtilisateurId)
                     ->orWhere('user_id', $userId);
@@ -82,7 +89,7 @@ public function listerfactureAccomptsParFacture($id_facture)
         $userId = auth()->id();
 
         $factures = FactureAccompt::with('facture')
-            ->where('facture_id', $id_facture)
+            ->where('facture_id', $numFacture)
             ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
                     ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {

@@ -82,10 +82,4 @@ class Facture extends Model
         return $this->belongsTo(CompteComptable::class, 'id_comptable');
     }
 
-
-    public static function generateNumFacture($id)
-    {
-        $year = date('Y');
-        return 'F' . $year . '00' . $id;
-    }
 }

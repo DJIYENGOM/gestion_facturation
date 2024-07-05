@@ -13,6 +13,8 @@ use App\Models\Lot;
 use App\Models\Variante;
 use App\Models\AutrePrix;
 use App\Models\EntrepotArticle;
+use App\Services\NumeroGeneratorService;
+
 
 class ArticleController extends Controller
 {
@@ -20,16 +22,17 @@ class ArticleController extends Controller
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur_id = auth('apisousUtilisateur')->id();
-            $user_id = null;
+            $user_id = auth('apisousUtilisateur')->user()->id_user;
         } elseif (auth()->check()) {
             $user_id = auth()->id();
             $sousUtilisateur_id = null;
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
+        $typeDocument = 'article';
+        $numArticle = NumeroGeneratorService::genererNumero($user_id, $typeDocument);
     
         $validator = Validator::make($request->all(), [
-            'nom_article' => 'required|string|max:255',
             'description' => 'nullable|string',
             'prix_unitaire' => 'required|numeric|min:0',
             'tva'=>'nullable|numeric|min:0',
@@ -104,7 +107,7 @@ class ArticleController extends Controller
         }
     
         $article = new Article();
-        $article->num_article = $request->num_article;
+        $article->num_article = $numArticle;
         $article->nom_article = $request->nom_article;
         $article->description = $request->description;
         $article->prix_unitaire = $request->prix_unitaire;

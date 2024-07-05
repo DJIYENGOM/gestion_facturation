@@ -13,6 +13,7 @@ use App\Models\FactureAccompt;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Services\NumeroGeneratorService;
 
 
 class DeviController extends Controller

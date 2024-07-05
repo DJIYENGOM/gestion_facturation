@@ -5,10 +5,13 @@ namespace App\Http\Controllers\API;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\NumeroConfiguration;
 use App\Models\Sous_Utilisateur;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+
 
 class AuthController extends Controller
 {
@@ -60,6 +63,38 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        $typesDocument = [
+            'facture',
+            'livraison',
+            'article',
+            'client',
+            'factureAccomp',
+            'devis',
+            'commande',
+            'facture_avoir',
+            'depense',
+            'fournisseur',
+            'commande_achat'
+        ];
+
+        try {
+            foreach ($typesDocument as $type) {
+                NumeroConfiguration::create([
+                    'user_id' => $user->id,
+                    'type_document' => $type,
+                    'type_numerotation' => 'par_defaut',
+                    'prefixe' => '',
+                    'compteur' => 0
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error inserting NumeroConfiguration: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Erreur lors de la création des configurations',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
 
         return response()->json([
             'message' => 'User created successfully',

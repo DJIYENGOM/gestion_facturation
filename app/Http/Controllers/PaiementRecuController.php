@@ -14,7 +14,7 @@ class PaiementRecuController extends Controller
             'facture_id' => 'required|exists:factures,id',
             'num_paiement' => 'nullable|string|max:255',
             'date_prevu' => 'nullable|date',
-            'date_reçu' => 'nullable|date',
+            'date_recu' => 'nullable|date',
             'montant' => 'required|numeric|min:0',
             'commentaire' => 'nullable|string',
             'id_paiement' => 'required|exists:payements,id',
@@ -34,7 +34,7 @@ class PaiementRecuController extends Controller
             'facture_id' => $request->facture_id,
             'num_paiement' => $request->input('num_paiement'),
             'date_prevu' => $request->input('date_prevu'),
-            'date_reçu' => $request->input('date_reçu'),
+            'date_recu' => $request->input('date_recu'),
             'montant' => $request->input('montant'),
             'commentaire' => $request->input('commentaire'),
             'id_paiement' => $request->input('id_paiement'),
@@ -42,7 +42,7 @@ class PaiementRecuController extends Controller
             'user_id' => $userId,
         ]);
 
-        return response()->json(['message' => 'Paiement reçu ajouté avec succès', 'paiement_recu' => $paiementRecu], 201);
+        return response()->json(['message' => 'Paiement recu ajouté avec succès', 'paiement_recu' => $paiementRecu], 201);
     }
 
     public function listPaiementsRecusParFacture($factureId)
@@ -90,9 +90,9 @@ class PaiementRecuController extends Controller
 
             if ($paiementRecu) {
                 $paiementRecu->delete();
-                return response()->json(['message' => 'Paiement reçu supprimé avec succès'], 200);
+                return response()->json(['message' => 'Paiement recu supprimé avec succès'], 200);
             } else {
-                return response()->json(['error' => 'Ce sous-utilisateur ne peut pas supprimer ce paiement reçu'], 403);
+                return response()->json(['error' => 'Ce sous-utilisateur ne peut pas supprimer ce paiement recu'], 403);
             }
         } elseif (auth()->check()) {
             $userId = auth()->id();
@@ -108,9 +108,9 @@ class PaiementRecuController extends Controller
 
             if ($paiementRecu) {
                 $paiementRecu->delete();
-                return response()->json(['message' => 'Paiement reçu supprimé avec succès'], 200);
+                return response()->json(['message' => 'Paiement recu supprimé avec succès'], 200);
             } else {
-                return response()->json(['error' => 'Cet utilisateur ne peut pas supprimer ce paiement reçu'], 403);
+                return response()->json(['error' => 'Cet utilisateur ne peut pas supprimer ce paiement recu'], 403);
             }
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
@@ -130,13 +130,13 @@ class PaiementRecuController extends Controller
         return response()->json(['error' => 'Unauthorized'], 401);
     }
 
-    // Récupérer le paiement reçu
+    // Récupérer le paiement recu
     $paiementRecu = PaiementRecu::find($paiementRecuId);
     if (!$paiementRecu) {
-        return response()->json(['error' => 'Paiement reçu non trouvé'], 404);
+        return response()->json(['error' => 'Paiement recu non trouvé'], 404);
     }
 
-    // Créez une nouvelle échéance à partir des informations du paiement reçu
+    // Créez une nouvelle échéance à partir des informations du paiement recu
     $echeance = Echeance::create([
         'facture_id' => $paiementRecu->facture_id,
         'date_pay_echeance' => $paiementRecu->date_prevu,
@@ -146,11 +146,11 @@ class PaiementRecuController extends Controller
         'user_id' => $userId,
     ]);
 
-    // Supprimez le paiement reçu
+    // Supprimez le paiement recu
     $paiementRecu->delete();
 
     return response()->json([
-        'message' => 'Paiement reçu transformé en échéance avec succès',
+        'message' => 'Paiement recu transformé en échéance avec succès',
         'echeance' => $echeance
     ], 201);
 }

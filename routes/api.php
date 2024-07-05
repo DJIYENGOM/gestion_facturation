@@ -24,6 +24,7 @@ use App\Http\Controllers\CategorieArticleController;
 use App\Http\Controllers\FactureAccomptController;
 use App\Http\Controllers\NoteJustificativeController;
 use App\Http\Controllers\Info_SupplementaireController;
+use App\Http\Controllers\NumeroConfigurationController;
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -121,7 +122,7 @@ Route::controller(PayementController::class)->group(function () {
 });
 
 Route::post('creerFactureAccomp', [FactureAccomptController::class, 'creerFactureAccomp']);
-Route::get('listerfactureAccomptsParFacture/{id_facture}', [FactureAccomptController::class, 'listerfactureAccomptsParFacture']);
+Route::get('listerfactureAccomptsParFacture/{numFacture}', [FactureAccomptController::class, 'listerfactureAccomptsParFacture']);
 
 Route::post('creerFacture', [FactureController::class, 'creerFacture']);
 Route::post('listeArticlesFacture/{id_facture}', [FactureController::class, 'listeArticlesFacture']);
@@ -203,3 +204,5 @@ Route::controller(LivraisonController::class)->group(function(){
     Route::post('transformerLivraisonEnFacture/{id}','transformerLivraisonEnFacture');
     Route::post('RealiserLivraison/{id}','RealiserLivraison');
 });
+
+Route::post('configurerNumeros',[NumeroConfigurationController::class, 'configurerNumeros']);

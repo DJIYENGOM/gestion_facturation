@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\CompteComptable;
+use App\Services\NumeroGeneratorService;
 
 
 class ClientController extends Controller

@@ -11,6 +11,7 @@ use App\Models\Livraison;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Services\NumeroGeneratorService;
 
 
 class LivraisonController extends Controller
@@ -48,8 +49,10 @@ class LivraisonController extends Controller
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-
-        // Création de la facture
+        $typeDocument = 'livraison';
+        $numlivraison = NumeroGeneratorService::genererNumero($userId, $typeDocument);
+    
+        // Création de la livraison
         $livraison = Livraison::create([
             'client_id' => $request->client_id,
             'date_livraison' => $request->date_livraison,
@@ -61,9 +64,9 @@ class LivraisonController extends Controller
             'archiver' => 'non',
             'sousUtilisateur_id' => $sousUtilisateurId,
             'user_id' => $userId,
+            'numlivraison' => $numlivraison
         ]);
     
-        $livraison->num_livraison =Livraison::generateNumLivraison($livraison->id);
         $livraison->save();
     
         // Ajouter les articles à la facture

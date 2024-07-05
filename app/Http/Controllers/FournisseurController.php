@@ -6,6 +6,7 @@ use App\Models\Fournisseur;
 use Illuminate\Http\Request;
 use App\Models\CompteComptable;
 use Illuminate\Support\Facades\Validator;
+use App\Services\NumeroGeneratorService;
 
 class FournisseurController extends Controller
 {

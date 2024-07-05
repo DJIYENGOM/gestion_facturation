@@ -10,7 +10,9 @@ class FactureAccompt extends Model
     use HasFactory;
 
     protected $fillable = [
+        'num_factureAccomp',
         'facture_id',
+        'num_facture',
         'titreAccomp',
         'dateAccompt',
         'dateEcheance',

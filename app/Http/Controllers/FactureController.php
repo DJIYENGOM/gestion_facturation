@@ -10,6 +10,8 @@ use App\Models\FactureAccompt;
 use App\Models\PaiementRecu;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use App\Services\NumeroGeneratorService;
+
 
 
 class FactureController extends Controller
@@ -59,8 +61,13 @@ class FactureController extends Controller
         // Déterminer le statut de paiement initial
         $statutPaiement = $request->type_paiement === 'facture_Accompt' ? 'brouillon' :'en_attente';
     
+        $typeDocument = 'facture';
+        $numFacture = NumeroGeneratorService::genererNumero($userId, $typeDocument);
+    
+    
         // Création de la facture
         $facture = Facture::create([
+            'num_fact' => $numFacture,
             'client_id' => $request->client_id,
             'date_creation' => $request->input('date_creation') ?? now(),
             'date_paiement' => $datePaiement,
@@ -77,7 +84,6 @@ class FactureController extends Controller
             'id_paiement' => $request->type_paiement === 'immediat' ? $request->id_paiement : null,
         ]);
     
-        $facture->num_fact = Facture::generateNumFacture($facture->id);
     
         // Ajouter les articles à la facture
         foreach ($request->articles as $articleData) {
@@ -115,7 +121,8 @@ class FactureController extends Controller
     
         // Gestion des factures d'acompte si type_paiement est 'facture_Accompt'
         if ($request->type_paiement === 'facture_Accompt') {   
-           
+            $facture->statut_paiement = 'brouillon';
+            $facture->save();
         }
     
         // Mettre à jour le statut de la facture si elle est initialement en brouillon

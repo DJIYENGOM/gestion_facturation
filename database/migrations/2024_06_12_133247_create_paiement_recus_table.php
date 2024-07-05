@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->date('date_prevu')->nullable();
             $table->string('num_paiement')->nullable()->unique();
-            $table->date('date_reçu');
+            $table->date('date_recu');
             $table->decimal('montant', 8, 2);
             $table->text('commentaire')->nullable();
             $table->foreignId('id_paiement')->nullable()->constrained('payements')->onDelete('set null');

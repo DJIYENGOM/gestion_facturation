@@ -29,30 +29,7 @@ class Fournisseur extends Model
         'id_comptable'
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($fournisseur) {
-            // Générer le num_fournisseur s'il n'est pas fourni ou s'il existe déjà
-            if (empty($fournisseur->num_fournisseur) || self::where('num_fournisseur', $fournisseur->num_fournisseur)->exists()) {
-                $fournisseur->num_fournisseur = self::generateUniqueNumFournisseur();
-            }
-        });
-    }
-
-    private static function generateUniqueNumFournisseur()
-    {
-        $latestfournisseur = self::latest('id')->first();
-        $nextId = $latestfournisseur ? $latestfournisseur->id + 1 : 1;
-        $numfournisseur = str_pad($nextId, 6, '0', STR_PAD_LEFT);
-
-        while (self::where('num_fournisseur', $numfournisseur)->exists()) {
-            $nextId++;
-            $numfournisseur = str_pad($nextId, 6, '0', STR_PAD_LEFT);
-        }
-        return $numfournisseur;
-    }
+  
 
     public function sousUtilisateur()
     {
