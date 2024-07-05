@@ -122,23 +122,22 @@ class FactureController extends Controller
         // Gestion des factures d'acompte si type_paiement est 'facture_Accompt'
         if ($request->type_paiement === 'facture_Accompt') {   
             $facture->statut_paiement = 'brouillon';
-            $facture->save();
+           
         }
     
         // Mettre à jour le statut de la facture si elle est initialement en brouillon
         if ($facture->type_paiement === 'facture_Accompt' && $facture->statut_paiement === 'brouillon') {
             $facture->statut_paiement = 'en_attente';
-            $facture->update();
 
         }elseif($facture->type_paiement === 'immediat'){
             $facture->statut_paiement = 'payer';
-            $facture->save();
+           
 
         }else{
             $facture->statut_paiement = 'en_attente';
-            $facture->save();
+           
         }
-        
+        $facture->save();
         return response()->json(['message' => 'Facture créée avec succès', 'facture' => $facture], 201);
     }
     
@@ -168,8 +167,8 @@ public function listeArticlesFacture($id_facture)
         $response[] = [
             'nom_article' => $article->article->nom_article,
             'quantite' => $article->quantite_article,
-            'Montant total' => $article->prix_total_article,
-            'Montant total avec TVA' => $article->prix_total_tva_article,
+            'Montant_total' => $article->prix_total_article,
+            'Montant_total_avec_TVA' => $article->prix_total_tva_article,
         ];
     }
 

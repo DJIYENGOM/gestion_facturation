@@ -29,6 +29,7 @@ public function creerFactureAccomp(Request $request)
     $validator = Validator::make($request->all(), [
         'facture_id' => 'nullable|exists:factures,id',
         'num_facture'=> 'nullable|exists:factures,num_facture',
+        'num_devis' => 'nullable|exists:devis,num_devi',
         'devi_id' => 'nullable|exists:devis,id',
         'titreAccomp' => 'required|string|max:255',
         'dateAccompt' => 'required|date',
@@ -52,6 +53,7 @@ public function creerFactureAccomp(Request $request)
         'titreAccomp' => $request->titreAccomp,
         'facture_id' => $request->facture_id,
         'num_facture' => $request->num_facture,
+        'num_devi' => $request->num_devi,
         'devi_id' => $request->devi_id,
         'dateAccompt' => $request->dateAccompt,
         'dateEcheance' => $request->dateEcheance,

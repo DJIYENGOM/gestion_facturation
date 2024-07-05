@@ -13,6 +13,7 @@ class FactureAccompt extends Model
         'num_factureAccomp',
         'facture_id',
         'num_facture',
+        'num_devi',
         'titreAccomp',
         'dateAccompt',
         'dateEcheance',

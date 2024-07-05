@@ -54,8 +54,11 @@ class BonCommandeController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Création de la facture
+        $typeDocument = 'bon_commande';
+        $numBonCommande= NumeroGeneratorService::genererNumero($userId, $typeDocument);
+    
         $commande = BonCommande::create([
+            'num_commande' => $numBonCommande,
             'client_id' => $request->client_id,
             'date_commande' => $request->date_commande,
             'date_limite_commande' => $request->date_limite_commande,
@@ -69,7 +72,6 @@ class BonCommandeController extends Controller
             'statut_commande' => $request->statut_commande ?? 'en_attente',
         ]);
     
-        $commande->num_commande = BonCommande::generateNumBoncommande($commande->id);
         $commande->save();
     
         // Ajouter les articles à la facture

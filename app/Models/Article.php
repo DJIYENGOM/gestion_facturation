@@ -31,30 +31,7 @@ class Article extends Model
         'sousUtilisateur_id','user_id','id_categorie_article'];
 
 
-    protected static function boot()
-    {
-        parent::boot();
 
-        static::creating(function ($article) {
-            // Générer le num_article s'il n'est pas fourni ou s'il existe déjà
-            if (empty($article->num_article) || self::where('num_article', $article->num_article)->exists()) {
-                $article->num_article = self::generateUniqueNumArticle();
-            }
-        });
-    }
-
-    private static function generateUniqueNumArticle()
-    {
-        $latestArticle = self::latest('id')->first();
-        $nextId = $latestArticle ? $latestArticle->id + 1 : 1;
-        $numArticle = str_pad($nextId, 6, '0', STR_PAD_LEFT);
-
-        while (self::where('num_article', $numArticle)->exists()) {
-            $nextId++;
-            $numArticle = str_pad($nextId, 6, '0', STR_PAD_LEFT);
-        }
-        return $numArticle;
-    }
 
     
     public function promotion()

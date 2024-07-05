@@ -75,9 +75,13 @@ class FournisseurController extends Controller
         } else {
             $id_comptable = $request->id_comptable;
         }
+
+        $typeDocument = 'fournisseur';
+        $numFournisseur= NumeroGeneratorService::genererNumero($user_id, $typeDocument);
+    
     
         $fournisseur = new fournisseur([
-            'num_fournisseur' => $request->num_fournisseur,
+            'num_fournisseur' => $numFournisseur,
             'nom_fournisseur' => $request->nom_fournisseur,
             'prenom_fournisseur' => $request->prenom_fournisseur,
             'nom_entreprise' => $request->nom_entreprise,

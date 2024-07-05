@@ -57,10 +57,6 @@ class BonCommande extends Model
     }
 
 
-    public static function generateNumBoncommande($id)
-    {
-        $year = date('Y');
-        return 'BC' . $year . '00' . $id;
-    }
+   
 
 }

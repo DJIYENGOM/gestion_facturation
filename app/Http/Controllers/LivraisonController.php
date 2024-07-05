@@ -133,8 +133,8 @@ foreach ($livraisons as $livraison) {
         'prix_Ht' => $livraison->prix_HT,
         'prix_Ttc' => $livraison->prix_TTC,
         'note_livraison' => $livraison->note_livraison,
-        'prenom client' => $livraison->client->prenom_client, 
-        'nom client' => $livraison->client->nom_client, 
+        'prenom_client' => $livraison->client->prenom_client, 
+        'nom_client' => $livraison->client->nom_client, 
         'active_Stock' => $livraison->active_Stock,
         'reduction_livraison' => $livraison->reduction_livraison,
     ];
@@ -330,12 +330,7 @@ public function transformerLivraisonEnFacture(Request $request, $id)
         'echeances' => 'nullable|required_if:type_paiement,echeance|array',
         'echeances.*.date_pay_echeance' => 'required|date',
         'echeances.*.montant_echeance' => 'required|numeric|min:0',
-        'facture_accompts' => 'nullable|required_if:type_paiement,facture_Accompt|array',
-        'facture_accompts.*.titreAccomp' => 'required|string',
-        'facture_accompts.*.dateAccompt' => 'required|date',
-        'facture_accompts.*.dateEcheance' => 'required|date',
-        'facture_accompts.*.montant' => 'required|numeric|min:0',
-        'facture_accompts.*.commentaire' => 'nullable|string',
+   
         'articles' => 'required|array',
         'articles.*.id_article' => 'required|exists:articles,id',
         'articles.*.quantite_article' => 'required|integer',
@@ -363,8 +358,12 @@ if ($validator->fails()) {
     $statutPaiement = $request->type_paiement === 'immediat' ? 'payer' : 'en_attente';
 
     $datePaiement = $request->type_paiement === 'immediat' ? now() : null;
-    // Création de la facture
-    $facture = Facture::create([
+
+        $typeDocument = 'facture';
+        $numFacture = NumeroGeneratorService::genererNumero($userId, $typeDocument);
+
+        $facture = Facture::create([
+        'num_fact' => $numFacture,
         'client_id' => $request->client_id,
         'date_creation' => now(),
         'date_paiement' => $datePaiement,
@@ -383,7 +382,6 @@ if ($validator->fails()) {
         'livraison_id'=>$livraison->id,
     ]);
 
-    $facture->num_fact = Facture::generateNumFacture($facture->id);
     $facture->save();
 
     // Ajouter les articles à la facture
@@ -414,29 +412,6 @@ if ($validator->fails()) {
                 'facture_id' => $facture->id,
                 'date_pay_echeance' => $echeanceData['date_pay_echeance'],
                 'montant_echeance' => $echeanceData['montant_echeance'],
-                'sousUtilisateur_id' => $sousUtilisateurId,
-                'user_id' => $userId,
-            ]);
-        }
-    }
-
-    // Gestion des factures d'acompte si type_paiement est 'facture_Accompt'
-    if ($request->type_paiement == 'facture_Accompt') {
-        foreach ($request->facture_accompts as $accomptData) {
-            FactureAccompt::create([
-                'facture_id' => $facture->id,
-                'titreAccomp' => $accomptData['titreAccomp'],
-                'dateAccompt' => $accomptData['dateAccompt'],
-                'dateEcheance' => $accomptData['dateEcheance'],
-                'montant' => $accomptData['montant'],
-                'commentaire' => $accomptData['commentaire'] ?? '',
-                'sousUtilisateur_id' => $sousUtilisateurId,
-                'user_id' => $userId,
-            ]);
-            Echeance::create([
-                'facture_id' => $facture->id,
-                'date_pay_echeance' => $accomptData['dateEcheance'],
-                'montant_echeance' => $accomptData['montant'],
                 'sousUtilisateur_id' => $sousUtilisateurId,
                 'user_id' => $userId,
             ]);
