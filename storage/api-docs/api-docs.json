@@ -23,6 +23,89 @@
         "multipart/form-data"
     ],
     "paths": {
+        "/api/configurerNumeros": {
+            "post": {
+                "summary": "configurerNumeros",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "configurer Numeros"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "type_document": {
+                                        "type": "string"
+                                    },
+                                    "type_numerotation": {
+                                        "type": "string"
+                                    },
+                                    "prefixe": {
+                                        "type": "string"
+                                    },
+                                    "format": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "type_document": "factureAccomp",
+                                "type_numerotation": "par_defaut",
+                                "prefixe": "",
+                                "format": ""
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/transformerLivraisonEnFacture/{id}": {
             "post": {
                 "summary": "transformer Livraison En Facture",
@@ -1586,7 +1669,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -1733,7 +1816,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -1861,7 +1944,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3330,7 +3413,7 @@
                 }
             }
         },
-        "/api/DetailsFacture/{id}": {
+        "/api/DetailsFacture/4": {
             "get": {
                 "summary": "details facture",
                 "description": "",
@@ -3380,7 +3463,7 @@
                 ]
             }
         },
-        "/api/listerfactureAccomptsParFacture/{id_facture}": {
+        "/api/listerfactureAccomptsParFacture/{numFacture}": {
             "get": {
                 "summary": "lister factures Accompts Par Facture",
                 "description": "",
@@ -3419,7 +3502,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "id_facture",
+                        "name": "numFacture",
                         "type": "string"
                     },
                     {
@@ -3434,13 +3517,13 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "": {
+                                    "numFacture": {
                                         "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "": ""
+                                "numFacture": ""
                             }
                         }
                     }
@@ -3501,7 +3584,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3913,7 +3996,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3936,8 +4019,7 @@
                                         "type": "string"
                                     },
                                     "id_paiement": {
-                                        "type": "string",
-                                        "format": "binary"
+                                        "type": "integer"
                                     },
                                     "articles": {
                                         "type": "string",
@@ -3946,21 +4028,6 @@
                                     "echeances": {
                                         "type": "string",
                                         "format": "binary"
-                                    },
-                                    "titreAccomp": {
-                                        "type": "string"
-                                    },
-                                    "dateAccompt": {
-                                        "type": "string"
-                                    },
-                                    "dateEcheance": {
-                                        "type": "string"
-                                    },
-                                    "montant": {
-                                        "type": "integer"
-                                    },
-                                    "commentaire": {
-                                        "type": "string"
                                     }
                                 }
                             },
@@ -3970,11 +4037,11 @@
                                 "reduction_facture": 1000,
                                 "prix_HT": 20000,
                                 "prix_TTC": 25000,
-                                "type_paiement": "echeance",
-                                "id_paiement": null,
+                                "type_paiement": "facture_Accompt",
+                                "id_paiement": 1,
                                 "articles": [
                                     {
-                                        "id_article": 5,
+                                        "id_article": 1,
                                         "quantite_article": 2,
                                         "prix_unitaire_article": 5000,
                                         "TVA_article": 50,
@@ -3983,7 +4050,7 @@
                                         "prix_total_tva_article": 8000
                                     },
                                     {
-                                        "id_article": 6,
+                                        "id_article": 2,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 1000,
                                         "TVA_article": 10,
@@ -3997,12 +4064,7 @@
                                         "date_pay_echeance": "2024-06-28",
                                         "montant_echeance": 4000
                                     }
-                                ],
-                                "titreAccomp": "accompt 1",
-                                "dateAccompt": "2024-06-29",
-                                "dateEcheance": "2024-06-29",
-                                "montant": 2000,
-                                "commentaire": "jrnvvvejrnjern"
+                                ]
                             }
                         }
                     }
@@ -7751,8 +7813,8 @@
                                 }
                             },
                             "example": {
-                                "email": "admin@example.com",
-                                "password": "password"
+                                "email": "ibou@gmail.com",
+                                "password": "ciss123@"
                             }
                         }
                     }
@@ -7829,8 +7891,8 @@
                                 }
                             },
                             "example": {
-                                "name": "fallou",
-                                "email": "fallou@gmail.com",
+                                "name": "ibou",
+                                "email": "ibou@gmail.com",
                                 "password": "ciss123@"
                             }
                         }
