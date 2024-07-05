@@ -80,8 +80,11 @@ class ClientController extends Controller
             $id_comptable = $request->id_comptable;
         }
     
+        $typeDocument = 'client';
+        $numClient= NumeroGeneratorService::genererNumero($user_id, $typeDocument);
+    
         $client = new Client([
-            'num_client' => $request->num_client,
+            'num_client' => $numClient,
             'nom_client' => $request->nom_client,
             'prenom_client' => $request->prenom_client,
             'nom_entreprise' => $request->nom_entreprise,

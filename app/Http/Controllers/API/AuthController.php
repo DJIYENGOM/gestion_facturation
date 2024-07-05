@@ -66,7 +66,8 @@ class AuthController extends Controller
         $typesDocument = [
             'facture',
             'livraison',
-            'article',
+            'produit',
+            'service',
             'client',
             'factureAccomp',
             'devis',

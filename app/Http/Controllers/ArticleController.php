@@ -29,9 +29,6 @@ class ArticleController extends Controller
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        $typeDocument = 'article';
-        $numArticle = NumeroGeneratorService::genererNumero($user_id, $typeDocument);
-    
         $validator = Validator::make($request->all(), [
             'description' => 'nullable|string',
             'prix_unitaire' => 'required|numeric|min:0',
@@ -64,6 +61,15 @@ class ArticleController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
+
+        if('type_article'=='produit'){
+            $typeDocument = 'produit';
+            $numArticle = NumeroGeneratorService::genererNumero($user_id, $typeDocument);
+        }else{
+            $typeDocument = 'service';
+            $numArticle = NumeroGeneratorService::genererNumero($user_id, $typeDocument);
+        }
+       
     
         $doc_externe = null;
         if ($request->hasFile('doc_externe')) {

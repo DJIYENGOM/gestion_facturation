@@ -19,7 +19,7 @@ class NumeroConfigurationController extends Controller
 
         // Valider les données envoyées
         $validator = Validator::make($request->all(), [
-            'type_document' => 'required|in:facture,livraison,article,client,factureAccomp,devis,commande,facture_avoir,depense,fournisseur,commande_achat',
+            'type_document' => 'required|in:facture,livraison,produit,service,client,factureAccomp,devis,commande,facture_avoir,depense,fournisseur,commande_achat',
             'type_numerotation' => 'required|in:par_defaut,avec_prefixe',
             'prefixe' => 'nullable|required_if:type_numerotation,avec_prefixe|string|max:10',
             'format' => 'nullable|required_if:type_numerotation,avec_prefixe|in:annee,annee_mois,annee_mois_jour',

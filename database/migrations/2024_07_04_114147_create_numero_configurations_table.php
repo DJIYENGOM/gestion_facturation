@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('numero_configurations', function (Blueprint $table) {
             $table->id();
-            $table->enum('type_document', ['facture', 'livraison', 'article', 'client', 'devis','commande','factureAccomp','facture_avoir','depense','fournisseur','commande_achat']);
+            $table->enum('type_document', ['facture', 'livraison', 'produit','service', 'client', 'devis','commande','factureAccomp','facture_avoir','depense','fournisseur','commande_achat']);
             $table->enum('type_numerotation', ['par_defaut', 'avec_prefixe']);
             $table->string('prefixe')->nullable();
             $table->enum('format', ['annee', 'annee_mois', 'annee_mois_jour'])->nullable();
