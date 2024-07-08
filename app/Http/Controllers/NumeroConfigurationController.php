@@ -48,4 +48,29 @@ class NumeroConfigurationController extends Controller
 
         return response()->json(['message' => 'Configuration de numérotation mise à jour avec succès', 'configuration' => $configuration]);
     }
+
+    public function InfoConfigurationFacture()
+    {
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user; 
+    
+            $configuration = NumeroConfiguration::where('type_document', 'facture')
+                ->Where('user_id', $userId)
+                ->get();
+
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+    
+            $configuration = NumeroConfiguration::where('type_document', 'facture')
+                ->where('user_id', $userId)
+                ->get();
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }  
+    
+        return response()->json(['configuration' => $configuration]);
+    
+    }
+
 }

@@ -115,7 +115,7 @@ class LivraisonController extends Controller
             ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
                     ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
-                        $query->where('id_user', $userId);
+                        $query->where('user_id', $userId);
                     });
             })
             ->get();

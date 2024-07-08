@@ -206,3 +206,4 @@ Route::controller(LivraisonController::class)->group(function(){
 });
 
 Route::post('configurerNumeros',[NumeroConfigurationController::class, 'configurerNumeros']);
+Route::post('InfoConfigurationFacture',[NumeroConfigurationController::class, 'InfoConfigurationFacture']);
