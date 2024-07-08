@@ -28,6 +28,11 @@ class FactureAvoir extends Model
         return $this->belongsTo(Facture::class, 'facture_id');
     }
 
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
+    }
+
     public function articles()
     {
         return $this->hasMany(ArtcleFacture::class, 'id_facture');

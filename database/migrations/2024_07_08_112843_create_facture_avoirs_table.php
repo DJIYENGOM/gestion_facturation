@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('num_factureAvoir');
             $table->string('titre_description')->nullable();
-            $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('cascade');
+            $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('set null');
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
             $table->string('date');
             $table->decimal('prix_HT')->nullable();
             $table->decimal('prix_TTC')->nullable();
