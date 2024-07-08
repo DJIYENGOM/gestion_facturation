@@ -3413,7 +3413,7 @@
                 }
             }
         },
-        "/api/DetailsFacture/4": {
+        "/api/DetailsFacture/{id}": {
             "get": {
                 "summary": "details facture",
                 "description": "",
@@ -3996,7 +3996,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
