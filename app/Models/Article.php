@@ -84,8 +84,12 @@ class Article extends Model
     {
         return $this->hasMany(ArticleLivraison::class);
     }
-
     
+    public function articlesFactureAvoir()
+    {
+        return $this->hasMany(ArticleFactureAvoir::class);
+    }
+
     public function GrilleTarifaire()
     {
         return $this->hasMany(GrilleTarifaire::class);

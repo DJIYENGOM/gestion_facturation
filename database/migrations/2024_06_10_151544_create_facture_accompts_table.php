@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('num_factureAccomp')->nullable();
             $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('cascade'); 
             $table->foreignId('devi_id')->nullable()->constrained('devis')->onDelete('cascade'); 
-            $table->foreignId('num_facture')->nullable()->constrained('factures')->onDelete('cascade');
-            $table->foreignId('num_devi')->nullable()->constrained('devis')->onDelete('cascade');
+            $table->string('num_devi')->nullable();
+            $table->string('num_facture')->nullable();
             $table->string('titreAccomp');
             $table->date('dateAccompt'); 
             $table->date('dateEcheance'); 

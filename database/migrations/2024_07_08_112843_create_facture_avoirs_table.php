@@ -13,6 +13,18 @@ return new class extends Migration
     {
         Schema::create('facture_avoirs', function (Blueprint $table) {
             $table->id();
+            $table->string('num_factureAvoir');
+            $table->string('titre_description')->nullable();
+            $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('cascade');
+            $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+            $table->string('date');
+            $table->decimal('prix_HT')->nullable();
+            $table->decimal('prix_TTC')->nullable();
+            $table->enum('active_Stock', ['non', 'oui'])->default('oui');
+            $table->string('commentaire')->nullable();
+            $table->string('doc_externe')->nullable();
             $table->timestamps();
         });
     }

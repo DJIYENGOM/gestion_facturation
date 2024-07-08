@@ -11,13 +11,15 @@ class FactureAvoir extends Model
 
     protected $fillable = [
         'num_factureAvoir',
+        'titre_description',
+        'client_id',
         'facture_id',
-        'titreAccomp',
-        'dateAccompt',
-        'dateEcheance',
-        'montant',
+        'date',
+        'prix_HT',
+        'prix_TTC',
+        'active_Stock',
         'commentaire',
-        'devi_id',
+        'doc_externe',
         'sousUtilisateur_id',
         'user_id',
     ];
@@ -26,10 +28,12 @@ class FactureAvoir extends Model
         return $this->belongsTo(Facture::class, 'facture_id');
     }
 
-    public function devi()
+    public function articles()
     {
-        return $this->belongsTo(Devi::class, 'devi_id');
+        return $this->hasMany(ArtcleFacture::class, 'id_facture');
     }
+
+  
 
     public function sousUtilisateur()
     {
