@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('num_livraison')->nullable()->unique();
             $table->date('date_livraison');
-            $table->decimal('prix_HT');
-            $table->decimal('prix_TTC');
+            $table->decimal('prix_HT')->nullable();
+            $table->decimal('prix_TTC')->nullable();
             $table->string('note_livraison')->nullable();
             $table->decimal('reduction_livraison')->nullable();
             $table->enum('active_Stock', ['non', 'oui'])->default('oui');

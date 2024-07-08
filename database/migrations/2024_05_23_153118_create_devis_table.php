@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('num_devi')->nullable();
             $table->date('date_devi');
             $table->date('date_limite')->nullable();
-            $table->decimal('prix_HT');
+            $table->decimal('prix_HT')->nullable();
             $table->decimal('prix_TTC')->nullable();
             $table->text('note_devi')->nullable();
             $table->decimal('reduction_devi')->nullable();
