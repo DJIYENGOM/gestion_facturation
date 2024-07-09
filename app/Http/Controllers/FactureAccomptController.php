@@ -27,6 +27,7 @@ public function creerFactureAccomp(Request $request)
 
     // Validation des données
     $validator = Validator::make($request->all(), [
+        'num_factureAccomp' => 'nullable|string|max:255',
         'facture_id' => 'nullable|exists:factures,id',
         'num_facture'=> 'nullable|string|max:255',
         'num_devis' => 'nullable|string|max:255|',
@@ -49,7 +50,7 @@ public function creerFactureAccomp(Request $request)
 
     // Créer la facture d'acompte
     $factureAccomp = FactureAccompt::create([
-        'num_factureAccomp' => $numFactureAccomp,
+        'num_factureAccomp' => $request->num_factureAccomp ?? $numFactureAccomp,
         'titreAccomp' => $request->titreAccomp,
         'facture_id' => $request->facture_id,
         'num_facture' => $request->num_facture,
