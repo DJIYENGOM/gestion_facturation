@@ -22,7 +22,8 @@ return new class extends Migration
             $table->enum('active_Stock', ['non', 'oui'])->default('oui');
             $table->enum('statut_livraison', ['brouillon', 'preparer', 'planifier','livrer','annuler'])->default('brouillon');
             $table->enum('archiver', ['oui', 'non'])->default('non');
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
+            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
+            $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('cascade');
             $table->foreignId('fournisseur_id')->nullable()->constrained('fournisseurs')->onDelete('cascade');
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');

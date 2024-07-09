@@ -19,4 +19,15 @@ class ArticleFactureRecurrente extends Model
         'prix_total_article',
         'prix_total_tva_article'
     ];
+
+    public function factureRecurrente()
+    {
+        return $this->belongsTo(factureRecurrente::class, 'id_factureRec');
+    }
+
+    // Relation avec l'article
+    public function article()
+    {
+        return $this->belongsTo(Article::class, 'id_article');
+    }
 }

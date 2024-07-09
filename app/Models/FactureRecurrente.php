@@ -10,16 +10,18 @@ class FactureRecurrente extends Model
     use HasFactory;
 
     protected $fillable = [
-        'num_factureRec',
         'periode',
         'nombre_periode',
+        'date_debut',
         'etat_brouillon',
         'envoyer_mail',
         'client_id',
+        'creation_automatique',
         'prix_HT',
         'prix_TTC',
         'active_Stock',
         'commentaire',
+        'note_interne',
         'sousUtilisateur_id',
         'user_id',
     ];

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal('reduction_devi')->nullable();
             $table->enum('statut_devi',['en_attente','transformer','valider', 'annuler','brouillon'])->default('brouillon');
             $table->enum('archiver', ['oui', 'non'])->default('non');
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
+            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
             $table->foreignId('id_comptable')->nullable()->constrained('compte_comptables')->onDelete('set null');
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');

@@ -13,16 +13,18 @@ return new class extends Migration
     {
         Schema::create('facture_recurrentes', function (Blueprint $table) {
             $table->id();
-            $table->string('num_factureRec')->nullable();
             $table->enum('periode', ['mois', 'semaine', 'jour']);
             $table->integer('nombre_periode');
+            $table->date('date_debut');
             $table->boolean('etat_brouillon');
             $table->boolean('envoyer_mail');
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
+            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
+            $table->boolean('creation_automatique')->default(1);
             $table->decimal('prix_HT')->nullable();
             $table->decimal('prix_TTC')->nullable();
             $table->enum('active_Stock', ['non', 'oui'])->default('non');
-            $table->string('commentaire');
+            $table->string('commentaire')->nullable();
+            $table->string('note_interne')->nullable();
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();

@@ -36,31 +36,6 @@ class Client extends Model
         'id_comptable'
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($Client) {
-            // Générer le num_client s'il n'est pas fourni ou s'il existe déjà
-            if (empty($Client->num_client) || self::where('num_client', $Client->num_client)->exists()) {
-                $Client->num_client = self::generateUniqueNumClient();
-            }
-        });
-    }
-
-    private static function generateUniqueNumClient()
-    {
-        $latestClient = self::latest('id')->first();
-        $nextId = $latestClient ? $latestClient->id + 1 : 1;
-        $numClient = str_pad($nextId, 6, '0', STR_PAD_LEFT);
-
-        while (self::where('num_client', $numClient)->exists()) {
-            $nextId++;
-            $numClient = str_pad($nextId, 6, '0', STR_PAD_LEFT);
-        }
-        return $numClient;
-    }
-
     public function sousUtilisateur()
     {
         return $this->belongsTo(Sous_Utilisateur::class, 'sousUtilisateur_id');
@@ -92,6 +67,11 @@ class Client extends Model
     public function BonCommande()
     {
         return $this->hasMany(BonCommande::class);
+    }
+
+    public function factureRecurrente()
+    {
+        return $this->hasMany(FactureRecurrente::class);
     }
 
     public function GrilleTarifaire()

@@ -25,7 +25,7 @@ class Facture extends Model
         'type_paiement',
         'id_paiement',
         'id_comptable',
-
+        'id_recurrent',
         'devi_id',
         'bonCommande_id',
     ];

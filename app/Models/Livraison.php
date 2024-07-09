@@ -19,6 +19,7 @@ class Livraison extends Model
         'statut_livraison',
         'archiver',
         'client_id',
+        'facture_id',
         'fournisseur_id',
         'sousUtilisateur_id',
         'user_id',
@@ -33,6 +34,11 @@ class Livraison extends Model
     public function fournisseur()
     {
         return $this->belongsTo(Fournisseur::class, 'fournisseur_id');
+    }
+
+    public function facture()
+    {
+        return $this->belongsTo(Facture::class, 'facture_id');
     }
 
     // Relation avec les articles de la facture

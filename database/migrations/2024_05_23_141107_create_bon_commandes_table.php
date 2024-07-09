@@ -20,10 +20,10 @@ return new class extends Migration
             $table->decimal('prix_TTC')->nullable();
             $table->text('note_commande')->nullable();
             $table->decimal('reduction_commande')->nullable();
-            $table->enum('active_Stock', ['non', 'oui'])->default('oui');
+            $table->enum('active_Stock', ['non', 'oui'])->default('non');
             $table->enum('statut_commande',['en_attente','transformer','valider', 'annuler','brouillon'])->default('brouillon');
             $table->enum('archiver', ['oui', 'non'])->default('non');
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
+            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
             $table->foreignId('id_comptable')->nullable()->constrained('compte_comptables')->onDelete('set null');
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
