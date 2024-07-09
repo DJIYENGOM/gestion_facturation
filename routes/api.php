@@ -124,7 +124,7 @@ Route::controller(PayementController::class)->group(function () {
 });
 
 Route::post('creerFactureAccomp', [FactureAccomptController::class, 'creerFactureAccomp']);
-Route::get('listerfactureAccomptsParFacture/{id}', [FactureAccomptController::class, 'listerfactureAccomptsParFacture']);
+Route::get('listerfactureAccomptsParFacture/{id_facture}', [FactureAccomptController::class, 'listerfactureAccomptsParFacture']);
 
 Route::post('creerFacture', [FactureController::class, 'creerFacture']);
 Route::post('listeArticlesFacture/{id_facture}', [FactureController::class, 'listeArticlesFacture']);
