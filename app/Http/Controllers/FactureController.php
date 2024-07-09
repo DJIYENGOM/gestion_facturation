@@ -280,7 +280,7 @@ class FactureController extends Controller
                 PaiementRecu::create([
                     'facture_id' => $facture->id,
                     'id_paiement' => $request->id_paiement,
-                    'date_reçu' => now(),
+                    'date_recu' => now(),
                     'montant' => $facture->prix_TTC,
                     'sousUtilisateur_id' => $sousUtilisateurId,
                     'user_id' => $userId,
