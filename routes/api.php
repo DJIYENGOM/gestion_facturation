@@ -164,7 +164,6 @@ Route::post('modifierEcheance/{echeanceId}', [EcheanceController::class, 'modifi
 Route::delete('supprimerEcheance/{echeanceId}', [EcheanceController::class, 'supprimerEcheance']);
 Route::post('transformerEcheanceEnPaiementRecu/{echeanceId}', [EcheanceController::class,'transformerEcheanceEnPaiementRecu']);
 
-
 Route::controller(PaiementRecuController::class)->group(function (){
     Route::post('ajouterPaiementRecu','ajouterPaiementRecu');
     Route::post('listPaiementsRecusParFacture/{factureId}', 'listPaiementsRecusParFacture');
@@ -218,3 +217,4 @@ Route::controller(FactureAvoirController::class)->group(function(){
 });
 
 Route::post('creerFactureRecurrente',[FactureRecurrenteController::class, 'creerFactureRecurrente']);
+Route::post('supprimerFactureRecurrente/{id}',[FactureRecurrenteController::class, 'supprimerFactureRecurrente']);
