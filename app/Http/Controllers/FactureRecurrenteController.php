@@ -45,7 +45,7 @@ class FactureRecurrenteController extends Controller
     
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
-            $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+            $userId = auth('apisousUtilisateur')->user()->id_user; 
         } elseif (auth()->check()) {
             $userId = auth()->id();
             $sousUtilisateurId = null;
