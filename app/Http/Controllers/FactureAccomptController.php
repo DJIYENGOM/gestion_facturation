@@ -77,14 +77,14 @@ public function creerFactureAccomp(Request $request)
     return response()->json(['message' => 'Facture d\'acompte créée avec succès', 'factureAccomp' => $factureAccomp], 201);
 }
 
-public function listerfactureAccomptsParFacture($numFacture)
+public function listerfactureAccomptsParFacture($id)
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
         $factures = FactureAccompt::with('facture')
-            ->where('num_facture', $numFacture)
+            ->where('facture_id', $id)
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
                 $query->where('sousUtilisateur_id', $sousUtilisateurId)
                     ->orWhere('user_id', $userId);
@@ -94,7 +94,7 @@ public function listerfactureAccomptsParFacture($numFacture)
         $userId = auth()->id();
 
         $factures = FactureAccompt::with('facture')
-            ->where('num_facture', $numFacture)
+            ->where('facture_id', $id)
             ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
                     ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
