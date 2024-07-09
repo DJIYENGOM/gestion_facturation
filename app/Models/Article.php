@@ -90,6 +90,11 @@ class Article extends Model
         return $this->hasMany(ArticleFactureAvoir::class);
     }
 
+    public function articlesFactureRecurrente()
+    {
+        return $this->hasMany(ArticleFactureRecurrente::class);
+    }
+
     public function GrilleTarifaire()
     {
         return $this->hasMany(GrilleTarifaire::class);

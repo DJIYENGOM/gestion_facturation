@@ -15,14 +15,17 @@ class FactureAvoirController extends Controller
     public function creerFactureAvoir(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'num_factureAvoir' => 'nullable|string',
             'client_id' => 'required|exists:clients,id',
             'facture_id' => 'nullable|exists:factures,id',
+            'titre_description' => 'nullable|string|max:255',
             'commentaire' => 'nullable|string',
             'date'=>'required|date',
-            'prix_HT'=> 'required|numeric',
-            'prix_TTC'=>'required|numeric',
+            'prix_HT'=> 'nullable|numeric',
+            'prix_TTC'=>'nullable|numeric',
             'active_Stock' => 'nullable|in:oui,non',
-            
+            'doc_externe' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+
             'articles' => 'required|array',
             'articles.*.id_article' => 'required|exists:articles,id',
             'articles.*.quantite_article' => 'required|integer',
@@ -49,10 +52,18 @@ class FactureAvoirController extends Controller
         $typeDocument = 'facture';
         $numFactureAvoir= NumeroGeneratorService::genererNumero($userId, $typeDocument);
     
+        $path = null;
+        if ($request->hasFile('doc_externe')) {
+            $file = $request->file('doc_externe');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('facture_avoirs', $filename, 'public');
+        }
+
         $factureAvoir = FactureAvoir::create([
-            'num_factureAvoir' => $numFactureAvoir,
+            'num_factureAvoir' => $request->num_factureAvoir ?? $numFactureAvoir,
             'facture_id' => $request->facture_id ?? null,
             'client_id' => $request->client_id,
+            'titre_description' => $request->input('titre_description'),
             'date' => $request->date,
             'active_Stock' => $request->active_Stock ?? 'non',
             'prix_HT'=>$request->prix_HT,
@@ -60,6 +71,7 @@ class FactureAvoirController extends Controller
             'commentaire' => $request->input('commentaire'),
             'sousUtilisateur_id' => $sousUtilisateurId,
             'user_id' => $userId,
+            'doc_externe' => $path,
         ]);
     
         $factureAvoir->save();
@@ -75,7 +87,7 @@ class FactureAvoirController extends Controller
             $prixTotalArticleTva=$articleData['prix_total_tva_article'];
 
             ArticleFactureAvoir::create([
-                'id_FactureAvoir' => $factureAvoir->id,
+                'id_factureAvoir' => $factureAvoir->id,
                 'id_article' => $articleData['id_article'],
                 'quantite_article' => $quantite,
                 'prix_unitaire_article' => $prixUnitaire,

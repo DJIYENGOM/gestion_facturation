@@ -22,6 +22,7 @@ use App\Http\Controllers\GrilleTarifaireController;
 use App\Http\Controllers\SousUtilisateurController;
 use App\Http\Controllers\CategorieArticleController;
 use App\Http\Controllers\FactureAccomptController;
+use App\Http\Controllers\FactureAvoirController;
 use App\Http\Controllers\NoteJustificativeController;
 use App\Http\Controllers\Info_SupplementaireController;
 use App\Http\Controllers\NumeroConfigurationController;
@@ -207,3 +208,10 @@ Route::controller(LivraisonController::class)->group(function(){
 
 Route::post('configurerNumeros',[NumeroConfigurationController::class, 'configurerNumeros']);
 Route::post('InfoConfigurationFacture',[NumeroConfigurationController::class, 'InfoConfigurationFacture']);
+
+
+Route::controller(FactureAvoirController::class)->group(function(){
+    Route::post('creerFactureAvoir','creerFactureAvoir');
+    Route::get('listerToutesFacturesAvoirs','listerToutesFacturesAvoirs');
+    Route::post('supprimerFactureAvoir/{id}','supprimerFactureAvoir');
+});

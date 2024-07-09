@@ -5,28 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FactureAvoir extends Model
+class FactureRecurrente extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'num_factureAvoir',
-        'titre_description',
+        'num_factureRec',
+        'periode',
+        'nombre_periode',
+        'etat_brouillon',
+        'envoyer_mail',
         'client_id',
-        'facture_id',
-        'date',
         'prix_HT',
         'prix_TTC',
         'active_Stock',
         'commentaire',
-        'doc_externe',
         'sousUtilisateur_id',
         'user_id',
     ];
-    public function facture()
-    {
-        return $this->belongsTo(Facture::class, 'facture_id');
-    }
 
     public function client()
     {
@@ -49,5 +45,4 @@ class FactureAvoir extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-    
 }

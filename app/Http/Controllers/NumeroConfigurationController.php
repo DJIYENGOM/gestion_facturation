@@ -66,7 +66,7 @@ class NumeroConfigurationController extends Controller
                 ->where('user_id', $userId)
                 ->get();
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Aucune configuration trouver'], 401);
         }  
     
         return response()->json(['configuration' => $configuration]);
