@@ -215,6 +215,11 @@ public function transformerEcheanceEnPaiementRecu(Request $request, $EcheanceId)
         'user_id' => $userId,
     ]);
 
+    $facture=Facture::find($Echeance->facture_id);
+    $facture->update([
+        'statut_paiement' =>'payer',
+    ]);
+    
     $Echeance->delete();
 
     return response()->json([
