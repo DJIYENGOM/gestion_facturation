@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use App\Models\Echeance;
+use App\Models\Facture;
 
 class PaiementRecuController extends Controller
 {
@@ -146,6 +147,10 @@ class PaiementRecuController extends Controller
         'user_id' => $userId,
     ]);
 
+    $facture=Facture::find($paiementRecu->facture_id);
+    $facture->update([
+        'statut_paiement' =>'en_attente',
+    ]);
     // Supprimez le paiement recu
     $paiementRecu->delete();
 

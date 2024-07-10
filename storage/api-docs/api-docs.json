@@ -23,6 +23,357 @@
         "multipart/form-data"
     ],
     "paths": {
+        "/api/creerFactureRecurrente": {
+            "post": {
+                "summary": "creer Facture Recurrente",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion factures recurrentes"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "client_id": {
+                                        "type": "integer"
+                                    },
+                                    "note_interne": {
+                                        "type": "string"
+                                    },
+                                    "nombre_periode": {
+                                        "type": "integer"
+                                    },
+                                    "periode": {
+                                        "type": "string"
+                                    },
+                                    "date_debut": {
+                                        "type": "string"
+                                    },
+                                    "prix_HT": {
+                                        "type": "integer"
+                                    },
+                                    "prix_TTC": {
+                                        "type": "integer"
+                                    },
+                                    "etat_brouillon": {
+                                        "type": "integer"
+                                    },
+                                    "envoyer_mail": {
+                                        "type": "integer"
+                                    },
+                                    "articles": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "client_id": 1,
+                                "note_interne": "Some notes about the facture",
+                                "nombre_periode": 2,
+                                "periode": "jour",
+                                "date_debut": "2024-07-09",
+                                "prix_HT": 20000,
+                                "prix_TTC": 25000,
+                                "etat_brouillon": 1,
+                                "envoyer_mail": 1,
+                                "articles": [
+                                    {
+                                        "id_article": 1,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 5000,
+                                        "TVA_article": 50,
+                                        "reduction_article": 5,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    },
+                                    {
+                                        "id_article": 2,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 1000,
+                                        "TVA_article": 10,
+                                        "reduction_article": 50,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/listeFactureParClient/{clientId}": {
+            "get": {
+                "summary": "liste Facture Par Client",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des facture d'avoir"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "clientId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/creerFactureAvoir": {
+            "post": {
+                "summary": "creer Facture Avoir",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des facture d'avoir"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "client_id": {
+                                        "type": "integer"
+                                    },
+                                    "facture_id": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "titre_description": {
+                                        "type": "string"
+                                    },
+                                    "commentaire": {
+                                        "type": "string"
+                                    },
+                                    "prix_HT": {
+                                        "type": "integer"
+                                    },
+                                    "prix_TTC": {
+                                        "type": "integer"
+                                    },
+                                    "date": {
+                                        "type": "string"
+                                    },
+                                    "articles": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "client_id": 1,
+                                "facture_id": null,
+                                "titre_description": "grkgtbrkgjnrkj",
+                                "commentaire": "Some notes about the facture",
+                                "prix_HT": 20000,
+                                "prix_TTC": 25000,
+                                "date": "2024-06-07",
+                                "articles": [
+                                    {
+                                        "id_article": 1,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 5000,
+                                        "TVA_article": 50,
+                                        "reduction_article": 5,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    },
+                                    {
+                                        "id_article": 2,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 1000,
+                                        "TVA_article": 10,
+                                        "reduction_article": 50,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/InfoConfigurationFacture": {
+            "post": {
+                "summary": "Info Configuration Facture",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "configurer Numeros"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/configurerNumeros": {
             "post": {
                 "summary": "configurerNumeros",
@@ -165,7 +516,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -1669,7 +2020,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -1816,7 +2167,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -1944,7 +2295,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -2376,7 +2727,7 @@
                                     "date_prevu": {
                                         "type": "string"
                                     },
-                                    "date_reçu": {
+                                    "date_recu": {
                                         "type": "string"
                                     },
                                     "montant": {
@@ -2393,10 +2744,10 @@
                             },
                             "example": {
                                 "date_prevu": "2024-06-29",
-                                "date_reçu": "2024-06-29",
+                                "date_recu": "2024-06-29",
                                 "montant": "24000",
                                 "commentaire": null,
-                                "id_paiement": "3"
+                                "id_paiement": "1"
                             }
                         }
                     }
@@ -3463,7 +3814,7 @@
                 ]
             }
         },
-        "/api/listerfactureAccomptsParFacture/{numFacture}": {
+        "/api/listerfactureAccomptsParFacture/{id_facture}": {
             "get": {
                 "summary": "lister factures Accompts Par Facture",
                 "description": "",
@@ -3502,7 +3853,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "numFacture",
+                        "name": "id_facture",
                         "type": "string"
                     },
                     {
@@ -3584,7 +3935,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -4025,7 +4376,7 @@
                                         "type": "string",
                                         "format": "binary"
                                     },
-                                    "echeances": {
+                                    "facture_accompts": {
                                         "type": "string",
                                         "format": "binary"
                                     }
@@ -4042,7 +4393,7 @@
                                 "articles": [
                                     {
                                         "id_article": 1,
-                                        "quantite_article": 2,
+                                        "quantite_article": 3,
                                         "prix_unitaire_article": 5000,
                                         "TVA_article": 50,
                                         "reduction_article": 5,
@@ -4059,10 +4410,12 @@
                                         "prix_total_tva_article": 8000
                                     }
                                 ],
-                                "echeances": [
+                                "facture_accompts": [
                                     {
-                                        "date_pay_echeance": "2024-06-28",
-                                        "montant_echeance": 4000
+                                        "titreAccomp": "accompt2",
+                                        "dateAccompt": "2024-06-28",
+                                        "dateEcheance": "2024-07-28",
+                                        "montant": 4000
                                     }
                                 ]
                             }

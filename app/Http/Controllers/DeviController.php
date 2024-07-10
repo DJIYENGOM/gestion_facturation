@@ -132,6 +132,14 @@ public function TransformeDeviEnFacture(Request $request, $deviId)
         'echeances.*.date_pay_echeance' => 'required|date',
         'echeances.*.montant_echeance' => 'required|numeric|min:0',
      
+        'facture_accompts' => 'nullable|required_if:type_paiement,facture_Accompt|array',
+        'facture_accompts.*.num_factureAccomp' => 'nullable|string',
+        'facture_accompts.*.titreAccomp' => 'required|string',
+        'facture_accompts.*.dateAccompt' => 'required|date',
+        'facture_accompts.*.dateEcheance' => 'required|date',
+        'facture_accompts.*.montant' => 'required|numeric|min:0',
+        'facture_accompts.*.commentaire' => 'nullable|string',
+
         'articles' => 'required|array',
         'articles.*.id_article' => 'required|exists:articles,id',
         'articles.*.quantite_article' => 'required|integer',
@@ -218,6 +226,28 @@ if ($validator->fails()) {
         }
     }
 
+    if ($request->type_paiement == 'facture_Accompt') {
+        foreach ($request->facture_accompts as $accomptData) {
+            FactureAccompt::create([
+                'facture_id' => $facture->id,
+                'num_factureAccompt' => $accomptData['num_factureAccompt'] ?? $numFacture,
+                'titreAccomp' => $accomptData['titreAccomp'],
+                'dateAccompt' => $accomptData['dateAccompt'],
+                'dateEcheance' => $accomptData['dateEcheance'],
+                'montant' => $accomptData['montant'],
+                'commentaire' => $accomptData['commentaire'] ?? '',
+                'sousUtilisateur_id' => $sousUtilisateurId,
+                'user_id' => $userId,
+            ]);
+            Echeance::create([
+                'facture_id' => $facture->id,
+                'date_pay_echeance' => $accomptData['dateEcheance'],
+                'montant_echeance' => $accomptData['montant'],
+                'sousUtilisateur_id' => $sousUtilisateurId,
+                'user_id' => $userId,
+            ]);
+        }
+    }
 
     //gestion paiements reçus        
     if ($request->type_paiement == 'immediat') {

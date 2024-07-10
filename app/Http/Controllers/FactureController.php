@@ -606,6 +606,36 @@ public function DetailsFacture($id)
     return response()->json(['facture_details' => $response], 200);
 }
 
+public function listeFactureParClient($clientId){
 
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; 
+
+    $factures = Facture::where('archiver', 'non')
+        ->where('client_id', $clientId)
+        ->where(function ($query) use ($sousUtilisateurId, $userId) {
+            $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                ->orWhere('user_id', $userId);
+        })
+        ->get();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $factures = Facture::where('archiver', 'non')
+            ->where('client_id', $clientId)
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                        $query->where('id_user', $userId);
+                    });
+            })
+            ->get();
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    return response()->json(['factures_Payer' => $factures], 200);
+}
 
 }

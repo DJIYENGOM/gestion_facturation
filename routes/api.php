@@ -138,6 +138,7 @@ Route::post('listerFacturesEcheance', [FactureController::class, 'listerFactures
 Route::post('listerFacturesAccompt', [FactureController::class, 'listerFacturesAccompt']);
 Route::post('listerFacturesPayer', [FactureController::class, 'listerFacturesPayer']);
 
+Route::get('listeFactureParClient/{clientId}', [FactureController::class, 'listeFactureParClient']);
 
 Route::post('ajouterCompteComptable', [CompteComptableController::class, 'ajouterCompteComptable']);
 Route::get('listerCompteComptables', [CompteComptableController::class, 'listerCompteComptables']);
