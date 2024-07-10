@@ -26,7 +26,7 @@ class Info_SupplementaireController extends Controller
 
         $logo=null;
         if($request->hasFile('logo')){
-            $logo=$request->file('logo')->store('images', 'public');
+            $logo=$request->file('logo')->store('images', 'public',);
              }
         $user = auth()->user();
 

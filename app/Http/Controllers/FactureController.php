@@ -550,6 +550,9 @@ public function DetailsFacture($id)
         'client' => [
             'nom' => $facture->client->nom_client,
             'prenom' => $facture->client->prenom_client,
+            'adresse' => $facture->client->adress_client,
+            'telephone' => $facture->client->tel_client,
+            'nom_entreprise'=> $facture->client->nom_entreprise,
         ],
         'note_facture' => $facture->note_fact,
         'prix_HT' => $facture->prix_HT,
