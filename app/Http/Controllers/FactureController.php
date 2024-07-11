@@ -575,6 +575,7 @@ public function DetailsFacture($id)
                 'quantite_article' => $articleFacture->quantite_article,
                 'prix_unitaire_article' => $articleFacture->prix_unitaire_article,
                 'prix_total_tva_article' => $articleFacture->prix_total_tva_article,
+                'prix_total_article' => $articleFacture->prix_total_article,
                 'reduction_article' => $articleFacture->reduction_article,
             ];
         }
