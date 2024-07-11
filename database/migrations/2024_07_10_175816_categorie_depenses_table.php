@@ -4,25 +4,21 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCategorieDepensesTable extends Migration
+return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
+   
+    public function up(): void
     {
         Schema::create('categorie_depenses', function (Blueprint $table) {
             $table->id();
             $table->string('nom_categorie_depense');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });
     }
 
-    /**
+      /**
      * Reverse the migrations.
      *
      * @return void
@@ -31,4 +27,4 @@ class CreateCategorieDepensesTable extends Migration
     {
         Schema::dropIfExists('categorie_depenses');
     }
-}
+};

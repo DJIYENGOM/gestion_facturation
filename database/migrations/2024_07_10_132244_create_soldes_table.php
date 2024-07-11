@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('soldes', function (Blueprint $table) {
             $table->id();
-            $table->string('date_paiement');
-            $table->string('montant');
+            $table->date('date_paiement');
+            $table->decimal('montant');
+            $table->string('commentaire')->nullable();
+            $table->foreignId('id_paiement')->nullable()->constrained('payements')->onDelete('set null');
             $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('set null');
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');

@@ -21,7 +21,7 @@ class CategorieDepenseController extends Controller
         }
     
         $validator = Validator::make($request->all(), [
-            'nom_categorie' => 'required|string|max:255',
+            'nom_categorie_depense' => 'required|string|max:255',
         ]);
     
         if ($validator->fails()) {
@@ -29,7 +29,7 @@ class CategorieDepenseController extends Controller
         }
 
         $categorie = new CategorieDepense([
-            'nom_categorie' => $request->nom_categorie,
+            'nom_categorie_depense' => $request->nom_categorie_depense,
             'sousUtilisateur_id' => $sousUtilisateur_id,
             'user_id' => $user_id,
         ]);
@@ -45,15 +45,28 @@ class CategorieDepenseController extends Controller
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
-            $categories = CategorieDepense::where('sousUtilisateur_id', $sousUtilisateurId)
-                ->orWhere('user_id', $userId)
+            $categories = CategorieDepense::where(function($query) use ($sousUtilisateurId, $userId) {
+                    $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                          ->orWhere('user_id', $userId);
+                })
+                ->orWhere(function($query) {
+                    $query->whereNull('user_id')
+                          ->whereNull('sousUtilisateur_id');
+                })
                 ->get();
+    
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $categories = CategorieDepense::where('user_id', $userId)
-                ->orWhereHas('sousUtilisateurs', function($query) use ($userId) {
-                    $query->where('id_user', $userId);
+            $categories = CategorieDepense::where(function($query) use ($userId) {
+                    $query->where('user_id', $userId)
+                          ->orWhereHas('sousUtilisateurs', function($query) use ($userId) {
+                              $query->where('id_user', $userId);
+                          });
+                })
+                ->orWhere(function($query) {
+                    $query->whereNull('user_id')
+                          ->whereNull('sousUtilisateur_id');
                 })
                 ->get();
         } else {
@@ -61,5 +74,6 @@ class CategorieDepenseController extends Controller
         }
     
         return response()->json(['CategorieDepense' => $categories]);
-    } 
+    }
+    
 }

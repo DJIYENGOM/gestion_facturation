@@ -9,7 +9,7 @@ class Solde extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['date_paiement','montant','client_id','facture_id', 'sousUtilisateur_id','user_id'];
+    protected $fillable = ['date_paiement','montant','commentaire','id_paiement','client_id','facture_id', 'sousUtilisateur_id','user_id'];
 
     public function sousUtilisateur()
     {
@@ -29,5 +29,10 @@ class Solde extends Model
     public function client()
     {
         return $this->belongsTo(Client::class, 'client_id');
+    }
+
+    public function paiement()
+    {
+        return $this->belongsTo(Payement::class, 'id_paiement');
     }
 }

@@ -7,59 +7,41 @@ use Illuminate\Http\Request;
 
 class SoldeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Solde $solde)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Solde $solde)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Solde $solde)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Solde $solde)
-    {
-        //
-    }
+    public function ajouterSolde(Request $request, $clientId){
+        $request->validate([
+            'montant' => 'required|numeric|min:0',
+            'commentaire' => 'nullable|string',
+            'date_paiement' => 'required|date',
+            'id_paiement' => 'nullable|exists:payements,id',
+            'facture_id'=> 'nullable|exists:factures,id',
+        ]);
+    
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = null;
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+            $sousUtilisateurId = null;
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    
+        $solde = new Solde([
+            'montant' => $request->input('montant'),
+            'commentaire' => $request->input('commentaire'),
+            'date_paiement' => $request->input('date_paiement'),
+            'id_paiement' => $request->input('id_paiement'),
+            'facture_id' => $request->input('facture_id'),
+            'client_id' => $clientId,
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+        ]);
+    
+        $solde->save();
+    
+        return response()->json(['message' => 'solde ajouté avec succès', 'solde' => $solde]);
+     }
+    
+    
 }

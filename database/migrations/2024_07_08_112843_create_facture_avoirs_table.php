@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
-            $table->string('date');
+            $table->date('date');
             $table->decimal('prix_HT')->nullable();
             $table->decimal('prix_TTC')->nullable();
             $table->enum('active_Stock', ['non', 'oui'])->default('oui');

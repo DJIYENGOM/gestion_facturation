@@ -21,12 +21,14 @@ use App\Http\Controllers\CompteComptableController;
 use App\Http\Controllers\GrilleTarifaireController;
 use App\Http\Controllers\SousUtilisateurController;
 use App\Http\Controllers\CategorieArticleController;
+use App\Http\Controllers\CategorieDepenseController;
 use App\Http\Controllers\FactureAccomptController;
 use App\Http\Controllers\FactureAvoirController;
 use App\Http\Controllers\FactureRecurrenteController;
 use App\Http\Controllers\NoteJustificativeController;
 use App\Http\Controllers\Info_SupplementaireController;
 use App\Http\Controllers\NumeroConfigurationController;
+use App\Http\Controllers\SoldeController;
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -219,3 +221,8 @@ Route::controller(FactureAvoirController::class)->group(function(){
 
 Route::post('creerFactureRecurrente',[FactureRecurrenteController::class, 'creerFactureRecurrente']);
 Route::post('supprimerFactureRecurrente/{id}',[FactureRecurrenteController::class, 'supprimerFactureRecurrente']);
+
+Route::post('ajouterSolde/{clientId}',[SoldeController::class, 'ajouterSolde']);
+
+Route::post('ajouterCategorieDepense',[CategorieDepenseController::class, 'ajouterCategorieDepense']);
+Route::get('listerCategorieDepense',[CategorieDepenseController::class, 'listerCategorieDepense']);
