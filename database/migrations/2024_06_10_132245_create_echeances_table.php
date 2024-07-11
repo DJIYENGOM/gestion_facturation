@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('cascade');
             $table->foreignId('devi_id')->nullable()->constrained('devis')->onDelete('cascade');
             $table->foreignId('bonCommande_id')->nullable()->constrained('bon_commandes')->onDelete('cascade'); 
+            $table->foreignId('id_depense')->nullable()->constrained('depenses')->onDelete('set null');
             $table->date('date_pay_echeance');
             $table->decimal('montant_echeance', 8, 2);
             $table->text('commentaire')->nullable();

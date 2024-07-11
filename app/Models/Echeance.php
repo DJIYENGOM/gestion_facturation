@@ -17,6 +17,7 @@ class Echeance extends Model
         'commentaire',
         'devi_id',
         'id_BonCommande',
+        'id_depense',
         'sousUtilisateur_id',
         'user_id',
 

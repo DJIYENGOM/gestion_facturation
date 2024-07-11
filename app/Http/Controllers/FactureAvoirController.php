@@ -103,4 +103,55 @@ class FactureAvoirController extends Controller
         return response()->json(['message' => 'factureAvoir créée avec succès', 'factureAvoir' => $factureAvoir], 201);
 
     }
+
+    public function listerToutesFacturesAvoirs()
+    {
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user; 
+    
+            $factures = FactureAvoir::with('client')
+                ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                    $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                        ->orWhere('user_id', $userId);
+                })
+                ->get();
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+    
+            $factures = FactureAvoir::with('client')
+                ->where(function ($query) use ($userId) {
+                    $query->where('user_id', $userId)
+                        ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                            $query->where('id_user', $userId);
+                        });
+                })
+                ->get();
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    // Construire la réponse avec les détails des factures et les noms des clients
+    $response = [];
+    foreach ($factures as $facture) {
+        $response[] = [
+            'id' => $facture->id,
+            'num_factureAvoir' => $facture->num_factureAvoir,
+            'facture_id' => $facture->facture_id,
+            'date' => $facture->date,
+            'prix_HT' => $facture->prix_HT,
+            'prix_TTC' => $facture->prix_TTC,
+            'titre' => $facture->titre,
+            'description' => $facture->description,
+            'note_fact' => $facture->note_fact,
+            'client_id' => $facture->client_id,
+            'prenom_client' => $facture->client->prenom_client, 
+            'nom_client' => $facture->client->nom_client, 
+            'active_Stock' => $facture->active_Stock,
+            'doc_externe' => $facture->doc_externe,
+            'commentaire' => $facture->commentaire,
+        ];
+    }
+    
+    return response()->json(['factures' => $response]);
+    }
 }
