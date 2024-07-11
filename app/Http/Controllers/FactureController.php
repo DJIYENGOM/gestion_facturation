@@ -569,6 +569,7 @@ public function DetailsFacture($id)
     if ($facture->articles && $facture->articles->isNotEmpty()) {
         foreach ($facture->articles as $articleFacture) {
             $response['articles'][] = [
+                'id_article' => $articleFacture->id_article,
                 'nom_article' => $articleFacture->article->nom_article,
                 'TVA' => $articleFacture->TVA_article,
                 'quantite_article' => $articleFacture->quantite_article,
