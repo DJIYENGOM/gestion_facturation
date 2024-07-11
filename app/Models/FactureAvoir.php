@@ -11,7 +11,8 @@ class FactureAvoir extends Model
 
     protected $fillable = [
         'num_factureAvoir',
-        'titre_description',
+        'titre',
+        'description',
         'client_id',
         'facture_id',
         'date',

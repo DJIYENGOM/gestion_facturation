@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('facture_avoirs', function (Blueprint $table) {
             $table->id();
             $table->string('num_factureAvoir');
-            $table->string('titre_description')->nullable();
+            $table->string('titre')->nullable();
+            $table->string('description')->nullable();
             $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('set null');
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
