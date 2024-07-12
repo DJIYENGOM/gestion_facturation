@@ -23,6 +23,167 @@
         "multipart/form-data"
     ],
     "paths": {
+        "/api/listerCategorieDepense": {
+            "get": {
+                "summary": "lister categories depenses",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des depenses"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/ajouterCategorieDepense": {
+            "post": {
+                "summary": "ajouter categorie depense",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des depenses"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nom_categorie_depense": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nom_categorie_depense": "infimiere"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/listerToutesFacturesRecurrentes": {
+            "get": {
+                "summary": "liste des factures reccurentes",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion factures recurrentes"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/creerFactureRecurrente": {
             "post": {
                 "summary": "creer Facture Recurrente",
@@ -102,11 +263,8 @@
                                     "prix_TTC": {
                                         "type": "integer"
                                     },
-                                    "etat_brouillon": {
-                                        "type": "integer"
-                                    },
-                                    "envoyer_mail": {
-                                        "type": "integer"
+                                    "type_reccurente": {
+                                        "type": "string"
                                     },
                                     "articles": {
                                         "type": "string",
@@ -122,8 +280,7 @@
                                 "date_debut": "2024-07-09",
                                 "prix_HT": 20000,
                                 "prix_TTC": 25000,
-                                "etat_brouillon": 1,
-                                "envoyer_mail": 1,
+                                "type_reccurente": "creer_brouillon",
                                 "articles": [
                                     {
                                         "id_article": 1,
@@ -144,6 +301,143 @@
                                         "prix_total_tva_article": 8000
                                     }
                                 ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/listerToutesFacturesAvoirs": {
+            "get": {
+                "summary": "lister Toutes Factures Avoirs",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des facture d'avoir"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/ajouterSolde/{clientId}": {
+            "post": {
+                "summary": "ajouter Solde",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des facture d'avoir"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "clientId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "montant": {
+                                        "type": "string"
+                                    },
+                                    "date_paiement": {
+                                        "type": "string"
+                                    },
+                                    "id_paiement": {
+                                        "type": "string"
+                                    },
+                                    "facture_id": {
+                                        "type": "string"
+                                    },
+                                    "commentaire": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "montant": "10000",
+                                "date_paiement": "2024-07-11",
+                                "id_paiement": "1",
+                                "facture_id": "",
+                                "commentaire": "commentaire solde client"
                             }
                         }
                     }
@@ -265,7 +559,10 @@
                                         "type": "string",
                                         "format": "binary"
                                     },
-                                    "titre_description": {
+                                    "titre": {
+                                        "type": "string"
+                                    },
+                                    "description": {
                                         "type": "string"
                                     },
                                     "commentaire": {
@@ -289,7 +586,8 @@
                             "example": {
                                 "client_id": 1,
                                 "facture_id": null,
-                                "titre_description": "grkgtbrkgjnrkj",
+                                "titre": "grkgtbrkgjnrkj",
+                                "description": "zjnfjdfnjenfjfrh",
                                 "commentaire": "Some notes about the facture",
                                 "prix_HT": 20000,
                                 "prix_TTC": 25000,
@@ -516,7 +814,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -2020,7 +2318,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -2167,7 +2465,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3764,7 +4062,52 @@
                 }
             }
         },
-        "/api/DetailsFacture/{id}": {
+        "/api/listerToutesFacturesSimpleAvoir": {
+            "get": {
+                "summary": "lister Toutes Factures Simple Avoir",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/DetailsFacture/3": {
             "get": {
                 "summary": "details facture",
                 "description": "",
@@ -8166,8 +8509,8 @@
                                 }
                             },
                             "example": {
-                                "email": "ibou@gmail.com",
-                                "password": "ciss123@"
+                                "email": "admin@example.com",
+                                "password": "password"
                             }
                         }
                     }
