@@ -16,8 +16,7 @@ return new class extends Migration
             $table->enum('periode', ['mois', 'semaine', 'jour']);
             $table->integer('nombre_periode');
             $table->date('date_debut');
-            $table->boolean('etat_brouillon');
-            $table->boolean('envoyer_mail');
+            $table->enum('type_reccurente', ['creer_brouillon', 'envoyer_email']);
             $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
             $table->boolean('creation_automatique')->default(1);
             $table->decimal('prix_HT')->nullable();

@@ -217,10 +217,12 @@ Route::controller(FactureAvoirController::class)->group(function(){
     Route::post('creerFactureAvoir','creerFactureAvoir');
     Route::get('listerToutesFacturesAvoirs','listerToutesFacturesAvoirs');
     Route::post('supprimerFactureAvoir/{id}','supprimerFactureAvoir');
+    Route::post('listerToutesFacturesSimpleAvoir','listerToutesFacturesSimpleAvoir');
     
 });
 
 Route::post('creerFactureRecurrente',[FactureRecurrenteController::class, 'creerFactureRecurrente']);
+Route::get('listerToutesFacturesRecurrentes',[FactureRecurrenteController::class, 'listerToutesFacturesRecurrentes']);
 Route::post('supprimerFactureRecurrente/{id}',[FactureRecurrenteController::class, 'supprimerFactureRecurrente']);
 
 Route::post('ajouterSolde/{clientId}',[SoldeController::class, 'ajouterSolde']);

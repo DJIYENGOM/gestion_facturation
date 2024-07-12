@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ArticleFactureAvoir;
+use App\Models\Facture;
 use App\Models\FactureAvoir;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -154,4 +155,85 @@ class FactureAvoirController extends Controller
     
     return response()->json(['factures' => $response]);
     }
+
+    public function listerToutesFacturesSimpleAvoir()
+    {
+        $facturesSimples = [];
+        $facturesAvoirs = [];
+        
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user; 
+    
+            $facturesSimples = Facture::with('client')
+                ->where('archiver', 'non')
+                ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                    $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                        ->orWhere('user_id', $userId);
+                })
+                ->get();
+    
+            $facturesAvoirs = FactureAvoir::with('client')
+                ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                    $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                        ->orWhere('user_id', $userId);
+                })
+                ->get();
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+    
+            $facturesSimples = Facture::with('client')
+                ->where('archiver', 'non')
+                ->where(function ($query) use ($userId) {
+                    $query->where('user_id', $userId)
+                        ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                            $query->where('id_user', $userId);
+                        });
+                })
+                ->get();
+    
+            $facturesAvoirs = FactureAvoir::with('client')
+                ->where(function ($query) use ($userId) {
+                    $query->where('user_id', $userId)
+                        ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                            $query->where('id_user', $userId);
+                        });
+                })
+                ->get();
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    
+        // Construire la réponse avec les détails combinés des factures simples et des factures d'avoirs
+        $response = [];
+    
+        foreach ($facturesSimples as $facture) {
+            $response[] = [
+                'id' => $facture->id,
+                'numero' => $facture->num_fact,
+                'prenom_client' => $facture->client->prenom_client,
+                'nom_client' => $facture->client->nom_client,
+                'prix_HT' => $facture->prix_HT,
+                'prix_TTC' => $facture->prix_TTC,
+                'date' => $facture->date_creation,
+            ];
+        }
+    
+        foreach ($facturesAvoirs as $facture) {
+            $response[] = [
+                'id' => $facture->id,
+                'numero' => $facture->num_factureAvoir,
+                'prenom_client' => $facture->client->prenom_client,
+                'nom_client' => $facture->client->nom_client,
+                'prix_HT' => $facture->prix_HT,
+                'prix_TTC' => $facture->prix_TTC,
+                'date' => $facture->date,
+                'titre'=> $facture->titre,
+                'description'=> $facture->description,
+            ];
+        }
+    
+        return response()->json(['factures' => $response]);
+    }
+    
 }

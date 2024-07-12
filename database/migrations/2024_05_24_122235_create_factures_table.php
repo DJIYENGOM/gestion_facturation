@@ -14,10 +14,10 @@ return new class extends Migration
     {
         Schema::create('factures', function (Blueprint $table) {
             $table->id();
-            $table->string('num_fact')->unique()->nullable();
+            $table->string('num_fact')->nullable();
             $table->date('date_creation');
             $table->decimal('reduction_facture')->nullable();
-            $table->decimal('prix_HT');
+            $table->decimal('prix_HT')->nullable();
             $table->decimal('prix_TTC')->nullable();
             $table->text('note_fact')->nullable();
             $table->date('date_paiement')->nullable();
