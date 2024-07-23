@@ -134,7 +134,7 @@ Route::get('listerFactures', [FactureController::class, 'listerToutesFactures'])
 Route::post('lireFacture/{id}', [FactureController::class, 'lireFacture']);
 Route::post('validerFacture/{id}', [FactureController::class, 'validerFacture']);
 Route::delete('supprimeArchiveFacture/{id}', [FactureController::class, 'supprimeArchiveFacture']);
-Route::get('DetailsFacture/{id}', [FactureController::class, 'DetailsFacture']);
+Route::get('DetailsFacture/{num_facture}', [FactureAvoirController::class, 'DetailsFacture']);
 
 Route::post('listerFacturesEcheance', [FactureController::class, 'listerFacturesEcheance']);
 Route::post('listerFacturesAccompt', [FactureController::class, 'listerFacturesAccompt']);
@@ -210,14 +210,15 @@ Route::controller(LivraisonController::class)->group(function(){
 });
 
 Route::post('configurerNumeros',[NumeroConfigurationController::class, 'configurerNumeros']);
-Route::post('InfoConfigurationFacture',[NumeroConfigurationController::class, 'InfoConfigurationFacture']);
+Route::get('InfoConfigurationFacture',[NumeroConfigurationController::class, 'InfoConfigurationFacture']);
+Route::get('InfoConfigurationDevis',[NumeroConfigurationController::class, 'InfoConfigurationDevis']);
 
 
 Route::controller(FactureAvoirController::class)->group(function(){
     Route::post('creerFactureAvoir','creerFactureAvoir');
     Route::get('listerToutesFacturesAvoirs','listerToutesFacturesAvoirs');
-    Route::post('supprimerFactureAvoir/{id}','supprimerFactureAvoir');
     Route::get('listerToutesFacturesSimpleAvoir','listerToutesFacturesSimpleAvoir');
+    Route::delete('supprimerFacture/{factureId}','supprimerFacture');
     
 });
 
@@ -226,6 +227,5 @@ Route::get('listerToutesFacturesRecurrentes',[FactureRecurrenteController::class
 Route::post('supprimerFactureRecurrente/{id}',[FactureRecurrenteController::class, 'supprimerFactureRecurrente']);
 
 Route::post('ajouterSolde/{clientId}',[SoldeController::class, 'ajouterSolde']);
-
 Route::post('ajouterCategorieDepense',[CategorieDepenseController::class, 'ajouterCategorieDepense']);
 Route::get('listerCategorieDepense',[CategorieDepenseController::class, 'listerCategorieDepense']);
