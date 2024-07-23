@@ -56,7 +56,7 @@ class DeviController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $typeDocument = 'devi';
+        $typeDocument = 'devis';
         $numDevi= NumeroGeneratorService::genererNumero($userId, $typeDocument);
         // Création de la facture
         $devi = Devi::create([
