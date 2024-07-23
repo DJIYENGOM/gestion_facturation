@@ -10,9 +10,10 @@ class FactureAvoir extends Model
     use HasFactory;
 
     protected $fillable = [
-        'num_factureAvoir',
+        'num_facture',
         'titre',
         'description',
+        'type_facture',
         'client_id',
         'facture_id',
         'date',
@@ -29,14 +30,14 @@ class FactureAvoir extends Model
         return $this->belongsTo(Facture::class, 'facture_id');
     }
 
+    public function articles()
+    {
+        return $this->hasMany(ArticleFactureAvoir::class, 'id_factureAvoir');
+    }
+
     public function client()
     {
         return $this->belongsTo(Client::class, 'client_id');
-    }
-
-    public function articles()
-    {
-        return $this->hasMany(ArticleFactureAvoir::class, 'id_FactureAvoir');
     }
 
   

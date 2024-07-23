@@ -11,6 +11,8 @@ class Livraison extends Model
     protected $fillable = [
         'num_livraison',
         'date_livraison', 
+        'titre',
+        'description',
         'prix_HT',
         'prix_TTC',
         'note_livraison',

@@ -76,7 +76,7 @@ class FactureRecurrenteController extends Controller
         $numFacture = NumeroGeneratorService::genererNumero($userId, $typeDocument);
     
         $facture = Facture::create([
-            'num_fact' => $numFacture,
+            'num_facture' => $numFacture,
             'client_id' => $factureRecurrente->client_id,
             'date_creation' => now(),
             'date_paiement' => $factureRecurrente->date_debut,

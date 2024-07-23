@@ -18,6 +18,8 @@ class Depense extends Model
         'tva_depense',
         'montant_depense_ht',
         'montant_depense_ttc',
+        'plusieurs_paiement',
+        'duree_indeterminee',
         'periode_echeance',
         'nombre_periode',
         'doc_externe',

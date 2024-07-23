@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('num_commande')->nullable();
             $table->date('date_commande');
             $table->date('date_limite_commande')->nullable();
+            $table->string('titre')->nullable();
+            $table->string('description')->nullable();
             $table->decimal('prix_HT')->nullable();
             $table->decimal('prix_TTC')->nullable();
             $table->text('note_commande')->nullable();

@@ -14,8 +14,9 @@ return new class extends Migration
     {
         Schema::create('factures', function (Blueprint $table) {
             $table->id();
-            $table->string('num_fact')->nullable();
+            $table->string('num_facture')->nullable();
             $table->date('date_creation');
+            $table->string('type_facture')->nullable()->default('simple');
             $table->decimal('reduction_facture')->nullable();
             $table->decimal('prix_HT')->nullable();
             $table->decimal('prix_TTC')->nullable();

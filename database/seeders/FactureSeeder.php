@@ -14,7 +14,7 @@ class FactureSeeder extends Seeder
     {
         DB::table('factures')->insert([
             [
-                'num_fact' => 'FACT001',
+                'num_facture' => null,
                 'date_creation' => '2024-06-01',
                 'reduction_facture' => 50.00,
                 'prix_HT' => 500.00,
@@ -35,7 +35,7 @@ class FactureSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'num_fact' => 'FACT002',
+                'num_facture' => null,
                 'date_creation' => '2024-06-05',
                 'reduction_facture' => 0.00,
                 'prix_HT' => 700.00,

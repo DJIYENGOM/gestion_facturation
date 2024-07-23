@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('facture_avoirs', function (Blueprint $table) {
             $table->id();
-            $table->string('num_factureAvoir');
+            $table->string('num_facture');
+            $table->string('type_facture')->nullable()->default('avoir');
             $table->string('titre')->nullable();
             $table->string('description')->nullable();
             $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('set null');

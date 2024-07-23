@@ -8,6 +8,9 @@ use App\Models\FactureAvoir;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Services\NumeroGeneratorService;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+
 
 
 class FactureAvoirController extends Controller
@@ -16,7 +19,7 @@ class FactureAvoirController extends Controller
     public function creerFactureAvoir(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'num_factureAvoir' => 'nullable|string',
+            'num_facture' => 'nullable|string',
             'client_id' => 'required|exists:clients,id',
             'facture_id' => 'nullable|exists:factures,id',
             'titre' => 'nullable|string|max:255',
@@ -62,8 +65,9 @@ class FactureAvoirController extends Controller
         }
 
         $factureAvoir = FactureAvoir::create([
-            'num_factureAvoir' => $request->num_factureAvoir ?? $numFactureAvoir,
+            'num_facture' => $request->num_facture ?? $numFactureAvoir,
             'facture_id' => $request->facture_id ?? null,
+            'type_facture'=>"avoir",
             'client_id' => $request->client_id,
             'titre' => $request->input('titre'),
             'description' => $request->input('description'),
@@ -136,7 +140,7 @@ class FactureAvoirController extends Controller
     foreach ($factures as $facture) {
         $response[] = [
             'id' => $facture->id,
-            'num_factureAvoir' => $facture->num_factureAvoir,
+            'num_facture' => $facture->num_facture,
             'facture_id' => $facture->facture_id,
             'date' => $facture->date,
             'prix_HT' => $facture->prix_HT,
@@ -210,19 +214,20 @@ class FactureAvoirController extends Controller
         foreach ($facturesSimples as $facture) {
             $response[] = [
                 'id' => $facture->id,
-                'numero' => $facture->num_fact,
+                'numero' => $facture->num_facture,
                 'prenom_client' => $facture->client->prenom_client,
                 'nom_client' => $facture->client->nom_client,
                 'prix_HT' => $facture->prix_HT,
                 'prix_TTC' => $facture->prix_TTC,
                 'date' => $facture->date_creation,
+                'type'=> 'simple'
             ];
         }
     
         foreach ($facturesAvoirs as $facture) {
             $response[] = [
                 'id' => $facture->id,
-                'numero' => $facture->num_factureAvoir,
+                'numero' => $facture->num_facture,
                 'prenom_client' => $facture->client->prenom_client,
                 'nom_client' => $facture->client->nom_client,
                 'prix_HT' => $facture->prix_HT,
@@ -230,10 +235,205 @@ class FactureAvoirController extends Controller
                 'date' => $facture->date,
                 'titre'=> $facture->titre,
                 'description'=> $facture->description,
+                'type'=> 'avoir'
             ];
         }
     
         return response()->json(['factures' => $response]);
     }
+
+    public function supprimerFacture( $factureId)
+    {
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user;
     
+            $facture = Facture::where('id', $factureId)
+                ->where(function($query) use ($sousUtilisateurId, $userId) {
+                    $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                          ->orWhere('user_id', $userId);
+                })
+                ->first();
+    
+            if ($facture) {
+                if ($facture->type === 'simple') {
+                    $facture->delete();
+                    return response()->json(['message' => 'Facture simple supprimée avec succès.']);
+                } elseif ($facture->type === 'avoir') {
+                    $factureAvoir = FactureAvoir::find($factureId);
+                    if ($factureAvoir) {
+                        $factureAvoir->delete();
+                        return response()->json(['message' => 'Facture d\'avoir supprimée avec succès.']);
+                    }
+                }
+            }
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+    
+            $facture = Facture::where('id', $factureId)
+                ->where('user_id', $userId)
+                ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                    $query->where('id_user', $userId);
+                })
+                ->first();
+    
+            if ($facture) {
+                if ($facture->type === 'simple') {
+                    $facture->delete();
+                    return response()->json(['message' => 'Facture simple supprimée avec succès.']);
+                } elseif ($facture->type === 'avoir') {
+                    $factureAvoir = FactureAvoir::find($factureId);
+                    if ($factureAvoir) {
+                        $factureAvoir->delete();
+                        return response()->json(['message' => 'Facture d\'avoir supprimée avec succès.']);
+                    }
+                }
+            }
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    
+        return response()->json(['error' => 'Facture non trouvée.'], 404);
+    }
+    
+
+    public function DetailsFacture($num_facture)
+    {
+        // Vérifier l'authentification pour les sous-utilisateurs
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user;
+    
+            $facture = Facture::where('num_facture', $num_facture)
+                ->with(['client', 'articles.article', 'echeances', 'factureAccompts', 'paiement'])
+                ->where(function($query) use ($sousUtilisateurId, $userId) {
+                    $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                          ->orWhere('user_id', $userId);
+                })
+                ->first();
+    
+            if (!$facture) {
+                $facture = FactureAvoir::where('num_facture', $num_facture)
+                    ->with(['client', 'articles.article'])
+                    ->where(function($query) use ($sousUtilisateurId, $userId) {
+                        $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                              ->orWhere('user_id', $userId);
+                    })
+                    ->first();
+            }
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+    
+            $facture = Facture::where('num_facture', $num_facture)
+                ->with(['client', 'articles.article', 'echeances', 'factureAccompts', 'paiement'])
+                ->where('user_id', $userId)
+                ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                    $query->where('id_user', $userId);
+                })
+                ->first();
+    
+            if (!$facture) {
+                $facture = FactureAvoir::where('num_facture', $num_facture)
+                    ->with(['client', 'articles.article'])
+                    ->where('user_id', $userId)
+                    ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                        $query->where('id_user', $userId);
+                    })
+                    ->first();
+            }
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    
+        // Vérifier si la facture est trouvée
+        if (!$facture) {
+            return response()->json(['error' => 'Facture non trouvée'], 404);
+        }
+    
+        // Initialiser la réponse commune
+        $response = [
+            'numero_facture' => $num_facture,
+            'date_creation' => $facture->date_creation ? Carbon::parse($facture->date_creation)->format('Y-m-d H:i:s') : $facture->date,
+            'client' => [
+                'nom' => $facture->client->nom_client,
+                'prenom' => $facture->client->prenom_client,
+                'adresse' => $facture->client->adress_client,
+                'telephone' => $facture->client->tel_client,
+                'nom_entreprise'=> $facture->client->nom_entreprise,
+            ],
+            'prix_HT' => $facture->prix_HT,
+            'prix_TTC' => $facture->prix_TTC,
+            'articles' => [],
+            'echeances' => [],
+            'factures_accomptes' => []
+        ];
+    
+        // Ajouter des champs spécifiques aux factures simples
+        if ($facture instanceof Facture) {
+            $response['note_facture'] = $facture->note_fact;
+            $response['type_paiement'] = $facture->type_paiement;
+            $response['moyen_paiement'] = $facture->paiement->nom_payement ?? null;
+            $response['nombre_echeance'] = $facture->echeances ? $facture->echeances->count() : 0;
+    
+            // Ajouter les articles
+            foreach ($facture->articles as $articleFacture) {
+                $response['articles'][] = [
+                    'id_article' => $articleFacture->id_article,
+                    'nom_article' => $articleFacture->article->nom_article,
+                    'TVA' => $articleFacture->TVA_article,
+                    'quantite_article' => $articleFacture->quantite_article,
+                    'prix_unitaire_article' => $articleFacture->prix_unitaire_article,
+                    'prix_total_tva_article' => $articleFacture->prix_total_tva_article,
+                    'prix_total_article' => $articleFacture->prix_total_article,
+                    'reduction_article' => $articleFacture->reduction_article,
+                ];
+            }
+    
+            // Ajouter les échéances
+            foreach ($facture->echeances as $echeance) {
+                $response['echeances'][] = [
+                    'date_pay_echeance' => Carbon::parse($echeance->date_pay_echeance)->format('Y-m-d'),
+                    'montant_echeance' => $echeance->montant_echeance,
+                ];
+            }
+    
+            // Ajouter les factures d'acomptes
+            foreach ($facture->factureAccompts as $factureAccomp) {
+                $response['factures_accomptes'][] = [
+                    'titreAccomp' => $factureAccomp->titreAccomp,
+                    'dateAccompt' => Carbon::parse($factureAccomp->dateAccompt)->format('Y-m-d'),
+                    'dateEcheance' => Carbon::parse($factureAccomp->dateEcheance)->format('Y-m-d'),
+                    'montant' => $factureAccomp->montant,
+                    'commentaire' => $factureAccomp->commentaire,
+                ];
+            }
+        } elseif ($facture instanceof FactureAvoir) {
+            $response['date'] = $facture->date;
+            $response['titre'] = $facture->titre;
+            $response['description'] = $facture->description;
+            $response['commentaire'] = $facture->commentaire;
+            
+            // Ajouter les articles
+            foreach ($facture->articles as $articleFacture) {
+                $response['articles'][] = [
+                    'id_article' => $articleFacture->id_article,
+                    'nom_article' => $articleFacture->article->nom_article,
+                    'TVA' => $articleFacture->TVA_article,
+                    'quantite_article' => $articleFacture->quantite_article,
+                    'prix_unitaire_article' => $articleFacture->prix_unitaire_article,
+                    'prix_total_tva_article' => $articleFacture->prix_total_tva_article,
+                    'prix_total_article' => $articleFacture->prix_total_article,
+                    'reduction_article' => $articleFacture->reduction_article,
+                ];
+            }
+        }
+    
+        // Retourner la réponse JSON
+        return response()->json(['facture_details' => $response], 200);
+    }
+    
+    
+     
+       
+
 }

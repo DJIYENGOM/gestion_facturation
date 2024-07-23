@@ -9,8 +9,9 @@ class Facture extends Model
     use HasFactory;
 
     protected $fillable = [
-        'num_fact',
+        'num_facture',
         'date_creation', 
+        'type_facture',
         'reduction_facture', 
         'prix_HT',
         'prix_TTC',

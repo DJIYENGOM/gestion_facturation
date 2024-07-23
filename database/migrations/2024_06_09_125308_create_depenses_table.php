@@ -18,8 +18,10 @@ return new class extends Migration
             $table->text('commentaire')->nullable();
             $table->date('date_paiement');
             $table->integer('tva_depense')->nullable();
-            $table->decimal('montant_depense_ht', 8, 2)->nullable();
-            $table->decimal('montant_depense_ttc', 8, 2)->nullable();
+            $table->decimal('montant_depense_ht', 10, 2)->nullable();
+            $table->decimal('montant_depense_ttc', 10, 2)->nullable();
+            $table->boolean('plusieurs_paiement')->default(false);
+            $table->boolean('duree_indeterminee')->default(false);
             $table->enum('periode_echeance', ['jour', 'mois', 'semaine'])->nullable();
             $table->integer('nombre_periode')->nullable();
             $table->string('doc_externe')->nullable();

@@ -12,7 +12,9 @@ class BonCommande extends Model
     protected $fillable = [
         'num_commande',
         'date_commande', 
-        'date_limite_commande', 
+        'date_limite_commande',
+        'titre',
+        'description', 
         'prix_HT',
         'prix_TTC',
         'note_commande',
