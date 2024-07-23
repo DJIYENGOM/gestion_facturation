@@ -35,7 +35,10 @@ class FactureRecurrente extends Model
         return $this->hasMany(ArticleFactureAvoir::class, 'id_FactureAvoir');
     }
 
-  
+    public function facture()
+    {
+        return $this->belongsTo(Facture::class);
+    }
 
     public function sousUtilisateur()
     {

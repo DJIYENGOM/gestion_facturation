@@ -181,7 +181,8 @@ Route::controller(DeviController::class)->group(function(){
     Route::post('TransformeDeviEnBonCommande/{deviId}','TransformeDeviEnBonCommande');
     Route::get('listerToutesDevi','listerToutesDevi');
     Route::post('supprimerDevi/{id}','supprimerDevi');
-    Route::post('annulerDevi/{deviId}','annulerDevi');    
+    Route::post('annulerDevi/{deviId}','annulerDevi');  
+    Route::post('DetailsDevis/{id}','DetailsDevis');  
 });
 
 Route::controller(BonCommandeController::class)->group(function(){

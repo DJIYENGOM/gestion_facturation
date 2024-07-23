@@ -34,7 +34,7 @@ class Devi extends Model
     // Relation avec les articles de la facture
     public function articles()
     {
-        return $this->hasMany(ArtcleFacture::class);
+        return $this->hasMany(ArticleDevi::class, 'id_devi');
     }
     public function sousUtilisateur()
     {
@@ -66,9 +66,4 @@ class Devi extends Model
     }
 
 
-    public static function generateNumdevi($id)
-    {
-        $year = date('Y');
-        return 'D' . $year . '00' . $id;
-    }
 }

@@ -49,6 +49,11 @@ class Facture extends Model
         return $this->belongsTo(Devi::class, 'devi_id');
     }
 
+    public function factureRcurrente()
+    {
+        return $this->belongsTo(FactureRecurrente::class, 'id_recurrent');
+    }
+
     public function bonCommande()
     {
         return $this->belongsTo(BonCommande::class, 'bonCommande_id');

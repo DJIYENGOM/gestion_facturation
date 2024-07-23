@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ArtcleFacture;
-use App\Models\ArticleBonCommande;
+use Carbon\Carbon;
+use App\Models\Devi;
+use App\Models\Facture;
+use App\Models\Echeance;
 use App\Models\ArticleDevi;
 use App\Models\BonCommande;
-use App\Models\Devi;
-use App\Models\Echeance;
-use App\Models\Facture;
-use App\Models\FactureAccompt;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\Models\ArtcleFacture;
+use App\Models\FactureAccompt;
+use App\Models\ArticleBonCommande;
 use App\Services\NumeroGeneratorService;
+use Illuminate\Support\Facades\Validator;
 
 
 class DeviController extends Controller
@@ -517,6 +518,88 @@ foreach ($devis as $devi) {
 return response()->json(['devis' => $response]);
 }
 
+
+public function DetailsDevis($id)
+{
+    // Rechercher la facture par son numéro
+    $devi = Devi::where('id', $id)
+                ->with(['client', 'articles.article', 'echeances', 'factureAccompts'])
+                ->first();
+
+    // Vérifier si la devi existe
+    if (!$devi) {
+        return response()->json(['error' => 'devi non trouvée'], 404);
+    }
+
+    // Convertir date_creation en instance de Carbon si ce n'est pas déjà le cas
+    $dateCreation = Carbon::parse($devi->date_devi);
+
+    // Préparer la réponse
+    $response = [
+        'numero_devi' => $devi->num_devi,
+        'date_creation' => $dateCreation->format('Y-m-d H:i:s'),
+        'date_limite' => $devi->date_limite,
+        'client' => [
+            'nom' => $devi->client->nom_client,
+            'prenom' => $devi->client->prenom_client,
+            'adresse' => $devi->client->adress_client,
+            'telephone' => $devi->client->tel_client,
+            'nom_entreprise'=> $devi->client->nom_entreprise,
+        ],
+        'note_devi' => $devi->note_fact,
+        'prix_HT' => $devi->prix_HT,
+        'prix_TTC' => $devi->prix_TTC,
+        'reduction_devi' => $devi->reduction_devi,
+        'statut_devi' => $devi->statut_devi,
+        'nom_comptable' => $devi->compteComptable->nom_compte_comptable ?? null,
+        'articles' => [],
+        'echeances' => [],
+        'nombre_echeance' => $devi->echeances ? $devi->echeances->count() : 0,
+        'facture_accomptes' => [],
+    ];
+
+    // Vérifier si 'articles' est non nul et une collection
+    if ($devi->articles && $devi->articles->isNotEmpty()) {
+        foreach ($devi->articles as $articledevi) {
+            $response['articles'][] = [
+                'id_article' => $articledevi->id_article,
+                'nom_article' => $articledevi->article->nom_article,
+                'TVA' => $articledevi->TVA_article,
+                'quantite_article' => $articledevi->quantite_article,
+                'prix_unitaire_article' => $articledevi->prix_unitaire_article,
+                'prix_total_tva_article' => $articledevi->prix_total_tva_article,
+                'prix_total_article' => $articledevi->prix_total_article,
+                'reduction_article' => $articledevi->reduction_article,
+            ];
+        }
+    }
+
+    // Vérifier si 'echeances' est non nul et une collection
+    if ($devi->echeances && $devi->echeances->isNotEmpty()) {
+        foreach ($devi->echeances as $echeance) {
+            $response['echeances'][] = [
+                'date_pay_echeance' => Carbon::parse($echeance->date_pay_echeance)->format('Y-m-d'),
+                'montant_echeance' => $echeance->montant_echeance,
+            ];
+        }
+    }
+
+    // Vérifier si 'factureAccompts' est non nul et une collection
+    if ($devi->factureAccompts && $devi->factureAccompts->isNotEmpty()) {
+        foreach ($devi->factureAccompts as $factureAccompt) {
+            $response['facture_accomptes'][] = [
+                'titreAccomp' => $factureAccompt->titreAccomp,
+                'dateAccompt' => Carbon::parse($factureAccompt->dateAccompt)->format('Y-m-d'),
+                'dateEcheance' => Carbon::parse($factureAccompt->dateEcheance)->format('Y-m-d'),
+                'montant' => $factureAccompt->montant,
+                'commentaire' => $factureAccompt->commentaire,
+            ];
+        }
+    }
+
+    // Retourner la réponse JSON
+    return response()->json(['devi_details' => $response], 200);
+}
 }
   
 
