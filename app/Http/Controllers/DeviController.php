@@ -29,9 +29,18 @@ class DeviController extends Controller
             'prix_HT'=> 'required|numeric',
             'prix_TTC'=>'required|numeric',
             'statut_devi'=> 'nullable|in:en_attente,transformer,valider,annuler,brouillon',
+
             'echeances' => 'nullable|array',
-            'echeances.*.date_pay_echeance' => 'required_with:echeances|date',
-            'echeances.*.montant_echeance' => 'required_with:echeances|numeric|min:0',
+            'echeances.*.date_pay_echeance' => 'nullable|date',
+            'echeances.*.montant_echeance' => 'nullable|numeric|min:0',
+
+            'facture_accompts' => 'nullable|array',
+            'facture_accompts.*.num_factureAccomp' => 'nullable|string',
+            'facture_accompts.*.titreAccomp' => 'nullable|string',
+            'facture_accompts.*.dateAccompt' => 'nullable|date',
+            'facture_accompts.*.dateEcheance' => 'nullable|date',
+            'facture_accompts.*.montant' => 'nullable|numeric|min:0',
+            'facture_accompts.*.commentaire' => 'nullable|string',
       
             'articles' => 'required|array',
             'articles.*.id_article' => 'required|exists:articles,id',
@@ -97,17 +106,41 @@ class DeviController extends Controller
                 'prix_total_tva_article' => $prixTotalArticleTva,
             ]);
         }
-        if ($request->has('echeances')) {
-            foreach ($request->echeances as $echeanceData) {
-                Echeance::create([
-                    'devi_id' => $devi->id,
-                    'date_pay_echeance' => $echeanceData['date_pay_echeance'],
-                    'montant_echeance' => $echeanceData['montant_echeance'],
-                    'sousUtilisateur_id' => $sousUtilisateurId,
-                    'user_id' => $userId,
-                ]);
+            if ($request->echeances !== null) {
+                foreach ($request->echeances as $echeanceData) {
+                    Echeance::create([
+                        'devi_id' => $devi->id,
+                        'date_pay_echeance' => $echeanceData['date_pay_echeance'],
+                        'montant_echeance' => $echeanceData['montant_echeance'],
+                        'sousUtilisateur_id' => $sousUtilisateurId,
+                        'user_id' => $userId,
+                    ]);
+                }
             }
-        }
+        
+            // Gestion des factures d'acompte si type_paiement est 'facture_Accompt'
+            if ($request->facture_accompts !== null) {
+                foreach ($request->facture_accompts as $accomptData) {
+                    FactureAccompt::create([
+                        'devi_id' => $devi->id,
+                        'num_factureAccompt' => $accomptData['num_factureAccompt'],
+                        'titreAccomp' => $accomptData['titreAccomp'],
+                        'dateAccompt' => $accomptData['dateAccompt'],
+                        'dateEcheance' => $accomptData['dateEcheance'],
+                        'montant' => $accomptData['montant'],
+                        'commentaire' => $accomptData['commentaire'] ?? '',
+                        'sousUtilisateur_id' => $sousUtilisateurId,
+                        'user_id' => $userId,
+                    ]);
+                    Echeance::create([
+                        'devi_id' => $devi->id,
+                        'date_pay_echeance' => $accomptData['dateEcheance'],
+                        'montant_echeance' => $accomptData['montant'],
+                        'sousUtilisateur_id' => $sousUtilisateurId,
+                        'user_id' => $userId,
+                    ]);
+                }
+            }
     
         return response()->json(['message' => 'Devi créée avec succès', 'Devi' => $devi], 201);
 
@@ -126,13 +159,12 @@ public function TransformeDeviEnFacture(Request $request, $deviId)
         'active_Stock'=> 'nullable|in:oui,non',
         'prix_HT'=> 'required|numeric',
         'prix_TTC'=>'required|numeric',
-        'type_paiement' => 'required|in:immediat,echeance,facture_Accompt',
-        'id_paiement' => 'nullable|required_if:type_paiement,immediat|exists:payements,id',
-        'echeances' => 'nullable|required_if:type_paiement,echeance|array',
+
+        'echeances' => 'nullable|array',
         'echeances.*.date_pay_echeance' => 'required|date',
         'echeances.*.montant_echeance' => 'required|numeric|min:0',
      
-        'facture_accompts' => 'nullable|required_if:type_paiement,facture_Accompt|array',
+        'facture_accompts' => 'nullable|array',
         'facture_accompts.*.num_factureAccomp' => 'nullable|string',
         'facture_accompts.*.titreAccomp' => 'required|string',
         'facture_accompts.*.dateAccompt' => 'required|date',

@@ -18,10 +18,10 @@ return new class extends Migration
             $table->foreignId('devi_id')->nullable()->constrained('devis')->onDelete('cascade'); 
             $table->string('num_devi')->nullable();
             $table->string('num_facture')->nullable();
-            $table->string('titreAccomp');
-            $table->date('dateAccompt'); 
-            $table->date('dateEcheance'); 
-            $table->decimal('montant', 8, 2); 
+            $table->string('titreAccomp')->nullable();
+            $table->date('dateAccompt')->nullable(); 
+            $table->date('dateEcheance')->nullable(); 
+            $table->decimal('montant', 8, 2)->nullable(); 
             $table->text('commentaire')->nullable();
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
