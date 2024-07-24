@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DeviController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PromoController;
+use App\Http\Controllers\SoldeController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\FactureController;
@@ -15,20 +16,20 @@ use App\Http\Controllers\PayementController;
 use App\Http\Controllers\LivraisonController;
 use App\Http\Controllers\BonCommandeController;
 use App\Http\Controllers\FournisseurController;
+use App\Http\Controllers\FactureAvoirController;
 use App\Http\Controllers\PaiementRecuController;
+use App\Http\Controllers\CommandeAchatController;
+use App\Http\Controllers\FactureAccomptController;
 use App\Http\Controllers\CategorieClientController;
 use App\Http\Controllers\CompteComptableController;
 use App\Http\Controllers\GrilleTarifaireController;
 use App\Http\Controllers\SousUtilisateurController;
 use App\Http\Controllers\CategorieArticleController;
 use App\Http\Controllers\CategorieDepenseController;
-use App\Http\Controllers\FactureAccomptController;
-use App\Http\Controllers\FactureAvoirController;
 use App\Http\Controllers\FactureRecurrenteController;
 use App\Http\Controllers\NoteJustificativeController;
 use App\Http\Controllers\Info_SupplementaireController;
 use App\Http\Controllers\NumeroConfigurationController;
-use App\Http\Controllers\SoldeController;
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -214,7 +215,11 @@ Route::controller(LivraisonController::class)->group(function(){
 Route::post('configurerNumeros',[NumeroConfigurationController::class, 'configurerNumeros']);
 Route::get('InfoConfigurationFacture',[NumeroConfigurationController::class, 'InfoConfigurationFacture']);
 Route::get('InfoConfigurationDevis',[NumeroConfigurationController::class, 'InfoConfigurationDevis']);
-
+Route::get('InfoConfigurationLivraison',[NumeroConfigurationController::class, 'InfoConfigurationLivraison']);
+Route::get('InfoConfigurationBonCommande',[NumeroConfigurationController::class, 'InfoConfigurationBonCommande']);
+Route::get('InfoConfigurationDepense',[NumeroConfigurationController::class, 'InfoConfigurationDepense']);
+Route::get('InfoConfigurationFournisseur',[NumeroConfigurationController::class, 'InfoConfigurationFournisseur']);
+Route::get('InfoConfigurationCommandeAchat',[NumeroConfigurationController::class, 'InfoConfigurationCommandeAchat']);
 
 Route::controller(FactureAvoirController::class)->group(function(){
     Route::post('creerFactureAvoir','creerFactureAvoir');
@@ -231,3 +236,5 @@ Route::post('supprimerFactureRecurrente/{id}',[FactureRecurrenteController::clas
 Route::post('ajouterSolde/{clientId}',[SoldeController::class, 'ajouterSolde']);
 Route::post('ajouterCategorieDepense',[CategorieDepenseController::class, 'ajouterCategorieDepense']);
 Route::get('listerCategorieDepense',[CategorieDepenseController::class, 'listerCategorieDepense']);
+
+Route::post('creerCommandeAchat',[CommandeAchatController::class, 'creerCommandeAchat']);

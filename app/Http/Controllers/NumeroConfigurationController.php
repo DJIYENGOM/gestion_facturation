@@ -95,4 +95,124 @@ class NumeroConfigurationController extends Controller
         return response()->json(['configuration' => $configuration]);
     
     }
+
+    public function InfoConfigurationBonCommande()
+    {
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user; 
+    
+            $configuration = NumeroConfiguration::where('type_document', 'commande')
+                ->Where('user_id', $userId)
+                ->get();
+
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+    
+            $configuration = NumeroConfiguration::where('type_document', 'commande')
+                ->where('user_id', $userId)
+                ->get();
+        } else {
+            return response()->json(['error' => 'Aucune configuration trouver'], 401);
+        }  
+    
+        return response()->json(['configuration' => $configuration]);
+    
+    }
+
+    public function InfoConfigurationDepense()
+    {
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user; 
+    
+            $configuration = NumeroConfiguration::where('type_document', 'depense')
+                ->Where('user_id', $userId)
+                ->get();
+
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+    
+            $configuration = NumeroConfiguration::where('type_document', 'depense')
+                ->where('user_id', $userId)
+                ->get();
+        } else {
+            return response()->json(['error' => 'Aucune configuration trouver'], 401);
+        }  
+    
+        return response()->json(['configuration' => $configuration]);
+    
+    }
+
+    public function InfoConfigurationFournisseur()
+    {
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user; 
+    
+            $configuration = NumeroConfiguration::where('type_document', 'fournisseur')
+                ->Where('user_id', $userId)
+                ->get();
+
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+    
+            $configuration = NumeroConfiguration::where('type_document', 'fournisseur')
+                ->where('user_id', $userId)
+                ->get();
+        } else {
+            return response()->json(['error' => 'Aucune configuration trouver'], 401);
+        }  
+    
+        return response()->json(['configuration' => $configuration]);
+    
+    }
+
+    public function InfoConfigurationCommandeAchat()
+    {
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user; 
+    
+            $configuration = NumeroConfiguration::where('type_document', 'commande_achat')
+                ->Where('user_id', $userId)
+                ->get();
+
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+    
+            $configuration = NumeroConfiguration::where('type_document', 'commande_achat')
+                ->where('user_id', $userId)
+                ->get();
+        } else {
+            return response()->json(['error' => 'Aucune configuration trouver'], 401);
+        }  
+    
+        return response()->json(['configuration' => $configuration]);
+    
+    }
+
+    public function InfoConfigurationLivraison()
+    {
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user; 
+    
+            $configuration = NumeroConfiguration::where('type_document', 'livraison')
+                ->Where('user_id', $userId)
+                ->get();
+
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+    
+            $configuration = NumeroConfiguration::where('type_document', 'livraison')
+                ->where('user_id', $userId)
+                ->get();
+        } else {
+            return response()->json(['error' => 'Aucune configuration trouver'], 401);
+        }  
+    
+        return response()->json(['configuration' => $configuration]);
+    
+    }
 }
