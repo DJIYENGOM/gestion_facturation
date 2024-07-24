@@ -307,6 +307,7 @@ public function DetailsDevis($id)
 
     // Préparer la réponse
     $response = [
+        'id_devi' => $devi->id,
         'numero_devi' => $devi->num_devi,
         'date_creation' => $dateCreation->format('Y-m-d H:i:s'),
         'date_limite' => $devi->date_limite,
