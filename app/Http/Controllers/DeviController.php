@@ -146,259 +146,30 @@ class DeviController extends Controller
         return response()->json(['message' => 'Devi créée avec succès', 'Devi' => $devi], 201);
 
     }
-public function TransformeDeviEnFacture(Request $request, $deviId)
+public function TransformeDeviEnFacture($deviId)
 {
     $devi = Devi::find($deviId);
     if (!$devi) {
         return response()->json(['error' => 'Devi non trouvé'], 404);
     }
 
-    $validator = Validator::make($request->all(), [
-        'client_id' => 'required|exists:clients,id',
-        'note_fact' => 'nullable|string',
-        'reduction_facture' => 'nullable|numeric',
-        'active_Stock'=> 'nullable|in:oui,non',
-        'prix_HT'=> 'required|numeric',
-        'prix_TTC'=>'required|numeric',
-
-        'echeances' => 'nullable|array',
-        'echeances.*.date_pay_echeance' => 'required|date',
-        'echeances.*.montant_echeance' => 'required|numeric|min:0',
-     
-        'facture_accompts' => 'nullable|array',
-        'facture_accompts.*.num_factureAccomp' => 'nullable|string',
-        'facture_accompts.*.titreAccomp' => 'required|string',
-        'facture_accompts.*.dateAccompt' => 'required|date',
-        'facture_accompts.*.dateEcheance' => 'required|date',
-        'facture_accompts.*.montant' => 'required|numeric|min:0',
-        'facture_accompts.*.commentaire' => 'nullable|string',
-
-        'articles' => 'required|array',
-        'articles.*.id_article' => 'required|exists:articles,id',
-        'articles.*.quantite_article' => 'required|integer',
-        'articles.*.prix_unitaire_article' => 'required|numeric',
-        'articles.*.TVA_article' => 'nullable|numeric',
-        'articles.*.reduction_article' => 'nullable|numeric',
-        'articles.*.prix_total_article'=>'nullable|numeric',
-        'articles.*.prix_total_tva_article'=>'nullable|numeric'
-    ]);
-if ($validator->fails()) {
-    return response()->json(['errors' => $validator->errors()], 422);
-}
-
-    if (auth()->guard('apisousUtilisateur')->check()) {
-        $sousUtilisateurId = auth('apisousUtilisateur')->id();
-        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
-    } elseif (auth()->check()) {
-        $userId = auth()->id();
-        $sousUtilisateurId = null;
-    } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
-    }
-
-
-    $statutPaiement = $request->type_paiement === 'immediat' ? 'payer' : 'en_attente';
-
-    $datePaiement = $request->type_paiement === 'immediat' ? now() : null;
-    $typeDocument = 'facture';
-    $numFacture = NumeroGeneratorService::genererNumero($userId, $typeDocument);
-
-    $facture = Facture::create([
-        'num_facture' => $numFacture,
-        'client_id' => $request->client_id,
-        'date_creation' => now(),
-        'date_paiement' => $datePaiement,
-        'reduction_facture' => $request->input('reduction_facture', 0),
-        'active_Stock' => $request->active_Stock ?? 'oui',
-        'prix_HT'=>$request->prix_HT,
-        'prix_TTC' =>$request->prix_TTC,
-        'note_fact' => $request->input('note_fact'),
-        'archiver' => 'non',
-        'sousUtilisateur_id' => $sousUtilisateurId,
-        'user_id' => $userId,
-        'type_paiement' => $request->input('type_paiement'),
-        'statut_paiement' => $statutPaiement,
-        'id_paiement' => $request->type_paiement == 'immediat' ? $request->id_paiement : null,
-
-        'devi_id'=>$devi->id,
-    ]);
-
-    $facture->save();
-
-    // Ajouter les articles à la facture
-    foreach ($request->articles as $articleData) {
-        $quantite = $articleData['quantite_article'];
-        $prixUnitaire = $articleData['prix_unitaire_article'];
-        $TVA = $articleData['TVA_article'] ?? 0;
-        $reduction = $articleData['reduction_article'] ?? 0;
-        $prixTotalArticle=$articleData['prix_total_article'];
-        $prixTotalArticleTva=$articleData['prix_total_tva_article'];
-
-        ArtcleFacture::create([
-            'id_facture' => $facture->id,
-            'id_article' => $articleData['id_article'],
-            'quantite_article' => $quantite,
-            'prix_unitaire_article' => $prixUnitaire,
-            'TVA_article' => $TVA,
-            'reduction_article' => $reduction,
-            'prix_total_article' => $prixTotalArticle,
-            'prix_total_tva_article' => $prixTotalArticleTva,
-        ]);
-    }
-
-    // Gestion des échéances si type_paiement est 'echeance'
-    if ($request->type_paiement == 'echeance') {
-        foreach ($request->echeances as $echeanceData) {
-            Echeance::create([
-                'facture_id' => $facture->id,
-                'date_pay_echeance' => $echeanceData['date_pay_echeance'],
-                'montant_echeance' => $echeanceData['montant_echeance'],
-                'sousUtilisateur_id' => $sousUtilisateurId,
-                'user_id' => $userId,
-            ]);
-        }
-    }
-
-    if ($request->type_paiement == 'facture_Accompt') {
-        foreach ($request->facture_accompts as $accomptData) {
-            FactureAccompt::create([
-                'facture_id' => $facture->id,
-                'num_factureAccompt' => $accomptData['num_factureAccompt'] ?? $numFacture,
-                'titreAccomp' => $accomptData['titreAccomp'],
-                'dateAccompt' => $accomptData['dateAccompt'],
-                'dateEcheance' => $accomptData['dateEcheance'],
-                'montant' => $accomptData['montant'],
-                'commentaire' => $accomptData['commentaire'] ?? '',
-                'sousUtilisateur_id' => $sousUtilisateurId,
-                'user_id' => $userId,
-            ]);
-            Echeance::create([
-                'facture_id' => $facture->id,
-                'date_pay_echeance' => $accomptData['dateEcheance'],
-                'montant_echeance' => $accomptData['montant'],
-                'sousUtilisateur_id' => $sousUtilisateurId,
-                'user_id' => $userId,
-            ]);
-        }
-    }
-
-    //gestion paiements reçus        
-    if ($request->type_paiement == 'immediat') {
-            PaiementRecu::create([
-                'facture_id' => $facture->id,
-                'id_paiement' => $request->id_paiement,
-                'date_reçu' => now(),
-                'montant' => $facture->prix_TTC,
-                'sousUtilisateur_id' => $sousUtilisateurId,
-                'user_id' => $userId,
-            ]);
-        
-    }
-
     $devi->statut_devi = 'transformer';
     $devi->save();
 
-    return response()->json(['message' => 'Facture créée avec succès', 'facture' => $facture], 201);
+    return response()->json(['message' => 'Devi transformée avec succès', 'Devi' => $devi], 200);
 }
 
-public function TransformeDeviEnBonCommande(Request $request, $deviId)
+public function TransformeDeviEnBonCommande($deviId)
 {
     $devi = Devi::find($deviId);
     if (!$devi) {
         return response()->json(['error' => 'Devi non trouvé'], 404);
     }
 
-    $validator = Validator::make($request->all(), [
-        'client_id' => 'required|exists:clients,id',
-        'note_commande' => 'nullable|string',
-        'reduction_commande' => 'nullable|numeric',
-        'date_commande'=>'required|date',
-        'date_limite_commande'=>'required|date',
-        'prix_HT'=> 'required|numeric',
-        'prix_TTC'=>'required|numeric',
-        'statut_commande'=> 'nullable|in:en_attente,transformer,valider,annuler,brouillon',
-        'echeances' => 'nullable|array',
-        'echeances.*.date_pay_echeance' => 'required|date',
-        'echeances.*.montant_echeance' => 'required|numeric|min:0',
-
-        'articles' => 'required|array',
-        'articles.*.id_article' => 'required|exists:articles,id',
-        'articles.*.quantite_article' => 'required|integer',
-        'articles.*.prix_unitaire_article' => 'required|numeric',
-        'articles.*.TVA_article' => 'nullable|numeric',
-        'articles.*.reduction_article' => 'nullable|numeric',
-        'articles.*.prix_total_article'=>'nullable|numeric',
-        'articles.*.prix_total_tva_article'=>'nullable|numeric'
-    ]);
-if ($validator->fails()) {
-    return response()->json(['errors' => $validator->errors()], 422);
-}
-
-    if (auth()->guard('apisousUtilisateur')->check()) {
-        $sousUtilisateurId = auth('apisousUtilisateur')->id();
-        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
-    } elseif (auth()->check()) {
-        $userId = auth()->id();
-        $sousUtilisateurId = null;
-    } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
-    }
-
-    // Création de la facture
-    $commande = BonCommande::create([
-        'client_id' => $request->client_id,
-        'date_commande' => $request->date_commande,
-        'date_limite_commande' => $request->date_limite_commande,
-        'reduction_commande' => $request->input('reduction_commande', 0),
-        'prix_HT'=>$request->prix_HT,
-        'prix_TTC' =>$request->prix_TTC,
-        'note_commande' => $request->input('note_commande'),
-        'archiver' => 'non',
-        'sousUtilisateur_id' => $sousUtilisateurId,
-        'user_id' => $userId,
-        'statut_commande' => $request->statut_commande ?? 'en_attente',
-    ]);
-
-    $commande->num_commande = BonCommande::generateNumBoncommande($commande->id);
-    $commande->save();
-
-    // Ajouter les articles à la facture
-    foreach ($request->articles as $articleData) {
-        $quantite = $articleData['quantite_article'];
-        $prixUnitaire = $articleData['prix_unitaire_article'];
-        $TVA = $articleData['TVA_article'] ?? 0;
-        $reduction = $articleData['reduction_article'] ?? 0;
-    
-        $prixTotalArticle=$articleData['prix_total_article'];
-        $prixTotalArticleTva=$articleData['prix_total_tva_article'];
-
-        ArticleBonCommande::create([
-            'id_BonCommande' => $commande->id,
-            'id_article' => $articleData['id_article'],
-            'quantite_article' => $quantite,
-            'prix_unitaire_article' => $prixUnitaire,
-            'TVA_article' => $TVA,
-            'reduction_article' => $reduction,
-            'prix_total_article' => $prixTotalArticle,
-            'prix_total_tva_article' => $prixTotalArticleTva,
-        ]);
-    }
-    if ($request->has('echeances')) {
-        foreach ($request->echeances as $echeanceData) {
-            Echeance::create([
-                'bonCommande_id' => $commande->id,
-                'date_pay_echeance' => $echeanceData['date_pay_echeance'],
-                'montant_echeance' => $echeanceData['montant_echeance'],
-                'sousUtilisateur_id' => $sousUtilisateurId,
-                'user_id' => $userId,
-            ]);
-        }
-    }
     $devi->statut_devi = 'transformer';
     $devi->save();
 
-    return response()->json(['message' => 'commande créée avec succès', 'commande' => $commande], 201);
-
+    return response()->json(['message' => 'Devi transformée avec succès', 'Devi' => $devi], 200);
 }
 
 public function annulerDevi($deviId)
