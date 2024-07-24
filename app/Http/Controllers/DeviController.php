@@ -508,8 +508,8 @@ foreach ($devis as $devi) {
         'prix_Ht' => $devi->prix_HT,
         'prix_Ttc' => $devi->prix_TTC,
         'note_devi' => $devi->note_devi,
-        'prenom client' => $devi->client->prenom_client, 
-        'nom client' => $devi->client->nom_client, 
+        'prenom_client' => $devi->client->prenom_client, 
+        'nom_client' => $devi->client->nom_client, 
         'active_Stock' => $devi->active_Stock,
         'reduction_devi' => $devi->reduction_devi,
     ];
