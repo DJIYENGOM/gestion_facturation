@@ -190,7 +190,8 @@ Route::controller(BonCommandeController::class)->group(function(){
     Route::post('TransformeBonCommandeEnFacture/{id}','TransformeBonCommandeEnFacture');
     Route::get('listerTousBonCommande','listerTousBonCommande');
     Route::post('supprimerBonCommande/{id}','supprimerBonCommande');
-    Route::post('annulerBonCommande/{id}','annulerBonCommande');    
+    Route::post('annulerBonCommande/{id}','annulerBonCommande');
+    Route::post('DetailsBonCommande/{id}','DetailsBonCommande');    
 });
 
 Route::controller(FournisseurController::class)->group(function(){

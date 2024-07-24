@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ArtcleFacture;
-use App\Models\ArticleBonCommande;
-use App\Models\BonCommande;
-use App\Models\Echeance;
+use Carbon\Carbon;
 use App\Models\Facture;
-use App\Models\FactureAccompt;
+use App\Models\Echeance;
+use App\Models\BonCommande;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\Models\ArtcleFacture;
+use App\Models\FactureAccompt;
+use App\Models\ArticleBonCommande;
 use App\Services\NumeroGeneratorService;
+use Illuminate\Support\Facades\Validator;
 
 
 class BonCommandeController extends Controller
@@ -26,6 +27,7 @@ class BonCommandeController extends Controller
             'date_limite_commande'=>'required|date',
             'prix_HT'=> 'required|numeric',
             'prix_TTC'=>'required|numeric',
+            'active_Stock'=> 'nullable|in:oui,non',
             'statut_commande'=> 'nullable|in:en_attente,transformer,valider,annuler,brouillon',
             'echeances' => 'nullable|array',
             'echeances.*.date_pay_echeance' => 'required|date',
@@ -54,7 +56,7 @@ class BonCommandeController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $typeDocument = 'bon_commande';
+        $typeDocument = 'commande';
         $numBonCommande= NumeroGeneratorService::genererNumero($userId, $typeDocument);
     
         $commande = BonCommande::create([
@@ -70,6 +72,7 @@ class BonCommandeController extends Controller
             'sousUtilisateur_id' => $sousUtilisateurId,
             'user_id' => $userId,
             'statut_commande' => $request->statut_commande ?? 'en_attente',
+            'active_Stock' => $request->active_Stock ?? 'non',
         ]);
     
         $commande->save();
@@ -377,5 +380,75 @@ public function supprimerBonCommande($id)
         return response()->json(['error' => 'Unauthorizedd'], 401);
     }
 
+}
+
+public function DetailsBonCommande($id)
+{
+    // Rechercher la facture par son numéro
+    $bonCommande = BonCommande::where('id', $id)
+                ->with(['client', 'articles.article', 'echeances'])
+                ->first();
+
+    // Vérifier si la bonCommande existe
+    if (!$bonCommande) {
+        return response()->json(['error' => 'bonCommande non trouvée'], 404);
+    }
+
+    // Convertir date_creation en instance de Carbon si ce n'est pas déjà le cas
+    $dateCreation = Carbon::parse($bonCommande->date_commande);
+
+    // Préparer la réponse
+    $response = [
+        'numero_bonCommande' => $bonCommande->num_commande,
+        'date_creation' => $dateCreation->format('Y-m-d H:i:s'),
+        'date_limite' => $bonCommande->date_limite_commande,
+        'client' => [
+            'id' => $bonCommande->client->id,
+            'nom' => $bonCommande->client->nom_client,
+            'prenom' => $bonCommande->client->prenom_client,
+            'adresse' => $bonCommande->client->adress_client,
+            'telephone' => $bonCommande->client->tel_client,
+            'nom_entreprise'=> $bonCommande->client->nom_entreprise,
+        ],
+        'note_bonCommande' => $bonCommande->note_commande,
+        'prix_HT' => $bonCommande->prix_HT,
+        'prix_TTC' => $bonCommande->prix_TTC,
+        'reduction_bonCommande' => $bonCommande->reduction_commande,
+        'statut_bonCommande' => $bonCommande->statut_commande,
+        'nom_comptable' => $bonCommande->compteComptable->nom_compte_comptable ?? null,
+        'articles' => [],
+        'echeances' => [],
+        'nombre_echeance' => $bonCommande->echeances ? $bonCommande->echeances->count() : 0,
+        'active_Stock' => $bonCommande->active_Stock,
+    ];
+
+    // Vérifier si 'articles' est non nul et une collection
+    if ($bonCommande->articles && $bonCommande->articles->isNotEmpty()) {
+        foreach ($bonCommande->articles as $articlebonCommande) {
+            $response['articles'][] = [
+                'id_article' => $articlebonCommande->id_article,
+                'nom_article' => $articlebonCommande->article->nom_article,
+                'TVA' => $articlebonCommande->TVA_article,
+                'quantite_article' => $articlebonCommande->quantite_article,
+                'prix_unitaire_article' => $articlebonCommande->prix_unitaire_article,
+                'prix_total_tva_article' => $articlebonCommande->prix_total_tva_article,
+                'prix_total_article' => $articlebonCommande->prix_total_article,
+                'reduction_article' => $articlebonCommande->reduction_article,
+            ];
+        }
+    }
+
+    // Vérifier si 'echeances' est non nul et une collection
+    if ($bonCommande->echeances && $bonCommande->echeances->isNotEmpty()) {
+        foreach ($bonCommande->echeances as $echeance) {
+            $response['echeances'][] = [
+                'date_pay_echeance' => Carbon::parse($echeance->date_pay_echeance)->format('Y-m-d'),
+                'montant_echeance' => $echeance->montant_echeance,
+            ];
+        }
+    }
+
+    // Retourner la réponse JSON
+    return response()->json(['bonCommande_details' => $response], 200);
 }
 }

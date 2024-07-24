@@ -30,13 +30,13 @@ class BonCommande extends Model
 
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(Client::class, 'client_id');
     }
 
     // Relation avec les articles de la facture
     public function articles()
     {
-        return $this->hasMany(ArtcleFacture::class);
+        return $this->hasMany(ArticleBonCommande::class, 'id_BonCommande');
     }
     public function sousUtilisateur()
     {
@@ -50,7 +50,7 @@ class BonCommande extends Model
 
     public function echeances()
     {
-        return $this->hasMany(Echeance::class);
+        return $this->hasMany(Echeance::class, 'bonCommande_id');
     }
 
     public function compteComptable()
