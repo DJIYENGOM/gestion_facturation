@@ -330,8 +330,8 @@ foreach ($BonCommandes as $BonCommande) {
         'prix_Ht' => $BonCommande->prix_HT,
         'prix_Ttc' => $BonCommande->prix_TTC,
         'note_BonCommande' => $BonCommande->note_commande,
-        'prenom client' => $BonCommande->client->prenom_client, 
-        'nom client' => $BonCommande->client->nom_client, 
+        'prenom_client' => $BonCommande->client->prenom_client, 
+        'nom_client' => $BonCommande->client->nom_client, 
         'active_Stock' => $BonCommande->active_Stock,
         'reduction_commande' => $BonCommande->reduction_commande,
     ];
@@ -399,6 +399,7 @@ public function DetailsBonCommande($id)
 
     // Préparer la réponse
     $response = [
+        'id_bonCommande' => $bonCommande->id,
         'numero_bonCommande' => $bonCommande->num_commande,
         'date_creation' => $dateCreation->format('Y-m-d H:i:s'),
         'date_limite' => $bonCommande->date_limite_commande,
