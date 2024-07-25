@@ -30,8 +30,8 @@ class BonCommandeController extends Controller
             'active_Stock'=> 'nullable|in:oui,non',
             'statut_commande'=> 'nullable|in:en_attente,transformer,valider,annuler,brouillon',
             'echeances' => 'nullable|array',
-            'echeances.*.date_pay_echeance' => 'required|date',
-            'echeances.*.montant_echeance' => 'required|numeric|min:0',
+            'echeances.*.date_pay_echeance' => 'nullable|date',
+            'echeances.*.montant_echeance' => 'nullable|numeric|min:0',
 
             'articles' => 'required|array',
             'articles.*.id_article' => 'required|exists:articles,id',
