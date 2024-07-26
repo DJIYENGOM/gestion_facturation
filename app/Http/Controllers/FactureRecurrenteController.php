@@ -68,11 +68,8 @@ class FactureRecurrenteController extends Controller
             'user_id' => $userId,
         ]);
     
-        // Générer la première facture si ce n'est pas un brouillon
-        if ($request->type_reccurente == 'creer_brouillon') {
-            $this->genererFacture($factureRecurrente, $userId, $sousUtilisateurId, $request->articles, $request->input('date_debut'));
-        }else{
-            $typeDocument = 'facture';
+
+        $typeDocument = 'facture';
         $numFacture = NumeroGeneratorService::genererNumero($userId, $typeDocument);
     
         $facture = Facture::create([
@@ -101,55 +98,11 @@ class FactureRecurrenteController extends Controller
             'user_id' => $userId,
         ]);
 
-        }
+        
     
-        return response()->json(['message' => 'Facture récurrente créée avec succès', 'factureRecurrente' => $factureRecurrente], 201);
+        return response()->json(['message' => 'Facture récurrente créée avec succès', 'factureRecurrente' => $factureRecurrente, 'facture' => $facture], 201);
     }
-    
-    private function genererFacture($factureRecurrente, $userId, $sousUtilisateurId, $articles, $date)
-    {
-        // $typeDocument = 'facture';
-        // $numFacture = NumeroGeneratorService::genererNumero($userId, $typeDocument);
-    
-        $facture = Facture::create([
-            'client_id' => $factureRecurrente->client_id,
-            'date_creation' => now(),
-            'date_paiement' => $date,
-            'active_Stock' => $factureRecurrente->active_Stock ?? 'oui',
-            'prix_HT' => $factureRecurrente->prix_HT,
-            'prix_TTC' => $factureRecurrente->prix_TTC,
-            'note_fact' => $factureRecurrente->note_interne,
-            'archiver' => 'non',
-            'sousUtilisateur_id' => $sousUtilisateurId,
-            'user_id' => $userId,
-            'type_paiement' => 'echeance',
-            'statut_paiement' => 'brouillon',
-            'id_paiement' => null,
-            'id_recurrent' => $factureRecurrente->id,
-
-        ]);
-    
-        foreach ($articles as $articleData) {
-            ArtcleFacture::create([
-                'id_facture' => $facture->id,
-                'id_article' => $articleData['id_article'],
-                'quantite_article' => $articleData['quantite_article'],
-                'prix_unitaire_article' => $articleData['prix_unitaire_article'],
-                'TVA_article' => $articleData['TVA_article'] ?? 0,
-                'reduction_article' => $articleData['reduction_article'] ?? 0,
-                'prix_total_article' => $articleData['prix_total_article'] ?? 0,
-                'prix_total_tva_article' => $articleData['prix_total_tva_article'] ?? 0,
-            ]);
-        }
-    
-        Echeance::create([
-            'facture_id' => $facture->id,
-            'date_pay_echeance' => $facture->date_paiement,
-            'montant_echeance' => $facture->prix_TTC,
-            'sousUtilisateur_id' => $sousUtilisateurId,
-            'user_id' => $userId,
-        ]);
-    }
+ 
 
     public function listerToutesFacturesRecurrentes()
     {
