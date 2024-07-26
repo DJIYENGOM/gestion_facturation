@@ -46,7 +46,7 @@ class Livraison extends Model
     // Relation avec les articles de la facture
     public function articles()
     {
-        return $this->hasMany(ArtcleFacture::class);
+        return $this->hasMany(ArticleLivraison::class, 'id_livraison');
     }
     public function sousUtilisateur()
     {
@@ -58,10 +58,5 @@ class Livraison extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public static function generateNumLivraison($id)
-    {
-        $year = date('Y');
-        return 'L' . $year . '00' . $id;
-    }
 
 }

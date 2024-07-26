@@ -8,6 +8,7 @@ use App\Http\Controllers\PromoController;
 use App\Http\Controllers\SoldeController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\DepenseController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\EcheanceController;
@@ -74,6 +75,8 @@ Route::controller(PromoController::class)->group(function () {
     Route::post('modifierPromo/{id}', 'modifierPromo');
     Route::post('supprimerPromo/{id}', 'supprimerPromo');
 });
+
+Route::post('importArticle', [ArticleController::class, 'importArticle']);
 
 Route::post('ajouterArticle', [ArticleController::class, 'ajouterArticle']);
 Route::get('listerArticles', [ArticleController::class, 'listerArticles']);
@@ -210,6 +213,7 @@ Route::controller(LivraisonController::class)->group(function(){
     Route::post('PlanifierLivraison/{id}','PlanifierLivraison');
     Route::post('transformerLivraisonEnFacture/{id}','transformerLivraisonEnFacture');
     Route::post('RealiserLivraison/{id}','RealiserLivraison');
+    Route::post('DetailsLivraison/{id}','DetailsLivraison');
 });
 
 Route::post('configurerNumeros',[NumeroConfigurationController::class, 'configurerNumeros']);
@@ -236,5 +240,7 @@ Route::post('supprimerFactureRecurrente/{id}',[FactureRecurrenteController::clas
 Route::post('ajouterSolde/{clientId}',[SoldeController::class, 'ajouterSolde']);
 Route::post('ajouterCategorieDepense',[CategorieDepenseController::class, 'ajouterCategorieDepense']);
 Route::get('listerCategorieDepense',[CategorieDepenseController::class, 'listerCategorieDepense']);
+
+Route::post('creerDepense',[DepenseController::class, 'creerDepense']);
 
 Route::post('creerCommandeAchat',[CommandeAchatController::class, 'creerCommandeAchat']);

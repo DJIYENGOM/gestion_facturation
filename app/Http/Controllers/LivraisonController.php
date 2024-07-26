@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ArtcleFacture;
-use App\Models\ArticleLivraison;
-use App\Models\Echeance;
+use Carbon\Carbon;
 use App\Models\Facture;
-use App\Models\FactureAccompt;
+use App\Models\Echeance;
 use App\Models\Livraison;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\Models\ArtcleFacture;
+use App\Models\FactureAccompt;
+use App\Models\ArticleLivraison;
 use App\Services\NumeroGeneratorService;
+use Illuminate\Support\Facades\Validator;
 
 
 class LivraisonController extends Controller
@@ -64,7 +65,7 @@ class LivraisonController extends Controller
             'archiver' => 'non',
             'sousUtilisateur_id' => $sousUtilisateurId,
             'user_id' => $userId,
-            'numlivraison' => $numlivraison
+            'num_livraison' => $numlivraison
         ]);
     
         $livraison->save();
@@ -468,4 +469,61 @@ if ($validator->fails()) {
     return response()->json(['message' => 'Facture créée avec succès', 'facture' => $facture], 201);
 }
 
+public function DetailsLivraison($id)
+{
+    // Rechercher la facture par son numéro
+    $livraison = Livraison::where('id', $id)
+                ->with(['client', 'articles.article'])
+                ->first();
+
+    // Vérifier si la livraison existe
+    if (!$livraison) {
+        return response()->json(['error' => 'livraison non trouvée'], 404);
+    }
+
+    // Convertir date_creation en instance de Carbon si ce n'est pas déjà le cas
+    $date_livraison = Carbon::parse($livraison->date_livraison);
+
+    // Préparer la réponse
+    $response = [
+        'id_livraison' => $livraison->id,
+        'numero_livraison' => $livraison->num_livraison,
+        'date_livraison' => $date_livraison->format('Y-m-d H:i:s'),
+        'client' => [
+            'id' => $livraison->client->id,
+            'nom' => $livraison->client->nom_client,
+            'prenom' => $livraison->client->prenom_client,
+            'adresse' => $livraison->client->adress_client,
+            'telephone' => $livraison->client->tel_client,
+            'nom_entreprise'=> $livraison->client->nom_entreprise,
+        ],
+        'note_livraison' => $livraison->note_livraison,
+        'prix_HT' => $livraison->prix_HT,
+        'prix_TTC' => $livraison->prix_TTC,
+        'reduction_livraison' => $livraison->reduction_livraison,
+        'statut_livraison' => $livraison->statut_livraison,
+        'nom_comptable' => $livraison->compteComptable->nom_compte_comptable ?? null,
+        'articles' => [],
+        'active_Stock' => $livraison->active_Stock,
+    ];
+
+    // Vérifier si 'articles' est non nul et une collection
+    if ($livraison->articles && $livraison->articles->isNotEmpty()) {
+        foreach ($livraison->articles as $articlelivraison) {
+            $response['articles'][] = [
+                'id_article' => $articlelivraison->id_article,
+                'nom_article' => $articlelivraison->article->nom_article,
+                'TVA' => $articlelivraison->TVA_article,
+                'quantite_article' => $articlelivraison->quantite_article,
+                'prix_unitaire_article' => $articlelivraison->prix_unitaire_article,
+                'prix_total_tva_article' => $articlelivraison->prix_total_tva_article,
+                'prix_total_article' => $articlelivraison->prix_total_article,
+                'reduction_article' => $articlelivraison->reduction_article,
+            ];
+        }
+    }
+
+    // Retourner la réponse JSON
+    return response()->json(['bonCommande_details' => $response], 200);
+}
 }
