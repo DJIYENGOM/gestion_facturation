@@ -215,12 +215,16 @@ class FactureAvoirController extends Controller
             $response[] = [
                 'id' => $facture->id,
                 'numero' => $facture->num_facture,
+                'date_creation' => $facture->date_creation,
                 'prenom_client' => $facture->client->prenom_client,
                 'nom_client' => $facture->client->nom_client,
                 'prix_HT' => $facture->prix_HT,
                 'prix_TTC' => $facture->prix_TTC,
                 'date' => $facture->date_creation,
-                'type'=> 'simple'
+                'statut_paiement' => $facture->statut_paiement,
+                'type_facture' => $facture->type_facture,
+                'note_fact' => $facture->note_fact,
+                'reduction_facture' => $facture->reduction_facture,
             ];
         }
     
@@ -235,7 +239,8 @@ class FactureAvoirController extends Controller
                 'date' => $facture->date,
                 'titre'=> $facture->titre,
                 'description'=> $facture->description,
-                'type'=> 'avoir'
+                'commentaire' => $facture->commentaire,
+                'type_facture' => $facture->type_facture,
             ];
         }
     
