@@ -225,6 +225,7 @@ class FactureAvoirController extends Controller
                 'type_facture' => $facture->type_facture,
                 'note_fact' => $facture->note_fact,
                 'reduction_facture' => $facture->reduction_facture,
+                'type'=> 'simple',
             ];
         }
     
@@ -241,6 +242,7 @@ class FactureAvoirController extends Controller
                 'description'=> $facture->description,
                 'commentaire' => $facture->commentaire,
                 'type_facture' => $facture->type_facture,
+                'type'=> 'avoir',
             ];
         }
     
@@ -380,6 +382,7 @@ class FactureAvoirController extends Controller
             $response['type_paiement'] = $facture->type_paiement;
             $response['moyen_paiement'] = $facture->paiement->nom_payement ?? null;
             $response['nombre_echeance'] = $facture->echeances ? $facture->echeances->count() : 0;
+            $response['type']='simple';
     
             // Ajouter les articles
             foreach ($facture->articles as $articleFacture) {
@@ -418,6 +421,8 @@ class FactureAvoirController extends Controller
             $response['titre'] = $facture->titre;
             $response['description'] = $facture->description;
             $response['commentaire'] = $facture->commentaire;
+            $response['doc_externe'] = $facture->doc_externe;
+            $response['type']='avoir';
             
             // Ajouter les articles
             foreach ($facture->articles as $articleFacture) {
