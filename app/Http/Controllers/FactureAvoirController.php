@@ -357,6 +357,7 @@ class FactureAvoirController extends Controller
     
         // Initialiser la réponse commune
         $response = [
+            'id' => $facture->id,
             'numero_facture' => $num_facture,
             'date_creation' => $facture->date_creation ? Carbon::parse($facture->date_creation)->format('Y-m-d H:i:s') : $facture->date,
             'client' => [
