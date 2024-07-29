@@ -12,7 +12,7 @@ class Depense extends Model
     protected $fillable = [
         'num_depense',
         'activation',
-        'categorie_depense_id',
+        'id_categorie_depense',
         'commentaire',
         'date_paiement',
         'tva_depense',
@@ -33,5 +33,36 @@ class Depense extends Model
         'sousUtilisateur_id',
         'user_id',
     ];
+
+    public function fournisseur()
+    {
+        return $this->belongsTo(Fournisseur::class, 'fournisseur_id');
+    }
+
+    public function paiement()
+    {
+        return $this->belongsTo(Payement::class, 'id_paiement');
+    }
+
+    public function categorieDepense()
+    {
+        return $this->belongsTo(CategorieDepense::class, 'id_categorie_depense');
+    }
+
+    public function compteComptable()
+    {
+        return $this->belongsTo(CompteComptable::class, 'id_compte_comptable');
+    }
+
+
+    public function sousUtilisateur()
+    {
+        return $this->belongsTo(Sous_Utilisateur::class, 'sousUtilisateur_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
 

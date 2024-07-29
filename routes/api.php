@@ -242,5 +242,11 @@ Route::post('ajouterCategorieDepense',[CategorieDepenseController::class, 'ajout
 Route::get('listerCategorieDepense',[CategorieDepenseController::class, 'listerCategorieDepense']);
 
 Route::post('creerDepense',[DepenseController::class, 'creerDepense']);
+Route::get('listerDepenses',[DepenseController::class, 'listerDepenses']);
+Route::post('modifierDepense/{id}',[DepenseController::class, 'modifierDepense']);
+Route::delete('supprimerDepense/{id}',[DepenseController::class, 'supprimerDepense']);
 
 Route::post('creerCommandeAchat',[CommandeAchatController::class, 'creerCommandeAchat']);
+
+
+Route::post('ArreteCreationAutomatiqueFactureRecurrente',[FactureController::class, 'ArreteCreationAutomatiqueFactureRecurrente']);
