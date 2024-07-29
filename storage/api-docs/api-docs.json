@@ -23,6 +23,587 @@
         "multipart/form-data"
     ],
     "paths": {
+        "/api/listerFacturesRecurrentes": {
+            "get": {
+                "summary": "listerFacturesRecurrente",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "lister Factures Recurrente"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/creerCommandeAchat": {
+            "post": {
+                "summary": "creer Commande d'Achat",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des commandes d'Achat"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "activation": {
+                                        "type": "boolean"
+                                    },
+                                    "date_commandeAchat": {
+                                        "type": "string"
+                                    },
+                                    "date_livraison": {
+                                        "type": "string"
+                                    },
+                                    "fournisseur_id": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "depense_id": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "note_interne": {
+                                        "type": "string"
+                                    },
+                                    "titre": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "total_TTC": {
+                                        "type": "integer"
+                                    },
+                                    "type_reccurente": {
+                                        "type": "string"
+                                    },
+                                    "articles": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "activation": true,
+                                "date_commandeAchat": "2024-07-23",
+                                "date_livraison": "2024-07-23",
+                                "fournisseur_id": null,
+                                "depense_id": null,
+                                "note_interne": "Some notes about the facture",
+                                "titre": "jgjgkbnf",
+                                "description": "hfrfbrhb",
+                                "total_TTC": 25000,
+                                "type_reccurente": "creer_brouillon",
+                                "articles": [
+                                    {
+                                        "id_article": 1,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 5000,
+                                        "TVA_article": 50,
+                                        "reduction_article": 5,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    },
+                                    {
+                                        "id_article": 2,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 1000,
+                                        "TVA_article": 10,
+                                        "reduction_article": 50,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/supprimerDepense/{id}": {
+            "delete": {
+                "summary": "supprimer Depense",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des depenses"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/modifierDepense/{id}": {
+            "post": {
+                "summary": "modifier Depense",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des depenses"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "activation": {
+                                        "type": "boolean"
+                                    },
+                                    "id_categorie_depense": {
+                                        "type": "integer"
+                                    },
+                                    "date_paiement": {
+                                        "type": "string"
+                                    },
+                                    "commentaire": {
+                                        "type": "string"
+                                    },
+                                    "tva_depense": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "montant_depense_ht": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "montant_depense_ttc": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "num_facture": {
+                                        "type": "string"
+                                    },
+                                    "date_facture": {
+                                        "type": "string"
+                                    },
+                                    "fournisseur_id": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "statut_depense": {
+                                        "type": "string"
+                                    },
+                                    "id_paiement": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "doc_externe": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "plusieurs_paiement": {
+                                        "type": "boolean"
+                                    },
+                                    "duree_indeterminee": {
+                                        "type": "boolean"
+                                    },
+                                    "echeances": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "activation": true,
+                                "id_categorie_depense": 1,
+                                "date_paiement": "2024-07-23",
+                                "commentaire": "gbdhxdbdbbhei",
+                                "tva_depense": null,
+                                "montant_depense_ht": null,
+                                "montant_depense_ttc": null,
+                                "num_facture": "000020",
+                                "date_facture": "2024-06-21",
+                                "fournisseur_id": null,
+                                "statut_depense": "impayer",
+                                "id_paiement": null,
+                                "doc_externe": null,
+                                "plusieurs_paiement": true,
+                                "duree_indeterminee": false,
+                                "echeances": [
+                                    {
+                                        "date_pay_echeance": "2024-06-28",
+                                        "montant_echeance": 4000
+                                    },
+                                    {
+                                        "date_pay_echeance": "2024-07-28",
+                                        "montant_echeance": 5000
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/listerDepenses": {
+            "get": {
+                "summary": "lister les Depenses",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des depenses"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/creerDepense": {
+            "post": {
+                "summary": "creer Depense",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des depenses"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "activation": {
+                                        "type": "boolean"
+                                    },
+                                    "id_categorie_depense": {
+                                        "type": "integer"
+                                    },
+                                    "date_paiement": {
+                                        "type": "string"
+                                    },
+                                    "commentaire": {
+                                        "type": "string"
+                                    },
+                                    "tva_depense": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "montant_depense_ht": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "montant_depense_ttc": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "num_facture": {
+                                        "type": "string"
+                                    },
+                                    "date_facture": {
+                                        "type": "string"
+                                    },
+                                    "fournisseur_id": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "statut_depense": {
+                                        "type": "string"
+                                    },
+                                    "id_paiement": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "doc_externe": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "plusieurs_paiement": {
+                                        "type": "boolean"
+                                    },
+                                    "duree_indeterminee": {
+                                        "type": "boolean"
+                                    },
+                                    "echeances": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "activation": true,
+                                "id_categorie_depense": 1,
+                                "date_paiement": "2024-07-23",
+                                "commentaire": "gbdhxdbdbbhei",
+                                "tva_depense": null,
+                                "montant_depense_ht": null,
+                                "montant_depense_ttc": null,
+                                "num_facture": "000001",
+                                "date_facture": "2024-06-21",
+                                "fournisseur_id": null,
+                                "statut_depense": "impayer",
+                                "id_paiement": null,
+                                "doc_externe": null,
+                                "plusieurs_paiement": true,
+                                "duree_indeterminee": false,
+                                "echeances": [
+                                    {
+                                        "date_pay_echeance": "2024-06-28",
+                                        "montant_echeance": 4000
+                                    },
+                                    {
+                                        "date_pay_echeance": "2024-07-28",
+                                        "montant_echeance": 5000
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/listerCategorieDepense": {
             "get": {
                 "summary": "lister categories depenses",
@@ -275,9 +856,9 @@
                             "example": {
                                 "client_id": 1,
                                 "note_interne": "Some notes about the facture",
-                                "nombre_periode": 2,
+                                "nombre_periode": 1,
                                 "periode": "jour",
-                                "date_debut": "2024-07-09",
+                                "date_debut": "2024-07-27",
                                 "prix_HT": 20000,
                                 "prix_TTC": 25000,
                                 "type_reccurente": "creer_brouillon",
@@ -589,7 +1170,7 @@
                                 "titre": "grkgtbrkgjnrkj",
                                 "description": "zjnfjdfnjenfjfrh",
                                 "commentaire": "Some notes about the facture",
-                                "prix_HT": 20000,
+                                "prix_HT": 2000,
                                 "prix_TTC": 25000,
                                 "date": "2024-06-07",
                                 "articles": [
@@ -618,13 +1199,58 @@
                 }
             }
         },
+        "/api/InfoConfigurationDevis": {
+            "get": {
+                "summary": "Info Configuration devis",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "configurer Numeros"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/InfoConfigurationFacture": {
-            "post": {
+            "get": {
                 "summary": "Info Configuration Facture",
                 "description": "",
                 "responses": {
-                    "201": {
-                        "description": "Created successfully",
+                    "200": {
+                        "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {},
@@ -632,8 +1258,8 @@
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "404": {
+                        "description": "Not Found",
                         "content": {
                             "application/json": {
                                 "schema": {},
@@ -641,17 +1267,8 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "application/json": {
                                 "schema": {},
@@ -745,14 +1362,68 @@
                                 }
                             },
                             "example": {
-                                "type_document": "factureAccomp",
+                                "type_document": "devis",
                                 "type_numerotation": "par_defaut",
-                                "prefixe": "",
+                                "prefixe": "dev",
                                 "format": ""
                             }
                         }
                     }
                 }
+            }
+        },
+        "/api/DetailsLivraison/1": {
+            "post": {
+                "summary": "Details Livraison",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des livraisons"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
             }
         },
         "/api/transformerLivraisonEnFacture/{id}": {
@@ -1658,6 +2329,60 @@
                 ]
             }
         },
+        "/api/DetailsBonCommande/2": {
+            "post": {
+                "summary": "Details Bon Commande",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des Bons de commandes"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/supprimerBonCommande/{id}": {
             "post": {
                 "summary": "supprimer Bon Commande",
@@ -2096,6 +2821,60 @@
                 }
             }
         },
+        "/api/DetailsDevis/2": {
+            "post": {
+                "summary": "Details Devis",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des devis"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/listerToutesDevi": {
             "get": {
                 "summary": "lister Tous les Devi",
@@ -2259,7 +3038,7 @@
                 ]
             }
         },
-        "/api/TransformeDeviEnFacture/{deviId}": {
+        "/api/TransformeDeviEnFacture/2": {
             "post": {
                 "summary": "Transformer Devi En Facture",
                 "description": "",
@@ -2621,14 +3400,6 @@
                                     "articles": {
                                         "type": "string",
                                         "format": "binary"
-                                    },
-                                    "echeances": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "facture_accompts": {
-                                        "type": "string",
-                                        "format": "binary"
                                     }
                                 }
                             },
@@ -2657,21 +3428,6 @@
                                         "reduction_article": 0,
                                         "prix_total_article": 5000,
                                         "prix_total_tva_article": 8000
-                                    }
-                                ],
-                                "echeances": [
-                                    {
-                                        "date_pay_echeance": "2024-06-28",
-                                        "montant_echeance": 4000
-                                    }
-                                ],
-                                "facture_accompts": [
-                                    {
-                                        "titreAccomp": "accompt 1",
-                                        "dateAccompt": "2024-06-29",
-                                        "dateEcheance": "2024-06-29",
-                                        "montant": 2000,
-                                        "commentaire": "jrnvvvejrnjern"
                                     }
                                 ]
                             }
@@ -4062,6 +4818,60 @@
                 }
             }
         },
+        "/api/supprimerFacture": {
+            "delete": {
+                "summary": "supprimer Facture",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/listerToutesFacturesSimpleAvoir": {
             "get": {
                 "summary": "lister Toutes Factures Simple Avoir",
@@ -4107,7 +4917,7 @@
                 ]
             }
         },
-        "/api/DetailsFacture/3": {
+        "/api/DetailsFacture/000001": {
             "get": {
                 "summary": "details facture",
                 "description": "",
@@ -4146,7 +4956,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "id",
+                        "name": "factureId",
                         "type": "string"
                     },
                     {
@@ -4697,6 +5507,9 @@
                                     "client_id": {
                                         "type": "integer"
                                     },
+                                    "type": {
+                                        "type": "string"
+                                    },
                                     "note_fact": {
                                         "type": "string"
                                     },
@@ -4710,6 +5523,9 @@
                                         "type": "integer"
                                     },
                                     "type_paiement": {
+                                        "type": "string"
+                                    },
+                                    "id_recurrent": {
                                         "type": "string"
                                     },
                                     "id_paiement": {
@@ -4727,11 +5543,13 @@
                             },
                             "example": {
                                 "client_id": 1,
+                                "type": "simple",
                                 "note_fact": "Some notes about the facture",
                                 "reduction_facture": 1000,
                                 "prix_HT": 20000,
                                 "prix_TTC": 25000,
                                 "type_paiement": "facture_Accompt",
+                                "id_recurrent": "3",
                                 "id_paiement": 1,
                                 "articles": [
                                     {
@@ -6372,6 +7190,81 @@
                             "example": {
                                 "nom_categorie_article": "soin de visage",
                                 "type_categorie_article": "service"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/importArticle": {
+            "post": {
+                "summary": "import des Articles",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des articles"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "file": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
                             }
                         }
                     }
@@ -8509,8 +9402,8 @@
                                 }
                             },
                             "example": {
-                                "email": "admin@example.com",
-                                "password": "password"
+                                "email": "ibou@gmail.com",
+                                "password": "ciss123@"
                             }
                         }
                     }

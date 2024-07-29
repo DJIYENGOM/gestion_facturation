@@ -40,4 +40,9 @@ class Fournisseur extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function depenses()
+    {
+        return $this->hasMany(Depense::class, 'fournisseur_id');
+    }
 }

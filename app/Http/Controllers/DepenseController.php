@@ -28,8 +28,8 @@ class DepenseController extends Controller
             'nombre_periode' => 'required_if:duree_indeterminee,true|integer',
     
             'echeances' => 'nullable|required_if:plusieurs_paiement,true|array',
-            'echeances.*.date_pay_echeance' => 'required|date',
-            'echeances.*.montant_echeance' => 'required|numeric|min:0',
+            'echeances.*.date_pay_echeance' => 'nullable|date',
+            'echeances.*.montant_echeance' => 'nullable|numeric|min:0',
     
             'doc_externe' => 'nullable|string|max:255',
             'num_facture' => 'nullable|string|max:255',

@@ -20,4 +20,9 @@ class CategorieDepense extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function depenses()
+    {
+        return $this->hasMany(Depense::class, 'id_categorie_depense');
+    }
 }
