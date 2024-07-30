@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('depenses', function (Blueprint $table) {
             $table->id();
-            $table->string('num_depense');
+            $table->string('num_depense')->nullable();
             $table->boolean('activation')->default(true);
             $table->text('commentaire')->nullable();
-            $table->date('date_paiement');
+            $table->date('date_paiement')->nullable();
             $table->integer('tva_depense')->nullable();
             $table->decimal('montant_depense_ht', 10, 2)->nullable();
             $table->decimal('montant_depense_ttc', 10, 2)->nullable();
