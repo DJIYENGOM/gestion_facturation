@@ -229,7 +229,7 @@ Route::controller(FactureAvoirController::class)->group(function(){
     Route::post('creerFactureAvoir','creerFactureAvoir');
     Route::get('listerToutesFacturesAvoirs','listerToutesFacturesAvoirs');
     Route::get('listerToutesFacturesSimpleAvoir','listerToutesFacturesSimpleAvoir');
-    Route::delete('supprimerFacture/{factureId}','supprimerFacture');
+    Route::delete('supprimerFacture/{num_facture}','supprimerFacture');
     
 });
 
