@@ -246,16 +246,22 @@ class FactureAvoirController extends Controller
             ];
         }
     
+        // Trier la collection fusionnée par date de création
+        usort($response, function ($a, $b) {
+            return strtotime($a['date']) - strtotime($b['date']);
+        });
+    
         return response()->json(['factures' => $response]);
     }
+    
 
-    public function supprimerFacture( $factureId)
+    public function supprimerFacture($num_facture)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user;
     
-            $facture = Facture::where('id', $factureId)
+            $facture = Facture::where('num_facture', $num_facture)
                 ->where(function($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
                           ->orWhere('user_id', $userId);
@@ -263,21 +269,26 @@ class FactureAvoirController extends Controller
                 ->first();
     
             if ($facture) {
-                if ($facture->type_facture === 'simple') {
                     $facture->delete();
                     return response()->json(['message' => 'Facture simple supprimée avec succès.']);
-                } elseif ($facture->type_facture === 'avoir') {
-                    $factureAvoir = FactureAvoir::find($factureId);
-                    if ($factureAvoir) {
+                } 
+                
+            $factureAvoir = FactureAvoir::where('num_facture', $num_facture)
+                ->where(function($query) use ($sousUtilisateurId, $userId) {
+                    $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                          ->orWhere('user_id', $userId);
+                })
+                ->first();
+                if ($factureAvoir) {
                         $factureAvoir->delete();
                         return response()->json(['message' => 'Facture d\'avoir supprimée avec succès.']);
                     }
-                }
+                
             }
-        } elseif (auth()->check()) {
+         elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $facture = Facture::where('id', $factureId)
+            $facture = Facture::where('num_facture', $num_facture)
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                     $query->where('id_user', $userId);
@@ -285,18 +296,24 @@ class FactureAvoirController extends Controller
                 ->first();
     
             if ($facture) {
-                if ($facture->type_facture === 'simple') {
                     $facture->delete();
                     return response()->json(['message' => 'Facture simple supprimée avec succès.']);
-                } elseif ($facture->type_facture === 'avoir') {
-                    $factureAvoir = FactureAvoir::find($factureId);
-                    if ($factureAvoir) {
+                } 
+
+            $factureAvoir = FactureAvoir::where('num_facture', $num_facture)
+                ->where('user_id', $userId)
+                ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                    $query->where('id_user', $userId);
+                })
+                ->first();
+
+                if ($factureAvoir) {
                         $factureAvoir->delete();
                         return response()->json(['message' => 'Facture d\'avoir supprimée avec succès.']);
                     }
-                }
+                
             }
-        } else {
+         else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
