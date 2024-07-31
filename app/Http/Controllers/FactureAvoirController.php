@@ -82,6 +82,8 @@ class FactureAvoirController extends Controller
         ]);
     
         $factureAvoir->save();
+        NumeroGeneratorService::incrementerCompteur($userId, 'facture');
+
     
         // Ajouter les articles à la facture
         foreach ($request->articles as $articleData) {

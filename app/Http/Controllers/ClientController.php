@@ -18,7 +18,7 @@ class ClientController extends Controller
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur_id = auth('apisousUtilisateur')->id();
-            $user_id = null;
+            $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
         } elseif (auth()->check()) {
             $user_id = auth()->id();
             $sousUtilisateur_id = null;
@@ -112,7 +112,8 @@ class ClientController extends Controller
         ]);
     
         $client->save();
-    
+        NumeroGeneratorService::incrementerCompteur($userId, 'client');
+
         return response()->json(['message' => 'Client ajouté avec succès', 'client' => $client]);
     }
     

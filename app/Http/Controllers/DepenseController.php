@@ -79,13 +79,14 @@ class DepenseController extends Controller
                     'sousUtilisateur_id' => $sousUtilisateurId,
                     'user_id' => $userId,
                 ]);
+                NumeroGeneratorService::incrementerCompteur($userId, 'depense');
+
             }
         } else {
-            $typeDocument = 'depense';
-        $numdepense = NumeroGeneratorService::genererNumero($userId, $typeDocument);
+            $numero = NumeroGeneratorService::genererNumero($userId, 'depense');
     
             $depense = Depense::create([
-                'num_depense' =>  $request->num_depense ?? $numdepense,
+                'num_depense' =>  $request->num_depense ?? $numero,
                 'activation' => $request->input('activation', true),
                 'id_categorie_depense' => $request->id_categorie_depense,
                 'commentaire' => $request->input('commentaire'),
@@ -106,6 +107,9 @@ class DepenseController extends Controller
                 'sousUtilisateur_id' => $sousUtilisateurId,
                 'user_id' => $userId,
             ]);
+
+            NumeroGeneratorService::incrementerCompteur($userId, 'depense');
+
         }
     
         return response()->json(['message' => 'Dépense créée avec succès', 'depense' => $depense], 201);

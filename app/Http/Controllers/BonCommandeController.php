@@ -76,6 +76,8 @@ class BonCommandeController extends Controller
         ]);
     
         $commande->save();
+        NumeroGeneratorService::incrementerCompteur($userId, 'commande');
+
     
         // Ajouter les articles à la facture
         foreach ($request->articles as $articleData) {

@@ -15,7 +15,7 @@ class FournisseurController extends Controller
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur_id = auth('apisousUtilisateur')->id();
-            $user_id = null;
+            $userId = auth('apisousUtilisateur')->user()->id_user;
         } elseif (auth()->check()) {
             $user_id = auth()->id();
             $sousUtilisateur_id = null;
@@ -103,7 +103,8 @@ class FournisseurController extends Controller
         ]);
     
         $fournisseur->save();
-    
+        NumeroGeneratorService::incrementerCompteur($userId, 'fournisseur');
+
         return response()->json(['message' => 'fournisseur ajouté avec succès', 'fournisseur' => $fournisseur]);
     }
 

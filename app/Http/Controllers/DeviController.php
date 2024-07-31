@@ -85,7 +85,8 @@ class DeviController extends Controller
         ]);
         
             $devi->save();
-    
+            NumeroGeneratorService::incrementerCompteur($userId, 'devis');
+
         // Ajouter les articles à la facture
         foreach ($request->articles as $articleData) {
             $quantite = $articleData['quantite_article'];

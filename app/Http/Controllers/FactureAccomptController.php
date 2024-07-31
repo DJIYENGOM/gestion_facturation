@@ -63,6 +63,7 @@ public function creerFactureAccomp(Request $request)
         'sousUtilisateur_id' => $sousUtilisateurId,
         'user_id' => $userId,
     ]);
+    NumeroGeneratorService::incrementerCompteur($userId, 'facture');
 
     // Créer une échéance associée
     Echeance::create([

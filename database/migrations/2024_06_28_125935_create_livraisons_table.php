@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('livraisons', function (Blueprint $table) {
             $table->id();
-            $table->string('num_livraison')->nullable()->unique();
-            $table->date('date_livraison');
+            $table->string('num_livraison')->nullable();
             $table->string('titre')->nullable();
             $table->string('description')->nullable();
             $table->decimal('prix_HT')->nullable();
