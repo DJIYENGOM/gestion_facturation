@@ -24,8 +24,8 @@ class DepenseController extends Controller
             'montant_depense_ttc' => 'nullable|numeric',
             'plusieurs_paiement' => 'nullable|boolean',
             'duree_indeterminee' => 'nullable|boolean',
-            'periode_echeance' => 'required_if:duree_indeterminee,true|in:jour,mois,semaine',
-            'nombre_periode' => 'required_if:duree_indeterminee,true|integer',
+            'periode_echeance' =>' nullable|in:jour,mois,semaine',
+            'nombre_periode' => 'nullable|integer',
     
             'echeances' => 'nullable|required_if:plusieurs_paiement,true|array',
             'echeances.*.date_pay_echeance' => 'nullable|date',
