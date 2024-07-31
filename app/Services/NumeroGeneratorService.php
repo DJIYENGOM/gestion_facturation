@@ -17,7 +17,7 @@ class NumeroGeneratorService
         // Si aucune configuration n'est trouvée, retourner null ou générer une exception selon le besoin
         if (!$configuration) {
             return "pas de numero";
-        }else{
+        }
 
         // Générer le numéro en fonction de la configuration
         $numero = '';
@@ -38,14 +38,21 @@ class NumeroGeneratorService
             }
         }
 
-        // Incrémenter le compteur
-        $configuration->compteur++;
-        $configuration->save(); // Sauvegarder la configuration mise à jour
-
         // Ajouter le compteur au numéro
         $numero .= str_pad($configuration->compteur, 6, '0', STR_PAD_LEFT);
 
         return $numero;
     }
+
+    public static function incrementerCompteur($userId, $typeDocument)
+    {
+        $configuration = NumeroConfiguration::where('user_id', $userId)
+                                            ->where('type_document', $typeDocument)
+                                            ->first();
+
+        if ($configuration) {
+            $configuration->compteur++;
+            $configuration->save();
+        }
     }
 }

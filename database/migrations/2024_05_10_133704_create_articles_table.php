@@ -26,6 +26,8 @@ return new class extends Migration
             $table->decimal('tva', 5, 2)->nullable();
             $table->decimal('benefice_promo')->nullable();
             $table->integer('quantite_alert')->nullable();
+            $table->enum('active_Stock', ['non', 'oui'])->default('non');
+            $table->integer('quantite_disponible')->nullable();
             $table->enum('type_article', ['produit', 'service']);
             $table->enum('unité', ['unite', 'kg', 'g', 'tonne', 'cm', 'l', 'm', 'm2','m3','h','jour','semaine','mois'])->nullable();
             $table->foreignId('promo_id')->nullable()->constrained('promos')->onDelete('set null')->nullable();

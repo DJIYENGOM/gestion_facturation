@@ -28,6 +28,8 @@ class Article extends Model
         'benefice_promo', 
         'promo_id',
         'quantite_alert', 
+        'active_Stock',
+        'quantite_disponible',
         'sousUtilisateur_id','user_id','id_categorie_article'];
 
 

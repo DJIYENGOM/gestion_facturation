@@ -1,20 +1,23 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\Storage;
-use App\Models\Article;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
-use App\Models\Promo;
-use Illuminate\Http\Request;
-use App\Models\NoteJustificative;
-use App\Models\CompteComptable;
 use App\Models\Lot;
+use App\Models\Promo;
+use App\Models\Article;
 use App\Models\Variante;
 use App\Models\AutrePrix;
+use Illuminate\Http\Request;
+use App\Imports\ArticlesImport;
+use App\Models\CompteComptable;
 use App\Models\EntrepotArticle;
+use App\Models\NoteJustificative;
+use App\Models\Stock;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 use App\Services\NumeroGeneratorService;
-
+use Illuminate\Support\Facades\Validator;
 
 class ArticleController extends Controller
 {
@@ -29,7 +32,9 @@ class ArticleController extends Controller
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
+        
         $validator = Validator::make($request->all(), [
+            'nom_article' => 'required|string',
             'description' => 'nullable|string',
             'prix_unitaire' => 'required|numeric|min:0',
             'tva'=>'nullable|numeric|min:0',
@@ -47,6 +52,7 @@ class ArticleController extends Controller
             'autres_prix.*.titrePrix' => 'nullable|string|max:255',
             'autres_prix.*.montant' => 'nullable|numeric|min:0',
             'autres_prix.*.tva' => 'nullable|numeric|min:0|max:100',
+            'active_Stock' => 'nullable|in:oui,non',
             'variantes' => 'nullable|array',
             'variantes.*.nomVariante' => 'nullable|string|max:255',
             'variantes.*.quantiteVariante' => 'nullable|integer|min:0',
@@ -61,55 +67,26 @@ class ArticleController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
-        if('type_article'=='produit'){
-            $typeDocument = 'produit';
-            $numArticle = NumeroGeneratorService::genererNumero($user_id, $typeDocument);
-        }else{
-            $typeDocument = 'service';
-            $numArticle = NumeroGeneratorService::genererNumero($user_id, $typeDocument);
-        }
-       
     
-        $doc_externe = null;
-        if ($request->hasFile('doc_externe')) {
-            $doc_externe = $request->file('doc_externe')->store('file', 'public');
-        }
+        $typeDocument = $request->type_article == 'produit' ? 'produit' : 'service';
+        $numArticle = NumeroGeneratorService::genererNumero($user_id, $typeDocument);
     
-        $pourcentagePromo = null;
-        if ($request->promo_id) {
-            $promo = Promo::find($request->promo_id);
-            if ($promo) {
-                $pourcentagePromo = $promo->pourcentage_promo;
-            }
-        }
+        $doc_externe = $request->hasFile('doc_externe') ? $request->file('doc_externe')->store('file', 'public') : null;
     
-        $prixPromo = null;
-        if ($pourcentagePromo !== null) {
-            $prixPromo = $request->prix_unitaire * $pourcentagePromo;
-        }
-        $prixTva = null;
-        $tva=$request->tva;
-        if ($request->tva !== null) {
-            $prixTva = $request->prix_unitaire * ((100 + $tva) / 100);
-        }
-
-        if (!$request->has('id_comptable')) {
-            if ($request->type_article === 'produit') {
-                $compte = CompteComptable::where('nom_compte_comptable', 'Ventes de marchandises')
-                                         ->first();
-            } elseif ($request->type_article === 'service') {
-                $compte = CompteComptable::where('nom_compte_comptable', 'Prestations de services')
-                                         ->first();
-            }
+        $promo = $request->promo_id ? Promo::find($request->promo_id) : null;
+        $pourcentagePromo = $promo ? $promo->pourcentage_promo : null;
+        $prixPromo = $pourcentagePromo !== null ? $request->prix_unitaire * (1 - $pourcentagePromo / 100) : null;
+        $prixTva = $request->tva !== null ? $request->prix_unitaire * (1 + $request->tva / 100) : null;
     
+        $id_comptable = $request->id_comptable;
+        if (!$id_comptable) {
+            $compteNom = $request->type_article === 'produit' ? 'Ventes de marchandises' : 'Prestations de services';
+            $compte = CompteComptable::where('nom_compte_comptable', $compteNom)->first();
             if ($compte) {
                 $id_comptable = $compte->id;
             } else {
                 return response()->json(['error' => 'Compte comptable par défaut introuvable pour cet utilisateur'], 404);
             }
-        } else {
-            $id_comptable = $request->id_comptable;
         }
     
         $article = new Article();
@@ -131,12 +108,14 @@ class ArticleController extends Controller
         $article->prix_achat = $request->prix_achat;
         $article->quantite = $request->quantite;
         $article->quantite_alert = $request->quantite_alert;
+        $article->active_Stock = $request->active_Stock ?? 'non';
+        $article->quantite_disponible = $request->quantite ?? 0;
         $article->benefice = $request->prix_unitaire - $request->prix_achat;
         $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_achat : null;
-        
+    
         $article->save();
-     
-        if ($request->has('autres_prix')) {  
+    
+        if ($request->has('autres_prix')) {
             foreach ($request->autres_prix as $autre_prix) {
                 $autrePrix = new AutrePrix([
                     'article_id' => $article->id,
@@ -182,8 +161,92 @@ class ArticleController extends Controller
             }
         }
     
+        // Générer un num_stock unique pour chaque article
+        $numStock = Stock::where('article_id', $article->id)->max('num_stock') + 1;
+        $numStock = str_pad($numStock, 6, '0', STR_PAD_LEFT);
+    
+        if ($request->active_Stock === 'oui') {
+            if ($request->has('lots')) {
+                foreach ($request->lots as $lot) {
+                    $stock = new Stock();
+                   $stock->date_stock = now()->format('Y-m-d');
+                    $stock->num_stock = $numStock;
+                    $stock->libelle = $article->nom_article . ' - ' . $lot['nomLot'];
+                    $stock->disponible_avant = 0;
+                    $stock->modif = $lot['quantiteLot'];
+                    $stock->disponible_apres = $lot['quantiteLot'];
+                    $stock->article_id = $article->id;
+                    $stock->facture_id = null;
+                    $stock->bonCommande_id = null;
+                    $stock->livraison_id = null;
+                    $stock->sousUtilisateur_id = $sousUtilisateur_id;
+                    $stock->user_id = $user_id;
+                    $stock->save();
+                }
+            }
+    
+            if ($request->has('entrepots')) {
+                foreach ($request->entrepots as $entrepot) {
+                    $stock = new Stock();
+                   $stock->date_stock = now()->format('Y-m-d');
+                    $stock->num_stock = $numStock;
+                    $stock->libelle = $article->nom_article . ' - ' . $entrepot['entrepot_id'];
+                    $stock->disponible_avant = 0;
+                    $stock->modif = $entrepot['quantiteArt_entrepot'];
+                    $stock->disponible_apres = $entrepot['quantiteArt_entrepot'];
+                    $stock->article_id = $article->id;
+                    $stock->facture_id = null;
+                    $stock->bonCommande_id = null;
+                    $stock->livraison_id = null;
+                    $stock->sousUtilisateur_id = $sousUtilisateur_id;
+                    $stock->user_id = $user_id;
+                    $stock->save();
+                }
+            }
+    
+            if ($request->has('variantes')) {
+                foreach($request->variantes as $variante) {
+                    $stock = new Stock();
+                   $stock->date_stock = now()->format('Y-m-d');
+                    $stock->num_stock = $numStock;
+                    $stock->libelle = $article->nom_article . ' - ' . $variante['nomVariante'];
+                    $stock->disponible_avant = 0;
+                    $stock->modif = $variante['quantiteVariante'];
+                    $stock->disponible_apres = $variante['quantiteVariante'];
+                    $stock->article_id = $article->id;
+                    $stock->facture_id = null;
+                    $stock->bonCommande_id = null;
+                    $stock->livraison_id = null;
+                    $stock->sousUtilisateur_id = $sousUtilisateur_id;
+                    $stock->user_id = $user_id;
+                    $stock->save();
+                }
+            }
+    
+            if (!$request->has('lots') && !$request->has('variantes') && !$request->has('entrepots')) {
+                $stock = new Stock();
+               $stock->date_stock = now()->format('Y-m-d');
+                $stock->num_stock = $numStock; 
+                $stock->libelle = $article->nom_article. ' - original';
+                $stock->disponible_avant = 0;
+                $stock->modif = $article->quantite ?? 0;
+                $stock->disponible_apres = $article->quantite ?? 0;
+                $stock->article_id = $article->id;
+                $stock->facture_id = null;
+                $stock->bonCommande_id = null;
+                $stock->livraison_id = null;
+                $stock->sousUtilisateur_id = $sousUtilisateur_id;
+                $stock->user_id = $user_id;
+                $stock->save();
+            }
+        }
+    
         return response()->json(['message' => 'Article ajouté avec succès', 'article' => $article]);
     }
+    
+    
+    
+    
     
     
     
@@ -422,6 +485,7 @@ public function listerArticles()
 
     $articlesArray = $articles->map(function ($article) {
         $articleArray = $article->toArray();
+        $articleArray['quantite_disponible'] = $article->stocks->disponible_apres;
         $articleArray['nom_categorie'] = optional($article->categorieArticle)->nom_categorie;
         $articleArray['nom_comptable'] = optional($article->CompteComptable)->nom_compte_comptable;
         return $articleArray;
@@ -657,6 +721,46 @@ public function afficherArticleAvecPrix($articleId)
     ];
 
     return response()->json($response);
+}
+
+public function importArticle(Request $request)
+{
+
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = auth('apisousUtilisateur')->user()->id_user;
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $validator = Validator::make($request->all(), [
+        'file' => 'required|file|mimes:xlsx,xls'
+    ]);
+
+    $validator = Validator::make($request->all(), [
+        'file' => 'required|file|mimes:xlsx,xls'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    // Traitement du fichier avec capture des erreurs
+    try {
+        Excel::import(new ArticlesImport($user_id, $sousUtilisateur_id), $request->file('file'));
+        return response()->json(['message' => 'Articles imported successfully']);
+    } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        $failures = $e->failures();
+
+        foreach ($failures as $failure) {
+            Log::error('Row ' . $failure->row() . ' has errors: ' . json_encode($failure->errors()));
+        }
+
+        return response()->json(['errors' => $failures], 422);
+    }
 }
 
 }
