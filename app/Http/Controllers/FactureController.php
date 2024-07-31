@@ -7,6 +7,7 @@ use App\Models\ArtcleFacture;
 use Illuminate\Http\Request;
 use App\Models\Echeance;
 use App\Models\FactureAccompt;
+use App\Models\FactureRecurrente;
 use App\Models\PaiementRecu;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -27,6 +28,7 @@ class FactureController extends Controller
             'active_Stock'=> 'nullable|in:oui,non',
             'prix_HT'=> 'required|numeric',
             'prix_TTC'=>'required|numeric',
+            'id_recurrent'=> 'nullable|exists:facture_recurrentes,id',
             'type_paiement' => 'required|in:immediat,echeance,facture_Accompt',
             'id_paiement' => 'nullable|required_if:type_paiement,immediat|exists:payements,id',
             'echeances' => 'nullable|required_if:type_paiement,echeance|array',
@@ -87,10 +89,12 @@ class FactureController extends Controller
             'type_paiement' => $request->input('type_paiement'),
             'statut_paiement' => $statutPaiement,
             'id_paiement' => $request->type_paiement == 'immediat' ? $request->id_paiement : null,
+            'id_recurrent' => $request->input('id_recurrent'),
         ]);
     
         $facture->save();
-    
+        NumeroGeneratorService::incrementerCompteur($userId, 'facture');
+
         // Ajouter les articles à la facture
         foreach ($request->articles as $articleData) {
             $quantite = $articleData['quantite_article'];
@@ -435,6 +439,20 @@ public function listeFactureParClient($clientId){
     }
 
     return response()->json(['factures_Payer' => $factures], 200);
+}
+
+public function listerFacturesRecurrentes()
+{
+
+    return response()->json(['factures_Payer' => FactureRecurrente::all()], 200);
+}
+
+public function ArreteCreationAutomatiqueFactureRecurrente($id)
+{
+    $facture = Facture::find($id);
+    $facture->id_recurrent = null;
+    $facture->save();
+    return response()->json(['message' => 'Creation automatique de facture recurrente arreter avec succes.'], 200); 
 }
 
 }
