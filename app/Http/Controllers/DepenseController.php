@@ -154,6 +154,7 @@ class DepenseController extends Controller
                 'date_facture' => $depense->date_facture,
                 'statut_depense' => $depense->statut_depense,
                 'fournisseur_id' => $depense->fournisseur_id,
+                'categorie_depense_id' => $depense->id_categorie_depense,
                 'nom_categorie_depense' => $depense->categorieDepense ? $depense->categorieDepense->nom_categorie_depense : null,
                 'nom_fournisseur' => $depense->fournisseur ? $depense->fournisseur->nom : null,
                 'prenom_fournisseur' => $depense->fournisseur ? $depense->fournisseur->prenom : null,
