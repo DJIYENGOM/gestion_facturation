@@ -15,6 +15,7 @@ class DepenseController extends Controller
     {
         // Valider les données entrantes
         $validator = Validator::make($request->all(), [
+            'num_depense' => 'nullable|string',
             'activation' => 'boolean',
             'id_categorie_depense' => 'required|exists:categorie_depenses,id',
             'commentaire' => 'nullable|string',
@@ -56,12 +57,10 @@ class DepenseController extends Controller
     
         
         if ($request->plusieurs_paiement == true) {
-            foreach ($request->echeances as $echeanceData) {
-                $typeDocument = 'depense';
-        $numdepense = NumeroGeneratorService::genererNumero($userId, $typeDocument);
-    
+            foreach ($request->echeances as $index => $echeanceData) {
+        
                 $depense = Depense::create([
-                    'num_depense' => $numdepense,
+                    'num_depense' => $request->num_depense. '-' .($index + 1),
                     'activation' => $request->input('activation', true),
                     'commentaire' => $request->input('commentaire'),
                     'date_paiement' => $echeanceData['date_pay_echeance'] ?? $request->date_paiement,
@@ -86,7 +85,7 @@ class DepenseController extends Controller
         $numdepense = NumeroGeneratorService::genererNumero($userId, $typeDocument);
     
             $depense = Depense::create([
-                'num_depense' => $numdepense,
+                'num_depense' =>  $request->num_depense ?? $numdepense,
                 'activation' => $request->input('activation', true),
                 'id_categorie_depense' => $request->id_categorie_depense,
                 'commentaire' => $request->input('commentaire'),
@@ -170,6 +169,7 @@ class DepenseController extends Controller
     {
         // Valider les données entrantes
         $validator = Validator::make($request->all(), [
+            'num_depense' => 'nullable|string|max:255',
             'activation' => 'boolean',
             'id_categorie_depense' => 'required|exists:categorie_depenses,id',
             'commentaire' => 'nullable|string',
