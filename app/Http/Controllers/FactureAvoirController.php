@@ -263,10 +263,10 @@ class FactureAvoirController extends Controller
                 ->first();
     
             if ($facture) {
-                if ($facture->type === 'simple') {
+                if ($facture->type_facture === 'simple') {
                     $facture->delete();
                     return response()->json(['message' => 'Facture simple supprimée avec succès.']);
-                } elseif ($facture->type === 'avoir') {
+                } elseif ($facture->type_facture === 'avoir') {
                     $factureAvoir = FactureAvoir::find($factureId);
                     if ($factureAvoir) {
                         $factureAvoir->delete();
@@ -285,10 +285,10 @@ class FactureAvoirController extends Controller
                 ->first();
     
             if ($facture) {
-                if ($facture->type === 'simple') {
+                if ($facture->type_facture === 'simple') {
                     $facture->delete();
                     return response()->json(['message' => 'Facture simple supprimée avec succès.']);
-                } elseif ($facture->type === 'avoir') {
+                } elseif ($facture->type_facture === 'avoir') {
                     $factureAvoir = FactureAvoir::find($factureId);
                     if ($factureAvoir) {
                         $factureAvoir->delete();
@@ -299,7 +299,7 @@ class FactureAvoirController extends Controller
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-    
+
         return response()->json(['error' => 'Facture non trouvée.'], 404);
     }
     
