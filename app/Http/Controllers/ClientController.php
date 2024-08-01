@@ -10,7 +10,9 @@ use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\CompteComptable;
 use App\Services\NumeroGeneratorService;
-
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ClientsImport;
 
 class ClientController extends Controller
 {
@@ -20,7 +22,7 @@ class ClientController extends Controller
             $sousUtilisateur_id = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
         } elseif (auth()->check()) {
-            $user_id = auth()->id();
+            $userId = auth()->id();
             $sousUtilisateur_id = null;
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
@@ -81,7 +83,7 @@ class ClientController extends Controller
         }
     
         $typeDocument = 'client';
-        $numClient= NumeroGeneratorService::genererNumero($user_id, $typeDocument);
+        $numClient= NumeroGeneratorService::genererNumero($userId, $typeDocument);
     
         $client = new Client([
             'num_client' => $numClient,
@@ -106,7 +108,7 @@ class ClientController extends Controller
             'email_destinataire' => $request->email_destinataire,
             'infoSupplemnt' => $request->infoSupplemnt,
             'sousUtilisateur_id' => $sousUtilisateur_id,
-            'user_id' => $user_id,
+            'user_id' => $userId,
             'categorie_id' => $request->categorie_id,
             'id_comptable' => $id_comptable,
         ]);
@@ -255,5 +257,40 @@ public function supprimerClient($id)
         return response()->json(['error' => 'Unauthorizedd'], 401);
     }
 
+}
+
+public function import(Request $request)
+{
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = auth('apisousUtilisateur')->user()->id_user;
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $validator = Validator::make($request->all(), [
+        'file' => 'required|file|mimes:xlsx,xls'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    // Traitement du fichier avec capture des erreurs
+    try {
+        Excel::import(new ClientsImport($user_id, $sousUtilisateur_id), $request->file('file'));
+        return response()->json(['message' => 'Clients importés avec succes']);
+    } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        $failures = $e->failures();
+
+        foreach ($failures as $failure) {
+            Log::error('Row ' . $failure->row() . ' has errors: ' . json_encode($failure->errors()));
+        }
+
+        return response()->json(['errors' => $failures], 422);
+    }
 }
 }
