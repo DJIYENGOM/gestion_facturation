@@ -259,7 +259,7 @@ public function supprimerClient($id)
 
 }
 
-public function import(Request $request)
+public function importClient(Request $request)
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateur_id = auth('apisousUtilisateur')->id();
@@ -279,9 +279,15 @@ public function import(Request $request)
         return response()->json(['errors' => $validator->errors()], 422);
     }
 
+    $compte = CompteComptable::where('nom_compte_comptable', 'Clients divers')
+                                         ->first();
+            if ($compte) {
+                $id_comptable = $compte->id;
+            }
+
     // Traitement du fichier avec capture des erreurs
     try {
-        Excel::import(new ClientsImport($user_id, $sousUtilisateur_id), $request->file('file'));
+        Excel::import(new ClientsImport($user_id, $sousUtilisateur_id, $id_comptable), $request->file('file'));
         return response()->json(['message' => 'Clients importés avec succes']);
     } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
         $failures = $e->failures();

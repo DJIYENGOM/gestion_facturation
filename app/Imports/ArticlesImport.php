@@ -20,7 +20,7 @@ class ArticlesImport implements ToModel, WithValidation, WithHeadingRow
 
     public function model(array $row)
     {
-        Log::info('Importing article:', $row);
+        //Log::info('Importing article:', $row);
 
         return new Article([
             'num_article' => $row['code'] ?? null,

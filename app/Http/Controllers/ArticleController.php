@@ -740,10 +740,6 @@ public function importArticle(Request $request)
         'file' => 'required|file|mimes:xlsx,xls'
     ]);
 
-    $validator = Validator::make($request->all(), [
-        'file' => 'required|file|mimes:xlsx,xls'
-    ]);
-
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 422);
     }
