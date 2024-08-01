@@ -111,6 +111,7 @@ Route::controller(ClientController::class)->group(function () {
     Route::post('modifierClient/{id}', 'modifierClient');
     Route::delete('supprimerClient/{id}', 'supprimerClient');
     Route::post('importClient', 'importClient');
+    Route::post('exportClients', 'exportClients');
 
 });
 

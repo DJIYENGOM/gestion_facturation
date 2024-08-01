@@ -13,6 +13,7 @@ use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ClientsImport;
+use App\Exports\ClientsExport;
 
 class ClientController extends Controller
 {
@@ -299,4 +300,18 @@ public function importClient(Request $request)
         return response()->json(['errors' => $failures], 422);
     }
 }
+
+public function exportClients()
+{
+
+    /**
+     * Exporter les clients en fichier Excel.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+
+    return Excel::download(new ClientsExport, 'clients.xlsx');
+
+}
+
 }
