@@ -18,6 +18,12 @@ class NumeroGeneratorService
         if (!$configuration) {
             return "pas de numero";
         }
+        
+        // Si le compteur est à 0, initialiser à 1
+        if ($configuration->compteur == 0) {
+            $configuration->compteur = 1;
+            $configuration->save();
+        }
 
         // Générer le numéro en fonction de la configuration
         $numero = '';
