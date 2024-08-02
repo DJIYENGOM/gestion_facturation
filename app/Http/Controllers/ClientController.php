@@ -280,21 +280,14 @@ public function importClient(Request $request)
         return response()->json(['errors' => $validator->errors()], 422);
     }
 
-    $compte = CompteComptable::where('nom_compte_comptable', 'Clients divers')
-                                         ->first();
-            if ($compte) {
-                $id_comptable = $compte->id;
-            }else {
-                $id_comptable = null;
-            }
-    $numClient= NumeroGeneratorService::genererNumero($user_id, 'client');
-            // Traitement du fichier avec capture des erreurs
-    try {
-        Excel::import(new ClientsImport($user_id, $sousUtilisateur_id, $id_comptable, $numClient), $request->file('file'));
-        
-        NumeroGeneratorService::incrementerCompteur($user_id, 'client');
+    $compte = CompteComptable::where('nom_compte_comptable', 'Clients divers')->first();
+    $id_comptable = $compte ? $compte->id : null;
 
-        return response()->json(['message' => 'Clients importés avec succes']);
+    // Traitement du fichier avec capture des erreurs
+    try {
+        Excel::import(new ClientsImport($user_id, $sousUtilisateur_id, $id_comptable), $request->file('file'));
+        
+        return response()->json(['message' => 'Clients importés avec succès']);
     } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
         $failures = $e->failures();
 
@@ -305,6 +298,7 @@ public function importClient(Request $request)
         return response()->json(['errors' => $failures], 422);
     }
 }
+
 
 public function exportClients()
 {

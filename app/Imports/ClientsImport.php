@@ -3,32 +3,37 @@
 namespace App\Imports;
 
 use App\Models\Client;
-use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\ToModel;
+use App\Services\NumeroGeneratorService;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
 
 class ClientsImport implements ToModel, WithHeadingRow, WithValidation
 {
     protected $user_id;
     protected $sousUtilisateur_id;
     protected $id_comptable;
-    protected $numClient;
 
-    public function __construct($user_id, $sousUtilisateur_id, $id_comptable, $numClient)
+    public function __construct($user_id, $sousUtilisateur_id, $id_comptable)
     {
         $this->user_id = $user_id;
         $this->sousUtilisateur_id = $sousUtilisateur_id;
         $this->id_comptable = $id_comptable;
-        $this->numClient = $numClient;
     }
 
     public function model(array $row)
     {
-       // Log::info('Importing client:', $row);
+
+           // Log::info('Importing client:', $row);
+
+        $numClient = NumeroGeneratorService::genererNumero($this->user_id, 'client');
+
+        NumeroGeneratorService::incrementerCompteur($this->user_id, 'client');
+
 
         return new Client([
-            'num_client' => $this->numClient,
+            'num_client' => $numClient,
             'nom_client' => $row['nom'] ?? null,
             'prenom_client' => $row['prenom'] ?? null,
             'nom_entreprise' => $row['nom_entreprise'] ?? null,
@@ -54,6 +59,8 @@ class ClientsImport implements ToModel, WithHeadingRow, WithValidation
             'categorie_id' => null,
             'id_comptable' => $this->id_comptable,
         ]);
+
+
     }
 
     public function rules(): array
