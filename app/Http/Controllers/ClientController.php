@@ -284,11 +284,13 @@ public function importClient(Request $request)
                                          ->first();
             if ($compte) {
                 $id_comptable = $compte->id;
+            }else {
+                $id_comptable = null;
             }
-
-    // Traitement du fichier avec capture des erreurs
+    $numClient= NumeroGeneratorService::genererNumero($user_id, 'clients');
+            // Traitement du fichier avec capture des erreurs
     try {
-        Excel::import(new ClientsImport($user_id, $sousUtilisateur_id, $id_comptable), $request->file('file'));
+        Excel::import(new ClientsImport($user_id, $sousUtilisateur_id, $id_comptable, $numClient), $request->file('file'));
         return response()->json(['message' => 'Clients importés avec succes']);
     } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
         $failures = $e->failures();

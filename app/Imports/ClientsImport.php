@@ -13,12 +13,14 @@ class ClientsImport implements ToModel, WithHeadingRow, WithValidation
     protected $user_id;
     protected $sousUtilisateur_id;
     protected $id_comptable;
+    protected $numClient;
 
-    public function __construct($user_id, $sousUtilisateur_id, $id_comptable)
+    public function __construct($user_id, $sousUtilisateur_id, $id_comptable, $numClient)
     {
         $this->user_id = $user_id;
         $this->sousUtilisateur_id = $sousUtilisateur_id;
         $this->id_comptable = $id_comptable;
+        $this->numClient = $numClient;
     }
 
     public function model(array $row)
@@ -26,7 +28,7 @@ class ClientsImport implements ToModel, WithHeadingRow, WithValidation
        // Log::info('Importing client:', $row);
 
         return new Client([
-            'num_client' => $row['code'] ?? null,
+            'num_client' => $this->numClient,
             'nom_client' => $row['nom'] ?? null,
             'prenom_client' => $row['prenom'] ?? null,
             'nom_entreprise' => $row['nom_entreprise'] ?? null,
@@ -57,7 +59,6 @@ class ClientsImport implements ToModel, WithHeadingRow, WithValidation
     public function rules(): array
     {
         return [
-            'code' => 'required|unique:clients,num_client',
             'email_client' => 'required|email',
         ];
     }
@@ -65,8 +66,6 @@ class ClientsImport implements ToModel, WithHeadingRow, WithValidation
     public function customValidationMessages()
     {
         return [
-            'code.required' => 'Le code est obligatoire.',
-            'code.unique' => 'Le code doit être unique.',
             'email_client.required' => 'L\'email est obligatoire.',
             'email_client.email' => 'L\'email doit être valide.',
         ];

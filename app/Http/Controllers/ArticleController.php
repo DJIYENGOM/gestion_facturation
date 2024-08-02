@@ -744,9 +744,17 @@ public function importArticle(Request $request)
         return response()->json(['errors' => $validator->errors()], 422);
     }
 
+    $compte = CompteComptable::where('nom_compte_comptable', 'Ventes de marchandises')->first();
+    if ($compte) {
+        $id_comptable = $compte->id;
+    } else {
+        $id_comptable = null;
+    }
+    $numArticle= NumeroGeneratorService::genererNumero($user_id, 'produit');
+
     // Traitement du fichier avec capture des erreurs
     try {
-        Excel::import(new ArticlesImport($user_id, $sousUtilisateur_id), $request->file('file'));
+        Excel::import(new ArticlesImport($user_id, $sousUtilisateur_id, $id_comptable, $numArticle), $request->file('file'));
         return response()->json(['message' => 'Articles imported successfully']);
     } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
         $failures = $e->failures();
