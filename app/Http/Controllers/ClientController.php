@@ -287,7 +287,7 @@ public function importClient(Request $request)
             }else {
                 $id_comptable = null;
             }
-    $numClient= NumeroGeneratorService::genererNumero($user_id, 'clients');
+    $numClient= NumeroGeneratorService::genererNumero($user_id, 'client');
             // Traitement du fichier avec capture des erreurs
     try {
         Excel::import(new ClientsImport($user_id, $sousUtilisateur_id, $id_comptable, $numClient), $request->file('file'));
