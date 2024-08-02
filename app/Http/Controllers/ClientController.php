@@ -291,6 +291,9 @@ public function importClient(Request $request)
             // Traitement du fichier avec capture des erreurs
     try {
         Excel::import(new ClientsImport($user_id, $sousUtilisateur_id, $id_comptable, $numClient), $request->file('file'));
+        
+        NumeroGeneratorService::incrementerCompteur($user_id, 'client');
+
         return response()->json(['message' => 'Clients importés avec succes']);
     } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
         $failures = $e->failures();

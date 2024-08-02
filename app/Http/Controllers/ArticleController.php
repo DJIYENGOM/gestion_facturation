@@ -239,8 +239,10 @@ class ArticleController extends Controller
                 $stock->user_id = $user_id;
                 $stock->save();
             }
+
         }
-    
+        NumeroGeneratorService::incrementerCompteur($user_id, 'produit');
+
         return response()->json(['message' => 'Article ajouté avec succès', 'article' => $article]);
     }
     
