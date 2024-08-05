@@ -385,6 +385,9 @@ public function exportClients()
     $fileName = 'clients.xlsx';
 
     // Définir les en-têtes HTTP pour le téléchargement
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization');
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment;filename="' . $fileName . '"');
     header('Cache-Control: max-age=0');
