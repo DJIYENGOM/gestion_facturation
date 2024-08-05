@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 use App\Models\Lot;
 use App\Models\Promo;
+use App\Models\Stock;
 use App\Models\Article;
 use App\Models\Variante;
 use App\Models\AutrePrix;
 use Illuminate\Http\Request;
+use App\Exports\ArticlesExport;
 use App\Imports\ArticlesImport;
 use App\Models\CompteComptable;
 use App\Models\EntrepotArticle;
 use App\Models\NoteJustificative;
-use App\Models\Stock;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class ArticleController extends Controller
 {
     public function ajouterArticle(Request $request)
@@ -752,11 +755,10 @@ public function importArticle(Request $request)
     } else {
         $id_comptable = null;
     }
-    $numArticle= NumeroGeneratorService::genererNumero($user_id, 'produit');
 
     // Traitement du fichier avec capture des erreurs
     try {
-        Excel::import(new ArticlesImport($user_id, $sousUtilisateur_id, $id_comptable, $numArticle), $request->file('file'));
+        Excel::import(new ArticlesImport($user_id, $sousUtilisateur_id, $id_comptable), $request->file('file'));
         return response()->json(['message' => 'Articles imported successfully']);
     } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
         $failures = $e->failures();
@@ -769,4 +771,73 @@ public function importArticle(Request $request)
     }
 }
 
+
+
+public function exportArticles()
+{
+    // Créer une nouvelle feuille de calcul
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Définir les en-têtes
+    $sheet->setCellValue('A1', 'num_article');
+    $sheet->setCellValue('B1', 'nom_article');
+    $sheet->setCellValue('C1', 'quantite');
+    $sheet->setCellValue('D1', 'prix_achat');
+    $sheet->setCellValue('E1', 'unité');
+    $sheet->setCellValue('F1', 'prix_unitaire');
+    $sheet->setCellValue('G1', 'tva');
+    $sheet->setCellValue('H1', 'description');
+
+    // Récupérer les données des articles
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+        $articles = Article::where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId)
+            ->get();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $articles = Article::where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                $query->where('id_user', $userId);
+            })
+            ->get();
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+    // Remplir les données
+    $row = 2;
+    foreach ($articles as $article) {
+        $sheet->setCellValue('A' . $row, $article->num_article);
+        $sheet->setCellValue('B' . $row, $article->nom_article);
+        $sheet->setCellValue('C' . $row, $article->quantite);
+        $sheet->setCellValue('D' . $row, $article->prix_achat);
+        $sheet->setCellValue('E' . $row, $article->unité);
+        $sheet->setCellValue('F' . $row, $article->prix_unitaire);
+        $sheet->setCellValue('G' . $row, $article->tva);
+        $sheet->setCellValue('H' . $row, $article->description);
+        $row++;
+    }
+
+    // Effacer les tampons de sortie pour éviter les caractères indésirables
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+
+    // Définir le nom du fichier
+    $fileName = 'articles.xlsx';
+
+    // Définir les en-têtes HTTP pour le téléchargement
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $fileName . '"');
+    header('Cache-Control: max-age=0');
+
+    // Générer le fichier et l'envoyer au navigateur
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
+}
 }

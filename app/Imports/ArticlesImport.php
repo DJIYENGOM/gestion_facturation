@@ -2,10 +2,11 @@
 namespace App\Imports;
 
 use App\Models\Article;
-use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\ToModel;
+use App\Services\NumeroGeneratorService;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
 
 class ArticlesImport implements ToModel, WithValidation, WithHeadingRow
 {
@@ -14,20 +15,23 @@ class ArticlesImport implements ToModel, WithValidation, WithHeadingRow
     protected $id_comptable;
     protected $numArticle;
 
-    public function __construct($user_id, $sousUtilisateur_id, $id_comptable, $numArticle)
+    public function __construct($user_id, $sousUtilisateur_id, $id_comptable)
     {
         $this->user_id = $user_id;
         $this->sousUtilisateur_id = $sousUtilisateur_id;
         $this->id_comptable = $id_comptable;
-        $this->numArticle = $numArticle;
     }
 
     public function model(array $row)
     {
         //Log::info('Importing article:', $row);
 
+        $numArticle= NumeroGeneratorService::genererNumero($this->user_id, 'produit');
+
+        NumeroGeneratorService::incrementerCompteur($this->user_id, 'produit');
+
         return new Article([
-            'num_article' => $this->numArticle,
+            'num_article' => $numArticle,
             'nom_article' => $row['libelle'] ?? null,
             'description' => $row['description'] ?? null,
             'prix_unitaire' => $row['prix_unitaire'] ?? 0,

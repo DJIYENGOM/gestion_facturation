@@ -77,6 +77,7 @@ Route::controller(PromoController::class)->group(function () {
 });
 
 Route::post('importArticle', [ArticleController::class, 'importArticle']);
+Route::get('exportArticles', [ArticleController::class, 'exportArticles']);
 
 Route::post('ajouterArticle', [ArticleController::class, 'ajouterArticle']);
 Route::get('listerArticles', [ArticleController::class, 'listerArticles']);

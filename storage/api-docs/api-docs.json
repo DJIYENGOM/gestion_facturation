@@ -122,7 +122,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -319,7 +319,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -511,7 +511,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -521,10 +521,10 @@
                                     "id_categorie_depense": {
                                         "type": "integer"
                                     },
-                                    "date_paiement": {
+                                    "commentaire": {
                                         "type": "string"
                                     },
-                                    "commentaire": {
+                                    "date_paiement": {
                                         "type": "string"
                                     },
                                     "tva_depense": {
@@ -566,6 +566,14 @@
                                     "duree_indeterminee": {
                                         "type": "boolean"
                                     },
+                                    "periode_echeance": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "nombre_periode": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
                                     "echeances": {
                                         "type": "string",
                                         "format": "binary"
@@ -575,27 +583,29 @@
                             "example": {
                                 "activation": true,
                                 "id_categorie_depense": 1,
-                                "date_paiement": "2024-07-23",
                                 "commentaire": "gbdhxdbdbbhei",
+                                "date_paiement": "2024-07-23",
                                 "tva_depense": null,
                                 "montant_depense_ht": null,
                                 "montant_depense_ttc": null,
                                 "num_facture": "000001",
-                                "date_facture": "2024-06-21",
+                                "date_facture": "2024-06-20",
                                 "fournisseur_id": null,
                                 "statut_depense": "impayer",
                                 "id_paiement": null,
                                 "doc_externe": null,
-                                "plusieurs_paiement": true,
+                                "plusieurs_paiement": false,
                                 "duree_indeterminee": false,
+                                "periode_echeance": null,
+                                "nombre_periode": null,
                                 "echeances": [
                                     {
-                                        "date_pay_echeance": "2024-06-28",
-                                        "montant_echeance": 4000
+                                        "date_pay_echeance": "2024-07-25",
+                                        "montant_echeance": 20000
                                     },
                                     {
-                                        "date_pay_echeance": "2024-07-28",
-                                        "montant_echeance": 5000
+                                        "date_pay_echeance": "2024-07-27",
+                                        "montant_echeance": 20000
                                     }
                                 ]
                             }
@@ -819,7 +829,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -1129,7 +1139,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3372,7 +3382,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -4818,7 +4828,7 @@
                 }
             }
         },
-        "/api/supprimerFacture": {
+        "/api/supprimerFacture/000004": {
             "delete": {
                 "summary": "supprimer Facture",
                 "description": "",
@@ -5088,7 +5098,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -5500,7 +5510,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -5526,7 +5536,8 @@
                                         "type": "string"
                                     },
                                     "id_recurrent": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "binary"
                                     },
                                     "id_paiement": {
                                         "type": "integer"
@@ -5549,7 +5560,7 @@
                                 "prix_HT": 20000,
                                 "prix_TTC": 25000,
                                 "type_paiement": "facture_Accompt",
-                                "id_recurrent": "3",
+                                "id_recurrent": null,
                                 "id_paiement": 1,
                                 "articles": [
                                     {
@@ -6242,6 +6253,135 @@
                 }
             }
         },
+        "/api/exportClients": {
+            "post": {
+                "summary": "export Clients",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des clients"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/importClient": {
+            "post": {
+                "summary": "import Client",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des clients"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "file": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/supprimerClient/{id}": {
             "delete": {
                 "summary": "supprimer Client",
@@ -6467,12 +6607,12 @@
                                 }
                             },
                             "example": {
-                                "prenom_client": "ima",
+                                "prenom_client": "falou",
                                 "nom_client": "ngom",
-                                "email_client": "ibou@gmail.com",
+                                "email_client": "LILou@gmail.com",
                                 "adress_client": "parcelle",
                                 "tel_client": "768947493",
-                                "categorie_id": "1",
+                                "categorie_id": "2",
                                 "nom_entreprise": "",
                                 "num_id_fiscal": "0012",
                                 "ville_client": "",
@@ -7194,6 +7334,51 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/exportArticles": {
+            "get": {
+                "summary": "export Articles",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des articles"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
             }
         },
         "/api/importArticle": {
@@ -8036,6 +8221,9 @@
                                     "unité": {
                                         "type": "string"
                                     },
+                                    "active_Stock": {
+                                        "type": "string"
+                                    },
                                     "quantite": {
                                         "type": "integer"
                                     },
@@ -8043,10 +8231,6 @@
                                         "type": "integer"
                                     },
                                     "autres_prix": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "lots": {
                                         "type": "string",
                                         "format": "binary"
                                     }
@@ -8060,6 +8244,7 @@
                                 "tva": 50,
                                 "type_article": "produit",
                                 "unité": "tonne",
+                                "active_Stock": "oui",
                                 "quantite": 20,
                                 "quantite_alert": 10,
                                 "autres_prix": [
@@ -8072,12 +8257,6 @@
                                         "titrePrix": "prix des senegalais",
                                         "montant": 15000,
                                         "tva": 50
-                                    }
-                                ],
-                                "lots": [
-                                    {
-                                        "nomLot": "lot 1",
-                                        "quantiteLot": 5
                                     }
                                 ]
                             }
