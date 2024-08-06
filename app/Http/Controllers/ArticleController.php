@@ -471,14 +471,14 @@ public function listerArticles()
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-        $articles = Article::with('categorieArticle', 'CompteComptable')
+        $articles = Article::with('categorieArticle', 'CompteComptable','Stocks')
             ->where('sousUtilisateur_id', $sousUtilisateurId)
             ->orWhere('user_id', $userId)
             ->get();
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $articles = Article::with('categorieArticle', 'CompteComptable')
+        $articles = Article::with('categorieArticle', 'CompteComptable','Stocks')
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);
@@ -490,7 +490,7 @@ public function listerArticles()
 
     $articlesArray = $articles->map(function ($article) {
         $articleArray = $article->toArray();
-        $articleArray['quantite_disponible'] = $article->stocks->disponible_apres;
+        $articleArray['quantite_disponible'] = $article->Stocks->sum('disponible_apres'); // Additionner la quantité disponible
         $articleArray['nom_categorie'] = optional($article->categorieArticle)->nom_categorie;
         $articleArray['nom_comptable'] = optional($article->CompteComptable)->nom_compte_comptable;
         return $articleArray;

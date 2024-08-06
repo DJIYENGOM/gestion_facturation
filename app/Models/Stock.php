@@ -23,4 +23,35 @@ class Stock extends Model
         'sousUtilisateur_id',
         'user_id',
     ];
+
+    public function article()
+    {
+        return $this->belongsTo(Article::class);
+    }
+
+    public function facture()
+    {
+        return $this->belongsTo(Facture::class);
+    }   
+
+    public function bonCommande()
+    {
+        return $this->belongsTo(BonCommande::class);
+    }
+
+    public function livraison()
+    {
+        return $this->belongsTo(Livraison::class);
+    }
+
+    public function sousUtilisateur()
+    {
+        return $this->belongsTo(Sous_Utilisateur::class, 'sousUtilisateur_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
 }

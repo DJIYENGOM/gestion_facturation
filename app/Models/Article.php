@@ -101,4 +101,9 @@ class Article extends Model
     {
         return $this->hasMany(GrilleTarifaire::class);
     }
+
+    public function Stocks()
+    {
+        return $this->hasMany(Stock::class, 'article_id');
+    }
 }
