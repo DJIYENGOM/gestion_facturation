@@ -249,12 +249,6 @@ class ArticleController extends Controller
         return response()->json(['message' => 'Article ajouté avec succès', 'article' => $article]);
     }
     
-    
-    
-    
-    
-    
-    
 
     public function modifierArticle(Request $request, $id)
     {
@@ -795,13 +789,15 @@ public function exportArticles()
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-        $articles = Article::where('sousUtilisateur_id', $sousUtilisateurId)
+        $articles = Article::with(['lot', 'entrepotArt.entrepot'])
+            ->where('sousUtilisateur_id', $sousUtilisateurId)
             ->orWhere('user_id', $userId)
             ->get();
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $articles = Article::where('user_id', $userId)
+        $articles = Article::with(['lot', 'entrepotArt.entrepot'])
+            ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);
             })
@@ -809,11 +805,28 @@ public function exportArticles()
     } else {
         return response()->json(['error' => 'Unauthorized'], 401);
     }
+
     // Remplir les données
     $row = 2;
     foreach ($articles as $article) {
+        $nomArticle = $article->nom_article;
+
+        // Ajouter le nom des lots s'ils existent
+        if ($article->lot->isNotEmpty()) {
+            $nomLots = $article->lot->pluck('nomLot')->implode(', ');
+            $nomArticle .= ' -' . $nomLots;
+        }
+
+        // Ajouter le nom des entrepôts s'ils existent
+        if ($article->entrepotArt->isNotEmpty()) {
+            $nomEntrepots = $article->entrepotArt->map(function ($entrepotArt) {
+                return $entrepotArt->entrepot ? $entrepotArt->entrepot->nomEntrepot : '';
+            })->filter()->implode(', ');
+            $nomArticle .= ' -' . $nomEntrepots;
+        }
+
         $sheet->setCellValue('A' . $row, $article->num_article);
-        $sheet->setCellValue('B' . $row, $article->nom_article);
+        $sheet->setCellValue('B' . $row, $nomArticle);
         $sheet->setCellValue('C' . $row, $article->quantite);
         $sheet->setCellValue('D' . $row, $article->prix_achat);
         $sheet->setCellValue('E' . $row, $article->unité);
@@ -844,4 +857,7 @@ public function exportArticles()
     $writer->save('php://output');
     exit;
 }
+
+
+
 }

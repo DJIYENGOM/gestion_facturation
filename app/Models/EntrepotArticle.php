@@ -12,12 +12,12 @@ class EntrepotArticle extends Model
 
     public function article()
     {
-        return $this->belongsTo(Article::class);
+        return $this->belongsTo(Article::class, 'article_id');
     }
 
     public function entrepot()
     {
-        return $this->belongsTo(Entrepot::class);
+        return $this->belongsTo(Entrepot::class, 'entrepot_id');
     }
 
     public function sousUtilisateur()
