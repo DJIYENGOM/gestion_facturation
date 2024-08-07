@@ -50,7 +50,7 @@ class ArticleController extends Controller
             'quantite' => 'nullable|numeric|min:0',
             'quantite_alert' => 'nullable|numeric|min:0',
             'doc_externe' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
-            'num_article' => 'nullable|string|unique:articles,num_article',
+            'num_article' => 'nullable|string|max:255',
             'autres_prix' => 'nullable|array',
             'autres_prix.*.titrePrix' => 'nullable|string|max:255',
             'autres_prix.*.montant' => 'nullable|numeric|min:0',
@@ -269,12 +269,12 @@ class ArticleController extends Controller
         }
     
         $validator = Validator::make($request->all(), [
-            'nom_article' => 'required|string|max:255',
+            'nom_article' => 'required|string',
             'description' => 'nullable|string',
             'prix_unitaire' => 'required|numeric|min:0',
-            'tva' => 'nullable|numeric|min:0',
+            'tva'=>'nullable|numeric|min:0',
             'type_article' => 'required|in:produit,service',
-            'unité' => 'required|in:unite,kg,tonne,cm,l,m,m2,m3,h,jour,semaine,mois',
+            'unité' => 'required|in:unite,kg,tonne,cm,l,m,m2,m3,h,jour,semaine,mois,g',
             'categorie_article_id' => 'nullable|exists:categorie_articles,id',
             'id_comptable' => 'nullable|exists:compte_comptables,id',
             'promo_id' => 'nullable|exists:promos,id',
@@ -282,11 +282,12 @@ class ArticleController extends Controller
             'quantite' => 'nullable|numeric|min:0',
             'quantite_alert' => 'nullable|numeric|min:0',
             'doc_externe' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
-            'num_article' => 'required|string|unique:articles,num_article,' . $id,
+            'num_article' => 'nullable|string|max:255',
             'autres_prix' => 'nullable|array',
             'autres_prix.*.titrePrix' => 'nullable|string|max:255',
             'autres_prix.*.montant' => 'nullable|numeric|min:0',
             'autres_prix.*.tva' => 'nullable|numeric|min:0|max:100',
+            'active_Stock' => 'nullable|in:oui,non',
             'variantes' => 'nullable|array',
             'variantes.*.nomVariante' => 'nullable|string|max:255',
             'variantes.*.quantiteVariante' => 'nullable|integer|min:0',
@@ -361,7 +362,7 @@ class ArticleController extends Controller
         $article->benefice = $request->prix_unitaire - $request->prix_achat;
         $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_achat : null;
     
-        $article->save();
+        $article->update();
     
         // Gérer les autres prix
         if ($request->has('autres_prix')) {
@@ -471,14 +472,14 @@ public function listerArticles()
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-        $articles = Article::with('categorieArticle', 'CompteComptable','Stocks')
+        $articles = Article::with('categorieArticle', 'CompteComptable','Stocks', 'EntrepotArt', 'lot', 'autrePrix', 'variante')
             ->where('sousUtilisateur_id', $sousUtilisateurId)
             ->orWhere('user_id', $userId)
             ->get();
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $articles = Article::with('categorieArticle', 'CompteComptable','Stocks')
+        $articles = Article::with('categorieArticle', 'CompteComptable','Stocks', 'EntrepotArt', 'lot', 'autrePrix', 'variante')
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);

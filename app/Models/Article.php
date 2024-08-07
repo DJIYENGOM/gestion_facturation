@@ -52,6 +52,25 @@ class Article extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function EntrepotArt()
+    {
+        return $this->hasMany(EntrepotArticle::class, 'article_id');
+    }
+
+    public function lot()
+    {
+        return $this->hasMany(Lot::class, 'article_id');
+    }
+
+    public function autrePrix()
+    {
+        return $this->hasMany(AutrePrix::class, 'article_id');
+    }
+
+    public function variante()
+    {
+        return $this->hasMany(Variante::class, 'article_id');
+    }
 
     public function categorieArticle()
     {
