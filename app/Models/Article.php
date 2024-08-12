@@ -30,6 +30,7 @@ class Article extends Model
         'quantite_alert', 
         'active_Stock',
         'quantite_disponible',
+        'code_barre',
         'sousUtilisateur_id','user_id','id_categorie_article'];
 
 

@@ -16,11 +16,11 @@ return new class extends Migration
             $table->foreignId('id_BonCommande')->constrained('bon_commandes')->onDelete('cascade');
             $table->foreignId('id_article')->constrained('articles')->onDelete('cascade');
             $table->decimal('reduction_article')->nullable();
-            $table->decimal('TVA_article')->nullable();
-            $table->decimal('prix_unitaire_article')->nullable();
+            $table->decimal('TVA_article', 5, 2)->nullable();
+            $table->decimal('prix_unitaire_article', 10, 2)->nullable();
             $table->integer('quantite_article')->nullable(); 
-            $table->decimal('prix_total_article')->nullable();
-            $table->decimal('prix_total_tva_article')->nullable();
+            $table->decimal('prix_total_article', 10, 2)->nullable();
+            $table->decimal('prix_total_tva_article', 10, 2)->nullable();
             $table->timestamps();
         });
     }

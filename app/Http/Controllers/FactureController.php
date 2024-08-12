@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use App\Models\Stock;
 use App\Models\Facture;
-use App\Models\ArtcleFacture;
-use Illuminate\Http\Request;
 use App\Models\Echeance;
+use App\Models\PaiementRecu;
+use Illuminate\Http\Request;
+use App\Models\ArtcleFacture;
 use App\Models\FactureAccompt;
 use App\Models\FactureRecurrente;
-use App\Models\PaiementRecu;
-use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
 use App\Services\NumeroGeneratorService;
+use Illuminate\Support\Facades\Validator;
 
 
 
@@ -168,8 +169,38 @@ class FactureController extends Controller
                 ]);
             
         }
+
+
+        if ($facture->active_Stock == 'oui') {
+            foreach ($facture->articles as $article) {
+                if (Stock::where('article_id', $article->id_article)->exists()) {
+
+                    // Récupérer le dernier stock pour cet article
+                    $lastStock = Stock::where('article_id', $article->id_article)->orderBy('created_at', 'desc')->first();
+        
+                    $numStock = $lastStock->num_stock;
+        
+                    // Créer une nouvelle entrée de stock
+                    $stock = new Stock();
+                    $stock->date_stock = now()->format('Y-m-d');
+                    $stock->num_stock = $numStock; 
+                    $stock->libelle = $lastStock->libelle;
+                    $stock->disponible_avant = $lastStock->disponible_avant;
+                    $stock->modif = $article->quantite_article;
+                    $stock->disponible_apres = $lastStock->disponible_apres - $article->quantite_article;
+                    $stock->article_id = $article->id_article;
+                    $stock->facture_id = $facture->id;
+                    $stock->bonCommande_id = null;
+                    $stock->livraison_id = null;
+                    $stock->sousUtilisateur_id = $sousUtilisateurId;
+                    $stock->user_id = $userId;
+                    $stock->save();
+                }
+            }
+        }
     
         return response()->json(['message' => 'Facture créée avec succès', 'facture' => $facture], 201);
+
     }
 
 

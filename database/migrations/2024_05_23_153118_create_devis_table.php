@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('num_devi')->nullable();
             $table->date('date_devi');
             $table->date('date_limite')->nullable();
-            $table->decimal('prix_HT')->nullable();
-            $table->decimal('prix_TTC')->nullable();
+            $table->decimal('prix_HT', 10, 2)->nullable();
+            $table->decimal('prix_TTC', 10, 2)->nullable();
             $table->text('note_devi')->nullable();
             $table->decimal('reduction_devi')->nullable();
             $table->enum('statut_devi',['en_attente','transformer','valider', 'annuler','brouillon'])->default('brouillon');

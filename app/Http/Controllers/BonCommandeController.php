@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\Stock;
 use App\Models\Facture;
 use App\Models\Echeance;
 use App\Models\BonCommande;
@@ -72,7 +73,7 @@ class BonCommandeController extends Controller
             'sousUtilisateur_id' => $sousUtilisateurId,
             'user_id' => $userId,
             'statut_commande' => $request->statut_commande ?? 'en_attente',
-            'active_Stock' => $request->active_Stock ?? 'non',
+            'active_Stock' => $request->active_Stock ?? 'oui',
         ]);
     
         $commande->save();
@@ -111,6 +112,35 @@ class BonCommandeController extends Controller
                 ]);
             }
         }
+
+        if ($commande->active_Stock == 'oui') {
+            foreach ($commande->articles as $article) {
+                if (Stock::where('article_id', $article->id_article)->exists()) {
+        
+                    // Récupérer le dernier stock pour cet article
+                    $lastStock = Stock::where('article_id', $article->id_article)->orderBy('created_at', 'desc')->first();
+        
+                    $numStock = $lastStock->num_stock;
+        
+                    // Créer une nouvelle entrée de stock
+                    $stock = new Stock();
+                    $stock->date_stock = now()->format('Y-m-d');
+                    $stock->num_stock = $numStock; 
+                    $stock->libelle = $lastStock->libelle;
+                    $stock->disponible_avant = $lastStock->disponible_avant;
+                    $stock->modif = $article->quantite_article;
+                    $stock->disponible_apres = $lastStock->disponible_apres - $article->quantite_article;
+                    $stock->article_id = $article->id_article;
+                    $stock->facture_id = null;
+                    $stock->bonCommande_id = $commande->id;
+                    $stock->livraison_id = null;
+                    $stock->sousUtilisateur_id = $sousUtilisateurId;
+                    $stock->user_id = $userId;
+                    $stock->save();
+                }
+            }
+        }
+        
 
         return response()->json(['message' => 'commande créée avec succès', 'commande' => $commande], 201);
 

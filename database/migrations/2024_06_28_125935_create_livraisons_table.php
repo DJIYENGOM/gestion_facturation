@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('livraisons', function (Blueprint $table) {
             $table->id();
             $table->string('num_livraison')->nullable();
+            $table->date('date_livraison');
             $table->string('titre')->nullable();
             $table->string('description')->nullable();
-            $table->decimal('prix_HT')->nullable();
-            $table->decimal('prix_TTC')->nullable();
+            $table->decimal('prix_HT', 10, 2)->nullable();
+            $table->decimal('prix_TTC', 10, 2)->nullable();
             $table->string('note_livraison')->nullable();
             $table->decimal('reduction_livraison')->nullable();
             $table->enum('active_Stock', ['non', 'oui'])->default('oui');

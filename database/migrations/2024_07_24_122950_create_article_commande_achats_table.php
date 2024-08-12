@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_CommandeAchat')->constrained('commande_achats')->onDelete('cascade');
             $table->foreignId('id_article')->constrained('articles')->onDelete('cascade');
-            $table->decimal('reduction_article')->nullable();
-            $table->decimal('TVA_article')->nullable();
-            $table->decimal('prix_unitaire_article')->nullable();
+            $table->decimal('reduction_article', 10, 2)->nullable();
+            $table->decimal('TVA_article', 5, 2)->nullable();
+            $table->decimal('prix_unitaire_article', 10, 2)->nullable();
             $table->integer('quantite_article')->nullable(); 
-            $table->decimal('prix_total_article')->nullable();
-            $table->decimal('prix_total_tva_article')->nullable();
+            $table->decimal('prix_total_article', 10, 2)->nullable();
+            $table->decimal('prix_total_tva_article', 10, 2)->nullable();
             $table->timestamps();
         });
     }

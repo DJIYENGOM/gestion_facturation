@@ -22,8 +22,8 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
             $table->date('date');
-            $table->decimal('prix_HT')->nullable();
-            $table->decimal('prix_TTC')->nullable();
+            $table->decimal('prix_HT', 10, 2)->nullable();
+            $table->decimal('prix_TTC', 10, 2)->nullable();
             $table->enum('active_Stock', ['non', 'oui'])->default('oui');
             $table->string('commentaire')->nullable();
             $table->string('doc_externe')->nullable();

@@ -13,13 +13,16 @@ class ArticlesImport implements ToModel, WithValidation, WithHeadingRow
     protected $user_id;
     protected $sousUtilisateur_id;
     protected $id_comptable;
+
+    protected $id_categorie_article;
     protected $numArticle;
 
-    public function __construct($user_id, $sousUtilisateur_id, $id_comptable)
+    public function __construct($user_id, $sousUtilisateur_id, $id_comptable,$id_categorie_article)
     {
         $this->user_id = $user_id;
         $this->sousUtilisateur_id = $sousUtilisateur_id;
         $this->id_comptable = $id_comptable;
+        $this->id_categorie_article = $id_categorie_article;
     }
 
     public function model(array $row)
@@ -40,7 +43,7 @@ class ArticlesImport implements ToModel, WithValidation, WithHeadingRow
             'benefice' => $row['benefice'] ?? 0,
             'prix_promo' => $row['prix_promo'] ?? 0,
             'prix_tva' => $row['prix_tva'] ?? 0,
-            'id_categorie_article' => $row['categorie'] ?? null,
+            'id_categorie_article' => $this->id_categorie_article ?? null,
             'tva' => $row['tva'] ?? 0,
             'benefice_promo' => $row['benefice_promo'] ?? 0,
             'quantite_alert' => $row['quantite_alerte'] ?? 0,

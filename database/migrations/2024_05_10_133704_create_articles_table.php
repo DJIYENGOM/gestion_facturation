@@ -13,22 +13,23 @@ return new class extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
-            $table->string('num_article')->unique();
+            $table->string('num_article')->nullable();
             $table->string('nom_article');
             $table->text('description')->nullable();
-            $table->decimal('prix_unitaire'); 
+            $table->decimal('prix_unitaire', 10, 2); 
             $table->integer('quantite')->nullable();
             $table->decimal('benefice')->nullable();
-            $table->decimal('prix_achat')->nullable();
-            $table->decimal('prix_promo')->nullable();
-            $table->decimal('prix_tva')->nullable();
+            $table->decimal('prix_achat', 10, 2)->nullable();
+            $table->decimal('prix_promo',10, 2)->nullable();
+            $table->decimal('prix_tva', 10, 2)->nullable();
             $table->string('doc_externe')->nullable();
             $table->decimal('tva', 5, 2)->nullable();
-            $table->decimal('benefice_promo')->nullable();
+            $table->decimal('benefice_promo', 10, 2)->nullable();
             $table->integer('quantite_alert')->nullable();
             $table->enum('active_Stock', ['non', 'oui'])->default('non');
             $table->integer('quantite_disponible')->nullable();
             $table->enum('type_article', ['produit', 'service']);
+            $table->string('code_barre')->nullable();
             $table->enum('unité', ['unite', 'kg', 'g', 'tonne', 'cm', 'l', 'm', 'm2','m3','h','jour','semaine','mois'])->nullable();
             $table->foreignId('promo_id')->nullable()->constrained('promos')->onDelete('set null')->nullable();
             $table->foreignId('id_comptable')->nullable()->constrained('compte_comptables')->onDelete('set null');

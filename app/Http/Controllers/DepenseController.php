@@ -73,7 +73,7 @@ class DepenseController extends Controller
                     'doc_externe' => $request->doc_externe,
                     'num_facture' => $request->num_facture,
                     'date_facture' => $request->date_facture,
-                    'statut_depense' => 'impayer',
+                    'statut_depense' => $request->statut_depense ?? 'impayer',
                     'fournisseur_id' => $request->fournisseur_id,
                     'id_categorie_depense' => $request->id_categorie_depense,
                     'sousUtilisateur_id' => $sousUtilisateurId,

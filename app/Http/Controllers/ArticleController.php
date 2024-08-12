@@ -12,16 +12,18 @@ use App\Exports\ArticlesExport;
 use App\Imports\ArticlesImport;
 use App\Models\CompteComptable;
 use App\Models\EntrepotArticle;
+use App\Models\CategorieArticle;
 use App\Models\NoteJustificative;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
 use App\Services\NumeroGeneratorService;
-use Illuminate\Support\Facades\Validator;
 
+use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 class ArticleController extends Controller
 {
     public function ajouterArticle(Request $request)
@@ -51,6 +53,7 @@ class ArticleController extends Controller
             'quantite_alert' => 'nullable|numeric|min:0',
             'doc_externe' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
             'num_article' => 'nullable|string|max:255',
+            'code_barre' => 'nullable|string|max:255',
             'autres_prix' => 'nullable|array',
             'autres_prix.*.titrePrix' => 'nullable|string|max:255',
             'autres_prix.*.montant' => 'nullable|numeric|min:0',
@@ -108,6 +111,7 @@ class ArticleController extends Controller
         $article->id_comptable = $id_comptable;
         $article->unité = $request->unité;
         $article->doc_externe = $doc_externe;
+        $article->num_article = $request->num_article;
         $article->prix_achat = $request->prix_achat;
         $article->quantite = $request->quantite;
         $article->quantite_alert = $request->quantite_alert;
@@ -277,6 +281,7 @@ class ArticleController extends Controller
             'quantite_alert' => 'nullable|numeric|min:0',
             'doc_externe' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
             'num_article' => 'nullable|string|max:255',
+            'code_barre' => 'nullable|string|max:255',
             'autres_prix' => 'nullable|array',
             'autres_prix.*.titrePrix' => 'nullable|string|max:255',
             'autres_prix.*.montant' => 'nullable|numeric|min:0',
@@ -350,6 +355,7 @@ class ArticleController extends Controller
         $article->id_comptable = $id_comptable;
         $article->unité = $request->unité;
         $article->doc_externe = $doc_externe;
+        $article->code_barre = $request->code_barre;
         $article->prix_achat = $request->prix_achat;
         $article->quantite = $request->quantite;
         $article->quantite_alert = $request->quantite_alert;
@@ -485,7 +491,7 @@ public function listerArticles()
 
     $articlesArray = $articles->map(function ($article) {
         $articleArray = $article->toArray();
-        $articleArray['quantite_disponible'] = $article->Stocks->sum('disponible_apres'); // Additionner la quantité disponible
+        $articleArray['quantite_disponible'] = optional($article->Stocks->last())->disponible_apres;
         $articleArray['nom_categorie'] = optional($article->categorieArticle)->nom_categorie;
         $articleArray['nom_comptable'] = optional($article->CompteComptable)->nom_compte_comptable;
         return $articleArray;
@@ -751,9 +757,15 @@ public function importArticle(Request $request)
         $id_comptable = null;
     }
 
+    $categorie= CategorieArticle::where('nom_categorie_article', 'produit')->first();
+    if ($categorie) {
+        $id_categorie_article = $categorie->id;
+    } else {
+        $id_categorie_article = null;
+    }
     // Traitement du fichier avec capture des erreurs
     try {
-        Excel::import(new ArticlesImport($user_id, $sousUtilisateur_id, $id_comptable), $request->file('file'));
+        Excel::import(new ArticlesImport($user_id, $sousUtilisateur_id, $id_comptable, $id_categorie_article), $request->file('file'));
         return response()->json(['message' => 'Articles imported successfully']);
     } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
         $failures = $e->failures();
