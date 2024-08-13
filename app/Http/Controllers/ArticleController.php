@@ -74,9 +74,6 @@ class ArticleController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
     
-        $typeDocument = $request->type_article == 'produit' ? 'produit' : 'service';
-        $numArticle = NumeroGeneratorService::genererNumero($user_id, $typeDocument);
-    
         $doc_externe = $request->hasFile('doc_externe') ? $request->file('doc_externe')->store('file', 'public') : null;
     
         $promo = $request->promo_id ? Promo::find($request->promo_id) : null;
@@ -95,8 +92,13 @@ class ArticleController extends Controller
             }
         }
     
+        $typeDocument = $request->type_article == 'produit' ? 'produit' : 'service';
+        $numArticle = NumeroGeneratorService::genererNumero($user_id, $typeDocument);
+
+        //dd($numArticle);
+
         $article = new Article();
-        $article->num_article = $numArticle;
+        $article->num_article = $request->num_article ?? $numArticle;
         $article->nom_article = $request->nom_article;
         $article->description = $request->description;
         $article->prix_unitaire = $request->prix_unitaire;
@@ -111,7 +113,6 @@ class ArticleController extends Controller
         $article->id_comptable = $id_comptable;
         $article->unité = $request->unité;
         $article->doc_externe = $doc_externe;
-        $article->num_article = $request->num_article;
         $article->prix_achat = $request->prix_achat;
         $article->quantite = $request->quantite;
         $article->quantite_alert = $request->quantite_alert;
@@ -121,6 +122,8 @@ class ArticleController extends Controller
         $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_achat : null;
     
         $article->save();
+        NumeroGeneratorService::incrementerCompteur($user_id, $typeDocument);
+
     
         if ($request->has('autres_prix')) {
             foreach ($request->autres_prix as $autre_prix) {
@@ -248,7 +251,6 @@ class ArticleController extends Controller
             }
 
         }
-        NumeroGeneratorService::incrementerCompteur($user_id, 'produit');
 
         return response()->json(['message' => 'Article ajouté avec succès', 'article' => $article]);
     }
