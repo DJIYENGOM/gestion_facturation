@@ -901,9 +901,8 @@ public function exportServices()
     $sheet->setCellValue('D1', 'TVA');
     $sheet->setCellValue('E1', 'prix_vente_HT');
     $sheet->setCellValue('F1', 'prix_vente_TTC');
-    $sheet->setCellValue('G1', 'prix_achat');
-    $sheet->setCellValue('H1', 'Date de création');
-    $sheet->setCellValue('I1', 'Dernière modification');
+    $sheet->setCellValue('G1', 'Date de création');
+    $sheet->setCellValue('H1', 'Dernière modification');
 
 
 
@@ -944,9 +943,8 @@ public function exportServices()
         $sheet->setCellValue('D' . $row, $article->tva);
         $sheet->setCellValue('E' . $row, $article->prix_unitaire);
         $sheet->setCellValue('F' . $row, $article->prix_tva);
-        $sheet->setCellValue('G' . $row, $article->prix_achat);
-        $sheet->setCellValue('H' . $row, $article->created_at);
-        $sheet->setCellValue('I' . $row, $article->updated_at);
+        $sheet->setCellValue('G' . $row, $article->created_at);
+        $sheet->setCellValue('H' . $row, $article->updated_at);
 
         $row++;
     }
