@@ -5,6 +5,7 @@ use App\Models\Lot;
 use App\Models\Promo;
 use App\Models\Stock;
 use App\Models\Article;
+use App\Models\Entrepot;
 use App\Models\Variante;
 use App\Models\AutrePrix;
 use Illuminate\Http\Request;
@@ -18,8 +19,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
-use App\Services\NumeroGeneratorService;
 
+use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -45,7 +46,7 @@ class ArticleController extends Controller
             'tva'=>'nullable|numeric|min:0',
             'type_article' => 'required|in:produit,service',
             'unité' => 'required|in:unite,kg,tonne,cm,l,m,m2,m3,h,jour,semaine,mois,g',
-            'categorie_article_id' => 'nullable|exists:categorie_articles,id',
+            'id_categorie_article' => 'nullable|exists:categorie_articles,id',
             'id_comptable' => 'nullable|exists:compte_comptables,id',
             'promo_id' => 'nullable|exists:promos,id',
             'prix_achat' => 'nullable|numeric|min:0',
@@ -73,6 +74,7 @@ class ArticleController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
+
     
         $doc_externe = $request->hasFile('doc_externe') ? $request->file('doc_externe')->store('file', 'public') : null;
     
@@ -170,10 +172,9 @@ class ArticleController extends Controller
                 $entrepotArticle->save();
             }
         }
-    
+
         // Générer un num_stock unique pour chaque article
-        $numStock = Stock::where('article_id', $article->id)->max('num_stock') + 1;
-        $numStock = str_pad($numStock, 6, '0', STR_PAD_LEFT);
+        $numStock = $article->num_article;
     
         if ($request->active_Stock === 'oui') {
             if ($request->has('lots')) {
@@ -197,10 +198,14 @@ class ArticleController extends Controller
     
             if ($request->has('entrepots')) {
                 foreach ($request->entrepots as $entrepot) {
+                    $Entrepot=Entrepot::Where('id', $entrepot['entrepot_id']);
+
+                    $nomEntrepot = $Entrepot->first()->nomEntrepot;
+
                     $stock = new Stock();
-                   $stock->date_stock = now()->format('Y-m-d');
+                    $stock->date_stock = now()->format('Y-m-d');
                     $stock->num_stock = $numStock;
-                    $stock->libelle = $article->nom_article . ' - ' . $entrepot['entrepot_id'];
+                    $stock->libelle = $article->nom_article . ' - ' . $nomEntrepot;
                     $stock->disponible_avant = 0;
                     $stock->modif = $entrepot['quantiteArt_entrepot'];
                     $stock->disponible_apres = $entrepot['quantiteArt_entrepot'];
@@ -494,7 +499,7 @@ public function listerArticles()
     $articlesArray = $articles->map(function ($article) {
         $articleArray = $article->toArray();
         $articleArray['quantite_disponible'] = optional($article->Stocks->last())->disponible_apres;
-        $articleArray['nom_categorie'] = optional($article->categorieArticle)->nom_categorie;
+        $articleArray['nom_categorie'] = optional($article->categorieArticle)->nom_categorie_article;
         $articleArray['nom_comptable'] = optional($article->CompteComptable)->nom_compte_comptable;
         return $articleArray;
     });
@@ -797,6 +802,8 @@ public function exportArticles()
     $sheet->setCellValue('F1', 'prix_unitaire');
     $sheet->setCellValue('G1', 'tva');
     $sheet->setCellValue('H1', 'description');
+    $sheet->setCellValue('I1', 'Date de création');
+    $sheet->setCellValue('J1', 'Date de modification');
 
     // Récupérer les données des articles
     if (auth()->guard('apisousUtilisateur')->check()) {
@@ -804,18 +811,24 @@ public function exportArticles()
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
         $articles = Article::with(['lot', 'entrepotArt.entrepot'])
-            ->where('sousUtilisateur_id', $sousUtilisateurId)
-            ->orWhere('user_id', $userId)
-            ->get();
+        ->where('type_article', 'produit')
+        ->where(function ($query) use ($sousUtilisateurId, $userId) {
+            $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                  ->orWhere('user_id', $userId);
+        })
+        ->get();
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
         $articles = Article::with(['lot', 'entrepotArt.entrepot'])
-            ->where('user_id', $userId)
-            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
-                $query->where('id_user', $userId);
-            })
-            ->get();
+        ->where('type_article', 'produit')
+        ->where(function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                  ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                      $query->where('id_user', $userId);
+                  });
+        })
+        ->get();
     } else {
         return response()->json(['error' => 'Unauthorized'], 401);
     }
@@ -847,6 +860,8 @@ public function exportArticles()
         $sheet->setCellValue('F' . $row, $article->prix_unitaire);
         $sheet->setCellValue('G' . $row, $article->tva);
         $sheet->setCellValue('H' . $row, $article->description);
+        $sheet->setCellValue('I' . $row, $article->created_at);
+        $sheet->setCellValue('J' . $row, $article->updated_at);
         $row++;
     }
 
@@ -856,7 +871,7 @@ public function exportArticles()
     }
 
     // Définir le nom du fichier
-    $fileName = 'articles.xlsx';
+    $fileName = 'Produits.xlsx';
 
     // Définir les en-têtes HTTP pour le téléchargement
     header('Access-Control-Allow-Origin: *');
@@ -872,6 +887,91 @@ public function exportArticles()
     exit;
 }
 
+
+public function exportServices()
+{
+    // Créer une nouvelle feuille de calcul
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Définir les en-têtes
+    $sheet->setCellValue('A1', 'Code');
+    $sheet->setCellValue('B1', 'Libelle');
+    $sheet->setCellValue('C1', 'Description');
+    $sheet->setCellValue('D1', 'TVA');
+    $sheet->setCellValue('E1', 'prix_vente_HT');
+    $sheet->setCellValue('F1', 'prix_vente_TTC');
+    $sheet->setCellValue('G1', 'prix_achat');
+    $sheet->setCellValue('H1', 'Date de création');
+    $sheet->setCellValue('I1', 'Dernière modification');
+
+
+
+    // Récupérer les données des articles
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+        $articles = Article::where('type_article', 'service')
+        ->where(function ($query) use ($sousUtilisateurId, $userId) {
+            $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                  ->orWhere('user_id', $userId);
+        })
+        ->get();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $articles = Article::where('type_article', 'service')
+        ->where(function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                  ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                      $query->where('id_user', $userId);
+                  });
+        })
+        ->get();
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    // Remplir les données
+    $row = 2;
+    foreach ($articles as $article) {
+        $nomArticle = $article->nom_article;
+
+        $sheet->setCellValue('A' . $row, $article->num_article);
+        $sheet->setCellValue('B' . $row, $nomArticle);
+        $sheet->setCellValue('C' . $row, $article->description);
+        $sheet->setCellValue('D' . $row, $article->tva);
+        $sheet->setCellValue('E' . $row, $article->prix_unitaire);
+        $sheet->setCellValue('F' . $row, $article->prix_tva);
+        $sheet->setCellValue('G' . $row, $article->prix_achat);
+        $sheet->setCellValue('H' . $row, $article->created_at);
+        $sheet->setCellValue('I' . $row, $article->updated_at);
+
+        $row++;
+    }
+
+    // Effacer les tampons de sortie pour éviter les caractères indésirables
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+
+    // Définir le nom du fichier
+    $fileName = 'Services.xlsx';
+
+    // Définir les en-têtes HTTP pour le téléchargement
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization');
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $fileName . '"');
+    header('Cache-Control: max-age=0');
+
+    // Générer le fichier et l'envoyer au navigateur
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
+}
 
 
 }

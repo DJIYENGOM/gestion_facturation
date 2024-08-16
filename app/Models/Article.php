@@ -33,9 +33,6 @@ class Article extends Model
         'code_barre',
         'sousUtilisateur_id','user_id','id_categorie_article'];
 
-
-
-
     
     public function promotion()
     {
@@ -92,6 +89,7 @@ class Article extends Model
         return $this->hasMany(ArtcleFacture::class);
     }
 
+   
     public function articlesDevi()
     {
         return $this->hasMany(ArticleDevi::class);

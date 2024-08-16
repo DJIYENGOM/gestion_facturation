@@ -79,6 +79,8 @@ Route::controller(PromoController::class)->group(function () {
 Route::post('importArticle', [ArticleController::class, 'importArticle']);
 Route::get('exportArticles', [ArticleController::class, 'exportArticles']);
 
+Route::get('exportServices', [ArticleController::class, 'exportServices']);
+
 Route::post('ajouterArticle', [ArticleController::class, 'ajouterArticle']);
 Route::get('listerArticles', [ArticleController::class, 'listerArticles']);
 Route::post('modifierArticle/{id}', [ArticleController::class, 'modifierArticle']);
@@ -148,6 +150,10 @@ Route::post('listerFacturesAccompt', [FactureController::class, 'listerFacturesA
 Route::post('listerFacturesPayer', [FactureController::class, 'listerFacturesPayer']);
 
 Route::get('listeFactureParClient/{clientId}', [FactureController::class, 'listeFactureParClient']);
+Route::get('RapportFacture', [FactureController::class, 'RapportFacture']);
+
+Route::get('exportFactures', [FactureController::class, 'exportFactures']);
+
 
 Route::post('ajouterCompteComptable', [CompteComptableController::class, 'ajouterCompteComptable']);
 Route::get('listerCompteComptables', [CompteComptableController::class, 'listerCompteComptables']);
