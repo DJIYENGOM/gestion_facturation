@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Tva;
 use App\Models\Depense;
 use App\Models\Echeance;
 use Illuminate\Http\Request;
@@ -120,6 +121,13 @@ class DepenseController extends Controller
             NumeroGeneratorService::incrementerCompteur($userId, 'depense');
 
         }
+        Tva::create([
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+            'tva_recolte' => 0, 
+            'tva_deductif'=> $depense->montant_depense_ttc - $depense->montant_depense_ht,
+            'tva_reverse'=> 0
+        ]);
     
         return response()->json(['message' => 'Dépense créée avec succès', 'depense' => $depense], 201);
     }

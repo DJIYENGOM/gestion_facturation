@@ -463,7 +463,7 @@
             }
         },
         "/api/exporterCommandesAchats": {
-            "post": {
+            "get": {
                 "summary": "exporter Commandes Achats",
                 "description": "",
                 "responses": {

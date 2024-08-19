@@ -335,6 +335,7 @@ public function exporterCommandesAchats()
             $fournisseurNomComplet = $CommandeAchat->fournisseur 
             ? $CommandeAchat->fournisseur->prenom_fournisseur . ' - ' . $CommandeAchat->fournisseur->nom_fournisseur
             : '';
+        
 
             //dd($nom_article, $quantite);
 
@@ -342,7 +343,7 @@ public function exporterCommandesAchats()
         $sheet->setCellValue('B' . $row, $CommandeAchat->date_commande);
         $sheet->setCellValue('C' . $row, $nom_article);
         $sheet->setCellValue('D' . $row, $fournisseurNomComplet);
-        $sheet->setCellValue('E' . $row, $CommandeAchat->fournisseur->email_fournisseur );
+        $sheet->setCellValue('E' . $row, $CommandeAchat->fournisseur ? $CommandeAchat->fournisseur->email_fournisseur : '');
         $sheet->setCellValue('F' . $row, $CommandeAchat->date_livraison);
         $sheet->setCellValue('G' . $row, $CommandeAchat->date_paiement);
         $sheet->setCellValue('H' . $row, $CommandeAchat->total_ttc);

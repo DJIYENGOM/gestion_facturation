@@ -225,6 +225,7 @@ Route::controller(LivraisonController::class)->group(function(){
     Route::post('transformerLivraisonEnFacture/{id}','transformerLivraisonEnFacture');
     Route::post('RealiserLivraison/{id}','RealiserLivraison');
     Route::post('DetailsLivraison/{id}','DetailsLivraison');
+    Route::get('exporterLivraison','exporterLivraisons');
 });
 
 Route::post('configurerNumeros',[NumeroConfigurationController::class, 'configurerNumeros']);

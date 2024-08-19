@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\Tva;
 use App\Models\Stock;
 use App\Models\Facture;
 use App\Models\Echeance;
@@ -98,6 +99,14 @@ class FactureController extends Controller
     
         $facture->save();
         NumeroGeneratorService::incrementerCompteur($userId, 'facture');
+
+        Tva::create([
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+            'tva_recolte' => $facture->prix_TTC - $facture->prix_HT, 
+            'tva_deductif'=> 0,
+            'tva_reverse'=> 0
+        ]);
 
         // Ajouter les articles à la facture
         foreach ($request->articles as $articleData) {
