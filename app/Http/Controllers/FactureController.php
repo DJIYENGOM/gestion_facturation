@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Stock;
 use App\Models\Facture;
 use App\Models\Echeance;
+use App\Models\FactureAvoir;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use App\Models\ArtcleFacture;
@@ -13,6 +14,8 @@ use App\Models\FactureAccompt;
 use App\Models\FactureRecurrente;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 
 
@@ -485,5 +488,228 @@ public function ArreteCreationAutomatiqueFactureRecurrente($id)
     $facture->save();
     return response()->json(['message' => 'Creation automatique de facture recurrente arreter avec succes.'], 200); 
 }
+
+public function RapportFacture(Request $request)
+{
+    // Valider les dates d'entrée
+    $validator = Validator::make($request->all(), [
+        'date_debut' => 'required|date',
+        'date_fin' => 'required|date|after_or_equal:date_debut',
+        'selection' => 'nullable|string|in:clients,produits,factures',// Nouveau paramètre pour déterminer la sélection
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
+
+    // Récupérer les dates
+    $dateDebut = $request->input('date_debut');
+    $dateFin = $request->input('date_fin');
+    $selection = $request->input('selection') ?? 'factures';
+
+    // Récupérer l'utilisateur connecté
+    $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
+    $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
+
+    $factures = Facture::with(['client', 'articles.article'])
+        ->where('archiver', 'non')
+        ->whereBetween('date_creation', [$dateDebut, $dateFin])
+        ->where(function ($query) use ($userId, $parentUserId) {
+            $query->where('user_id', $userId)
+                ->orWhere('user_id', $parentUserId)
+                ->orWhereHas('sousUtilisateur', function ($query) use ($parentUserId) {
+                    $query->where('id_user', $parentUserId);
+                });
+        })
+        ->get();
+
+    // Compter le nombre de factures
+    $nombreFactures = $factures->count();
+
+    // Générer le rapport en fonction de la sélection
+    if ($selection === 'clients') {
+        $rapport = $factures->groupBy('client_id')->map(function ($facturesParClient) {
+            $totalHT = $facturesParClient->sum('prix_HT');
+            $totalTTC = $facturesParClient->sum('prix_TTC');
+            $client = $facturesParClient->first()->client;
+
+            return [
+                'client_nom' => $client->nom_client,
+                'client_prenom' => $client->prenom_client,
+                'total_HT' => $totalHT,
+                'total_TTC' => $totalTTC,
+            ];
+        })->values();
+    } elseif ($selection === 'produits') {
+        $rapport = $factures->flatMap(function ($facture) {
+            return $facture->articles;
+        })->groupBy('id_article')->map(function ($articlesParProduit) {
+            $totalHT = $articlesParProduit->sum('prix_total_article');
+            $totalTTC = $articlesParProduit->sum('prix_total_tva_article');
+            $produit = $articlesParProduit->first()->article;
+
+            return [
+                'produit_nom' => $produit->nom_article,
+                'total_HT' => $totalHT,
+                'total_TTC' => $totalTTC,
+            ];
+        })->values();
+        
+    }else{
+        $rapport = $factures->map(function ($facture) {
+            return [
+                'num_facture' => $facture->num_facture,
+                'date_facture' => $facture->date_creation,
+                'prix_HT' => $facture->prix_HT,
+                'prix_TTC' => $facture->prix_TTC,
+                'client_nom' => $facture->client->nom_client,
+                'client_prenom' => $facture->client->prenom_client,
+                'statut_paiement' => $facture->statut_paiement,
+                'articles' => $facture->articles->map(function ($articleFacture) {
+                    return [
+                        'nom_article' => $articleFacture->article->nom_article,
+                        'quantite' => $articleFacture->quantite_article,
+                        'prix_unitaire' => $articleFacture->prix_unitaire_article,
+                        'prix_total_ht' => $articleFacture->prix_total_article,
+                        'prix_total_ttc' => $articleFacture->prix_total_tva_article,
+                    ];
+                }),
+            ];
+        });
+    }
+
+    // Retourner le rapport et le nombre de factures
+    return response()->json([
+        'nombre_factures' => $nombreFactures,
+        'rapport' => $rapport,
+    ]);
+}
+
+
+public function exportFactures()
+{
+    // Créer une nouvelle feuille de calcul
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Définir les en-têtes
+    $sheet->setCellValue('A1', 'Numéro');
+    $sheet->setCellValue('B1', 'Date vente');
+    $sheet->setCellValue('C1', 'Prod / Serv');
+    $sheet->setCellValue('D1', 'Numero - Client');
+    $sheet->setCellValue('E1', 'Client');
+    $sheet->setCellValue('F1', 'Adresse électronique');
+    $sheet->setCellValue('G1', 'Total HT');
+    $sheet->setCellValue('H1', 'Total TTC');
+    $sheet->setCellValue('I1', 'Statut');
+    $sheet->setCellValue('J1', 'Note Interne');
+
+
+    // Récupérer les factures simples et les factures d'avoir
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user;
+
+        $factures = Facture::with(['client', 'articles.article'])
+            ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                      ->orWhere('user_id', $userId);
+            })
+            ->get();
+
+        $facturesAvoirs = FactureAvoir::with(['client', 'articles.article'])
+            ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                      ->orWhere('user_id', $userId);
+            })
+            ->get();
+
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $factures = Facture::with(['client', 'articles.article'])
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                      ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                          $query->where('id_user', $userId);
+                      });
+            })
+            ->get();
+
+        $facturesAvoirs = FactureAvoir::with(['client', 'articles.article'])
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                      ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                          $query->where('id_user', $userId);
+                      });
+            })
+            ->get();
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    // Fusionner les factures simples et les factures d'avoir
+    $allFactures = $factures->merge($facturesAvoirs);
+
+    // Remplir les données
+    $row = 2;
+    foreach ($allFactures as $facture) {
+        if ($facture->articles->isNotEmpty()) {
+            $nomarticles = $facture->articles->map(function ($articles) {
+                return $articles->article ? $articles->article->nom_article : '';
+            })->filter()->implode(', ');
+
+       
+
+            $email_client = $facture->client->email_client;
+            $nom_article = $nomarticles;
+          
+
+            $sheet->setCellValue('A' . $row, $facture->num_facture);
+
+            if ($facture instanceof FactureAvoir) {
+                $sheet->setCellValue('B' . $row, $facture->date);
+                $sheet->setCellValue('I' . $row, 'Note de crédit');
+                $sheet->setCellValue('J' . $row, $facture->commentaire);
+            } else {
+                $sheet->setCellValue('B' . $row, $facture->date_creation);
+                $sheet->setCellValue('I' . $row, $facture->statut_paiement);
+                $sheet->setCellValue('J' . $row, $facture->note_fact);
+            }
+
+            $sheet->setCellValue('C' . $row, $nom_article);
+            $sheet->setCellValue('D' . $row, $facture->client->num_client);
+            $sheet->setCellValue('E' . $row, $facture->client->nom_client.'-'.$facture->client->prenom_client);
+            $sheet->setCellValue('F' . $row, $email_client);
+            $sheet->setCellValue('G' . $row, $facture->prix_HT);
+            $sheet->setCellValue('H' . $row, $facture->prix_TTC);
+
+
+            $row++;
+        }
+    }
+
+    // Effacer les tampons de sortie pour éviter les caractères indésirables
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+
+    // Définir le nom du fichier
+    $fileName = 'Factures.xlsx';
+
+    // Définir les en-têtes HTTP pour le téléchargement
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization');
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $fileName . '"');
+    header('Cache-Control: max-age=0');
+
+    // Générer le fichier et l'envoyer au navigateur
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
+}
+
 
 }

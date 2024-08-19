@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('doc_externe')->nullable();
             $table->string('num_facture')->nullable();
             $table->date('date_facture')->nullable();
+            $table->string('image_facture')->nullable();
             $table->enum('statut_depense', ['payer', 'impayer'])->default('impayer');
             $table->foreignId('id_paiement')->nullable()->constrained('payements')->onDelete('set null');
             $table->foreignId('fournisseur_id')->nullable()->constrained('fournisseurs')->onDelete('set null');

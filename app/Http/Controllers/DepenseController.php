@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Depense;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use App\Services\NumeroGeneratorService;
 use App\Models\Echeance;
+use Illuminate\Http\Request;
+use App\Services\NumeroGeneratorService;
+use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 
 class DepenseController extends Controller
@@ -35,6 +37,7 @@ class DepenseController extends Controller
             'doc_externe' => 'nullable|string|max:255',
             'num_facture' => 'nullable|string|max:255',
             'date_facture' => 'nullable|date',
+            'image_facture' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
             'statut_depense' => 'required|in:payer,impayer',
             'id_paiement' => 'nullable|required_if:statut_depense,payer|exists:payements,id',
             'fournisseur_id' => 'nullable|exists:fournisseurs,id',
@@ -43,6 +46,11 @@ class DepenseController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
+
+        $image_facture=null;
+        if($request->hasFile('image_facture')){
+            $image_facture=$request->file('image_facture')->store('images', 'public',);
+             }
     
         // Déterminer l'utilisateur ou le sous-utilisateur connecté
         if (auth()->guard('apisousUtilisateur')->check()) {
@@ -73,6 +81,7 @@ class DepenseController extends Controller
                     'doc_externe' => $request->doc_externe,
                     'num_facture' => $request->num_facture,
                     'date_facture' => $request->date_facture,
+                    'image_facture' => $image_facture,
                     'statut_depense' => $request->statut_depense ?? 'impayer',
                     'fournisseur_id' => $request->fournisseur_id,
                     'id_categorie_depense' => $request->id_categorie_depense,
@@ -259,4 +268,95 @@ class DepenseController extends Controller
 }
 
     
+public function exporterDepenses()
+{
+    // Créer une nouvelle feuille de calcul
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Définir les en-têtes
+    $sheet->setCellValue('A1', 'Numéro');
+    $sheet->setCellValue('B1', 'N° Facture');
+    $sheet->setCellValue('C1', 'Date Facture');
+    $sheet->setCellValue('D1', 'Date Paiement');
+    $sheet->setCellValue('E1', 'Catégorie');
+    $sheet->setCellValue('F1', 'Fournisseur');
+    $sheet->setCellValue('G1', 'TVA (%)');
+    $sheet->setCellValue('H1', 'Total HT');
+    $sheet->setCellValue('I1', 'Total TTC');
+    $sheet->setCellValue('J1', 'Statut Depense');
+    $sheet->setCellValue('K1', 'Date Création');
+    $sheet->setCellValue('L1', 'Date de modification');
+
+    // Récupérer les données des articles
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+        $depenses = Depense::with(['fournisseur','categorieDepense'])
+        ->where(function ($query) use ($sousUtilisateurId, $userId) {
+            $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                  ->orWhere('user_id', $userId);
+        })
+        ->get();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $depenses = Depense::with(['fournisseur','categorieDepense'])
+        ->where(function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                  ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                      $query->where('id_user', $userId);
+                  });
+        })
+        ->get();
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    // Remplir les données
+    $row = 2;
+    foreach ($depenses as $depense) {
+        $fournisseurNomComplet = $depense->fournisseur 
+        ? $depense->fournisseur->prenom_fournisseur . ' - ' . $depense->fournisseur->nom_fournisseur
+        : '';
+
+        $sheet->setCellValue('A' . $row, $depense->num_depense);
+        $sheet->setCellValue('B' . $row, $depense->num_facture);
+        $sheet->setCellValue('C' . $row, $depense->date_facture);
+        $sheet->setCellValue('D' . $row, $depense->date_paiement);
+        $sheet->setCellValue('E' . $row, $depense->categorieDepense->nom_categorie_depense);
+        $sheet->setCellValue('F' . $row, $fournisseurNomComplet);
+        $sheet->setCellValue('G' . $row, $depense->tva_depense);
+        $sheet->setCellValue('H' . $row, $depense->montant_depense_ht);
+        $sheet->setCellValue('I' . $row, $depense->montant_depense_ttc);
+        $sheet->setCellValue('J' . $row, $depense->statut_depense);
+        $sheet->setCellValue('K' . $row, $depense->created_at);
+        $sheet->setCellValue('L' . $row, $depense->updated_at);
+   
+
+        $row++;
+    }
+
+    // Effacer les tampons de sortie pour éviter les caractères indésirables
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+
+    // Définir le nom du fichier
+    $fileName = 'Depenses.xlsx';
+
+    // Définir les en-têtes HTTP pour le téléchargement
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization');
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $fileName . '"');
+    header('Cache-Control: max-age=0');
+
+    // Générer le fichier et l'envoyer au navigateur
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
+}
 }

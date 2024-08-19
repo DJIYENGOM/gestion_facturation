@@ -18,6 +18,8 @@ class Info_SupplementaireController extends Controller
             'logo' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
             'adress_entreprise' => 'nullable|string|max:255|min:2,',
             'tel_entreprise' => 'nullable|string|max:20|min:9',
+            'devise' => 'nullable|numeric|max:255',
+            'langue' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -36,6 +38,8 @@ class Info_SupplementaireController extends Controller
             'logo' => $logo,
             'adress_entreprise' => $request->adress_entreprise,
             'tel_entreprise' => $request->tel_entreprise,
+            'devise' => $request->devise,
+            'langue' => $request->langue,
         ]);
 
         return response()->json(['message' => 'Profil mis à jour avec succès', 'user' => $user]);
@@ -76,6 +80,8 @@ public function afficherInfoEntreprise()
             'logo' => $logoUrl,
             'adresse_entreprise' => $user->adress_entreprise,
             'tel_entreprise' => $user->tel_entreprise,
+            'devise' => $user->devise,
+            'langue' => $user->langue,
         ]
     ]);
 }

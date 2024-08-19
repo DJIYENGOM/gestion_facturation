@@ -23,6 +23,346 @@
         "multipart/form-data"
     ],
     "paths": {
+        "/api/exporterDepenses": {
+            "get": {
+                "summary": "exporter Depenses",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/exporterLivraison": {
+            "get": {
+                "summary": "exporter livraisons",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/exporterBonCommandes": {
+            "get": {
+                "summary": "exporter  Bon de Commandes",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/exporterDevis": {
+            "get": {
+                "summary": "Exporter Devis",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/exportFactures": {
+            "get": {
+                "summary": "export Factures",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/exportServices": {
+            "get": {
+                "summary": "Exporter services",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/RapportFacture": {
+            "get": {
+                "summary": "Rapport des ventes/factures",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_debut": {
+                                        "type": "string"
+                                    },
+                                    "date_fin": {
+                                        "type": "string"
+                                    },
+                                    "selection": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_debut": "2024-08-09",
+                                "date_fin": "2024-08-13",
+                                "selection": "produits"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/listerFacturesRecurrentes": {
             "get": {
                 "summary": "listerFacturesRecurrente",
@@ -58,6 +398,390 @@
                 },
                 "tags": [
                     "lister Factures Recurrente"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/annulerCommandeAchat/2": {
+            "post": {
+                "summary": "annuler Commande Achat",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des commandes d'Achat"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/exporterCommandesAchats": {
+            "post": {
+                "summary": "exporter Commandes Achats",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des commandes d'Achat"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/supprimerCommandeAchat/1": {
+            "delete": {
+                "summary": "supprimer Commande Achat",
+                "description": "",
+                "responses": {
+                    "204": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des commandes d'Achat"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/modifierCommandeAchat/1": {
+            "post": {
+                "summary": "modifier Commande Achat",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des commandes d'Achat"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "activation": {
+                                        "type": "boolean"
+                                    },
+                                    "date_commandeAchat": {
+                                        "type": "string"
+                                    },
+                                    "date_livraison": {
+                                        "type": "string"
+                                    },
+                                    "fournisseur_id": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "depense_id": {
+                                        "type": "integer"
+                                    },
+                                    "note_interne": {
+                                        "type": "string"
+                                    },
+                                    "titre": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "total_TTC": {
+                                        "type": "integer"
+                                    },
+                                    "type_reccurente": {
+                                        "type": "string"
+                                    },
+                                    "articles": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "activation": true,
+                                "date_commandeAchat": "2024-07-23",
+                                "date_livraison": "2024-07-23",
+                                "fournisseur_id": null,
+                                "depense_id": 1,
+                                "note_interne": "Some notes about the facture",
+                                "titre": "jgjgkbnf",
+                                "description": "hfrfbrhb",
+                                "total_TTC": 25000,
+                                "type_reccurente": "creer_brouillon",
+                                "articles": [
+                                    {
+                                        "id_article": 1,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 5000,
+                                        "TVA_article": 50,
+                                        "reduction_article": 5,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    },
+                                    {
+                                        "id_article": 2,
+                                        "quantite_article": 3,
+                                        "prix_unitaire_article": 1000,
+                                        "TVA_article": 10,
+                                        "reduction_article": 50,
+                                        "prix_total_article": 5000,
+                                        "prix_total_tva_article": 8000
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/afficherDetailCommandeAchat/1": {
+            "get": {
+                "summary": "afficher Detail  Commande Achat",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des commandes d'Achat"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listerToutesCommandesAchat": {
+            "get": {
+                "summary": "lister Toutes Commandes Achat",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des commandes d'Achat"
                 ],
                 "parameters": [
                     {
@@ -1961,7 +2685,7 @@
                                 "prix_TTC": 25000,
                                 "articles": [
                                     {
-                                        "id_article": 1,
+                                        "id_article": 3,
                                         "quantite_article": 2,
                                         "prix_unitaire_article": 5000,
                                         "reduction_article": 0,
@@ -2793,7 +3517,7 @@
                                 }
                             },
                             "example": {
-                                "client_id": 1,
+                                "client_id": 2,
                                 "note_commande": "Some notes about the facture",
                                 "reduction_commande": 1000,
                                 "date_commande": "2024-06-29",
@@ -2802,7 +3526,7 @@
                                 "prix_TTC": 25000,
                                 "articles": [
                                     {
-                                        "id_article": 1,
+                                        "id_article": 3,
                                         "quantite_article": 2,
                                         "prix_unitaire_article": 5000,
                                         "reduction_article": 0,
@@ -3416,11 +4140,11 @@
                             "example": {
                                 "client_id": 1,
                                 "note_devi": "Some notes about the facture",
-                                "reduction_devi": 1000,
+                                "reduction_devi": 2000,
                                 "date_devi": "2024-06-29",
                                 "date_limite": "2024-06-30",
                                 "prix_HT": 20000,
-                                "prix_TTC": 25000,
+                                "prix_TTC": 250000,
                                 "articles": [
                                     {
                                         "id_article": 1,
@@ -3431,7 +4155,7 @@
                                         "prix_total_tva_article": 8000
                                     },
                                     {
-                                        "id_article": 2,
+                                        "id_article": 3,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 1000,
                                         "TVA_article": 10,
@@ -5564,7 +6288,7 @@
                                 "id_paiement": 1,
                                 "articles": [
                                     {
-                                        "id_article": 1,
+                                        "id_article": 3,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 5000,
                                         "TVA_article": 50,
@@ -6254,12 +6978,12 @@
             }
         },
         "/api/exportClients": {
-            "post": {
+            "get": {
                 "summary": "export Clients",
                 "description": "",
                 "responses": {
-                    "201": {
-                        "description": "Created successfully",
+                    "200": {
+                        "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {},
@@ -6267,8 +6991,8 @@
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "404": {
+                        "description": "Not Found",
                         "content": {
                             "application/json": {
                                 "schema": {},
@@ -6276,17 +7000,8 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "application/json": {
                                 "schema": {},
@@ -7328,8 +8043,8 @@
                                 }
                             },
                             "example": {
-                                "nom_categorie_article": "soin de visage",
-                                "type_categorie_article": "service"
+                                "nom_categorie_article": "electronique",
+                                "type_categorie_article": "produit"
                             }
                         }
                     }
@@ -7992,7 +8707,7 @@
                 ]
             }
         },
-        "/api/modifierArticle/{id}": {
+        "/api/modifierArticle/3": {
             "post": {
                 "summary": "modifier un article",
                 "description": "",
@@ -8073,6 +8788,9 @@
                                     "type_article": {
                                         "type": "string"
                                     },
+                                    "active_Stock": {
+                                        "type": "string"
+                                    },
                                     "unité": {
                                         "type": "string"
                                     },
@@ -8099,11 +8817,12 @@
                             },
                             "example": {
                                 "nom_article": "parfums 100",
-                                "num_article": "000003",
+                                "num_article": "000001",
                                 "description": "Some notes about the facture",
                                 "reduction_facture": 1000,
                                 "prix_unitaire": 20000,
                                 "type_article": "produit",
+                                "active_Stock": "oui",
                                 "unité": "tonne",
                                 "quantite": "10",
                                 "autres_prix": [
@@ -8121,7 +8840,7 @@
                                 "variantes": [
                                     {
                                         "nomVariante": "blanc",
-                                        "quantite": 50
+                                        "quantiteVariante": 50
                                     }
                                 ],
                                 "lots": [
@@ -8132,7 +8851,7 @@
                                 ],
                                 "entrepots": [
                                     {
-                                        "id_entrepot": 1,
+                                        "entrepot_id": 1,
                                         "quantiteArt_entrepot": 5
                                     }
                                 ]
@@ -8209,8 +8928,12 @@
                                     "prix_unitaire": {
                                         "type": "integer"
                                     },
-                                    "promo_id": {
+                                    "prix_achat": {
                                         "type": "integer"
+                                    },
+                                    "promo_id": {
+                                        "type": "string",
+                                        "format": "binary"
                                     },
                                     "tva": {
                                         "type": "integer"
@@ -8223,6 +8946,9 @@
                                     },
                                     "active_Stock": {
                                         "type": "string"
+                                    },
+                                    "id_categorie_article": {
+                                        "type": "integer"
                                     },
                                     "quantite": {
                                         "type": "integer"
@@ -8240,11 +8966,13 @@
                                 "nom_article": "table",
                                 "description": "Some notes about the facture",
                                 "prix_unitaire": 20000,
-                                "promo_id": 1,
-                                "tva": 50,
+                                "prix_achat": 25000,
+                                "promo_id": null,
+                                "tva": 18,
                                 "type_article": "produit",
                                 "unité": "tonne",
                                 "active_Stock": "oui",
+                                "id_categorie_article": 2,
                                 "quantite": 20,
                                 "quantite_alert": 10,
                                 "autres_prix": [

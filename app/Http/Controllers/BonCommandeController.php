@@ -14,6 +14,8 @@ use App\Models\FactureAccompt;
 use App\Models\ArticleBonCommande;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 
 class BonCommandeController extends Controller
@@ -344,5 +346,102 @@ public function DetailsBonCommande($id)
 
     // Retourner la réponse JSON
     return response()->json(['bonCommande_details' => $response], 200);
+}
+
+
+public function exporterBonCommandes()
+{
+    // Créer une nouvelle feuille de calcul
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Définir les en-têtes
+    $sheet->setCellValue('A1', 'Numéro');
+    $sheet->setCellValue('B1', 'Date vente');
+    $sheet->setCellValue('C1', 'Prod / Serv');
+    $sheet->setCellValue('D1', 'Numero - Client');
+    $sheet->setCellValue('E1', 'Client');
+    $sheet->setCellValue('F1', 'Adresse électronique');
+    $sheet->setCellValue('G1', 'Total HT');
+    $sheet->setCellValue('H1', 'Total TTC');
+    $sheet->setCellValue('I1', 'Statut');
+    $sheet->setCellValue('J1', 'Note Interne');
+
+
+
+    // Récupérer les données des articles
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+        $BonCommandes = BonCommande::with(['client', 'articles.article'])
+        ->where(function ($query) use ($sousUtilisateurId, $userId) {
+            $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                  ->orWhere('user_id', $userId);
+        })
+        ->get();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $BonCommandes = BonCommande::with(['client', 'articles.article'])
+        ->where(function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                  ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                      $query->where('id_user', $userId);
+                  });
+        })
+        ->get();
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    // Remplir les données
+    $row = 2;
+    foreach ($BonCommandes as $BonCommande) {
+
+        if ($BonCommande->articles->isNotEmpty()) {
+            $nomarticles = $BonCommande->articles->map(function ($articles) {
+                return $articles->article ? $articles->article->nom_article : '';
+            })->filter()->implode(', ');
+
+    
+            $nom_article = $nomarticles;
+        
+
+        $sheet->setCellValue('A' . $row, $BonCommande->num_commande);
+        $sheet->setCellValue('B' . $row, $BonCommande->date_commande);
+        $sheet->setCellValue('C' . $row, $nom_article);
+        $sheet->setCellValue('D' . $row, $BonCommande->client->num_client);
+        $sheet->setCellValue('E' . $row, $BonCommande->client->nom_client . ' - ' . $BonCommande->client->prenom_client);
+        $sheet->setCellValue('F' . $row, $BonCommande->client->email);
+        $sheet->setCellValue('G' . $row, $BonCommande->prix_HT);
+        $sheet->setCellValue('H' . $row, $BonCommande->prix_TTC);
+        $sheet->setCellValue('I' . $row, $BonCommande->statut_commande);
+        $sheet->setCellValue('J' . $row, $BonCommande->note_commande);
+
+        $row++;
+    }
+}
+
+    // Effacer les tampons de sortie pour éviter les caractères indésirables
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+
+    // Définir le nom du fichier
+    $fileName = 'BonCommandes.xlsx';
+
+    // Définir les en-têtes HTTP pour le téléchargement
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization');
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $fileName . '"');
+    header('Cache-Control: max-age=0');
+
+    // Générer le fichier et l'envoyer au navigateur
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
 }
 }

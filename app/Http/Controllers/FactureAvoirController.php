@@ -240,6 +240,7 @@ class FactureAvoirController extends Controller
                 'prix_HT' => $facture->prix_HT,
                 'prix_TTC' => $facture->prix_TTC,
                 'date' => $facture->date,
+                'statut_paiement' => 'Note de crédit',
                 'titre'=> $facture->titre,
                 'description'=> $facture->description,
                 'commentaire' => $facture->commentaire,

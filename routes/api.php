@@ -195,7 +195,8 @@ Route::controller(DeviController::class)->group(function(){
     Route::get('listerToutesDevi','listerToutesDevi');
     Route::post('supprimerDevi/{id}','supprimerDevi');
     Route::post('annulerDevi/{deviId}','annulerDevi');  
-    Route::post('DetailsDevis/{id}','DetailsDevis');  
+    Route::post('DetailsDevis/{id}','DetailsDevis'); 
+    Route::get('exporterDevis','exporterDevis'); 
 });
 
 Route::controller(BonCommandeController::class)->group(function(){
@@ -204,7 +205,8 @@ Route::controller(BonCommandeController::class)->group(function(){
     Route::get('listerTousBonCommande','listerTousBonCommande');
     Route::post('supprimerBonCommande/{id}','supprimerBonCommande');
     Route::post('annulerBonCommande/{id}','annulerBonCommande');
-    Route::post('DetailsBonCommande/{id}','DetailsBonCommande');    
+    Route::post('DetailsBonCommande/{id}','DetailsBonCommande');  
+    Route::get('exporterBonCommandes','exporterBonCommandes');  
 });
 
 Route::controller(FournisseurController::class)->group(function(){
@@ -254,8 +256,15 @@ Route::post('creerDepense',[DepenseController::class, 'creerDepense']);
 Route::get('listerDepenses',[DepenseController::class, 'listerDepenses']);
 Route::post('modifierDepense/{id}',[DepenseController::class, 'modifierDepense']);
 Route::delete('supprimerDepense/{id}',[DepenseController::class, 'supprimerDepense']);
+Route::get('exporterDepenses',[DepenseController::class, 'exporterDepenses']);
 
 Route::post('creerCommandeAchat',[CommandeAchatController::class, 'creerCommandeAchat']);
+Route::get('listerToutesCommandesAchat',[CommandeAchatController::class, 'listerToutesCommandesAchat']);
+Route::get('afficherDetailCommandeAchat/{id}',[CommandeAchatController::class, 'afficherDetailCommandeAchat']);
+Route::post('modifierCommandeAchat/{id}',[CommandeAchatController::class, 'modifierCommandeAchat']);
+Route::delete('supprimerCommandeAchat/{id}',[CommandeAchatController::class, 'supprimerCommandeAchat']);
+Route::post('annulerCommandeAchat/{id}',[CommandeAchatController::class, 'annulerCommandeAchat']);
+Route::get('exporterCommandesAchats',[CommandeAchatController::class, 'exporterCommandesAchats']);
 
 
 Route::post('ArreteCreationAutomatiqueFactureRecurrente',[FactureController::class, 'ArreteCreationAutomatiqueFactureRecurrente']);
