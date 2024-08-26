@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Devi;
 use App\Models\Facture;
 use App\Models\Echeance;
+use App\Models\Historique;
 use App\Models\ArticleDevi;
 use App\Models\BonCommande;
 use App\Models\PaiementRecu;
@@ -89,6 +90,13 @@ class DeviController extends Controller
             $devi->save();
             NumeroGeneratorService::incrementerCompteur($userId, 'devis');
 
+            Historique::create([
+                'sousUtilisateur_id' => $sousUtilisateurId,
+                'user_id' => $userId,
+                'message' => 'Des Devis ont été créés',
+                'id_devi' => $devi->id
+            ]);
+
         // Ajouter les articles à la facture
         foreach ($request->articles as $articleData) {
             $quantite = $articleData['quantite_article'];
@@ -151,6 +159,16 @@ class DeviController extends Controller
     }
 public function TransformeDeviEnFacture($deviId)
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+        $sousUtilisateurId = null;
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
     $devi = Devi::find($deviId);
     if (!$devi) {
         return response()->json(['error' => 'Devi non trouvé'], 404);
@@ -158,12 +176,28 @@ public function TransformeDeviEnFacture($deviId)
 
     $devi->statut_devi = 'transformer';
     $devi->save();
+
+    Historique::create([
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+        'message' => 'Des Devis ont été transformés en Facture',
+        'id_devi' => $devi->id
+    ]);
 
     return response()->json(['message' => 'Devi transformée avec succès', 'Devi' => $devi], 200);
 }
 
 public function TransformeDeviEnBonCommande($deviId)
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+        $sousUtilisateurId = null;
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
     $devi = Devi::find($deviId);
     if (!$devi) {
         return response()->json(['error' => 'Devi non trouvé'], 404);
@@ -171,7 +205,13 @@ public function TransformeDeviEnBonCommande($deviId)
 
     $devi->statut_devi = 'transformer';
     $devi->save();
-
+    
+    Historique::create([
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+        'message' => 'Des Devis ont été transformés en Bon de Commande',
+        'id_devi' => $devi->id
+    ]);
     return response()->json(['message' => 'Devi transformée avec succès', 'Devi' => $devi], 200);
 }
 
@@ -197,6 +237,12 @@ public function annulerDevi($deviId)
     $devi->statut_devi = 'annuler';
     $devi->save();
 
+    Historique::create([
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+        'message' => 'Des Devis ont été Annulés',
+        'id_devi' => $devi->id
+    ]);
     return response()->json(['message' => 'Devi annulé avec succès', 'devi' => $devi], 200);
 }
 

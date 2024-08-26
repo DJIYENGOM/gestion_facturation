@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ArtcleFacture;
-use App\Models\ArticleFactureRecurrente;
-use App\Models\Echeance;
 use App\Models\Facture;
-use App\Models\FactureRecurrente;
+use App\Models\Echeance;
+use App\Models\Historique;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\Models\ArtcleFacture;
+use App\Models\FactureRecurrente;
+use App\Models\ArticleFactureRecurrente;
 use App\Services\NumeroGeneratorService;
+use Illuminate\Support\Facades\Validator;
 
 
 class FactureRecurrenteController extends Controller
@@ -98,7 +99,12 @@ class FactureRecurrenteController extends Controller
             'user_id' => $userId,
         ]);
 
-        
+        Historique::create([
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+            'message' => 'Des Factures ont été créées',
+            'id_facture' => $facture->id
+        ]);
     
         return response()->json(['message' => 'Facture récurrente créée avec succès', 'factureRecurrente' => $factureRecurrente, 'facture' => $facture], 201);
     }

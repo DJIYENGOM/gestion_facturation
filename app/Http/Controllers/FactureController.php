@@ -7,6 +7,7 @@ use App\Models\Tva;
 use App\Models\Stock;
 use App\Models\Facture;
 use App\Models\Echeance;
+use App\Models\Historique;
 use App\Models\FactureAvoir;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
@@ -106,6 +107,13 @@ class FactureController extends Controller
             'tva_recolte' => $facture->prix_TTC - $facture->prix_HT, 
             'tva_deductif'=> 0,
             'tva_reverse'=> 0
+        ]);
+
+        Historique::create([
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+            'message' => 'Des Factures ont été créées',
+            'id_facture' => $facture->id
         ]);
 
         // Ajouter les articles à la facture

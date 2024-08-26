@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Tva;
 use App\Models\Depense;
 use App\Models\Echeance;
+use App\Models\Historique;
 use Illuminate\Http\Request;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
@@ -111,6 +112,7 @@ class DepenseController extends Controller
                 'doc_externe' => $request->doc_externe,
                 'num_facture' => $request->num_facture,
                 'date_facture' => $request->date_facture,
+                'image_facture' => $image_facture,
                 'statut_depense' => $request->statut_depense ?? 'impayer',
                 'id_paiement' => $request->id_paiement,
                 'fournisseur_id' => $request->fournisseur_id,
@@ -127,6 +129,13 @@ class DepenseController extends Controller
             'tva_recolte' => 0, 
             'tva_deductif'=> $depense->montant_depense_ttc - $depense->montant_depense_ht,
             'tva_reverse'=> 0
+        ]);
+
+        Historique::create([
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+            'message' => 'Des depenses ont été crées',
+            'id_depense' => $depense->id
         ]);
     
         return response()->json(['message' => 'Dépense créée avec succès', 'depense' => $depense], 201);
@@ -172,6 +181,7 @@ class DepenseController extends Controller
                 'doc_externe' => $depense->doc_externe,
                 'num_facture' => $depense->num_facture,
                 'date_facture' => $depense->date_facture,
+                'image_facture' => $depense->image_facture,
                 'statut_depense' => $depense->statut_depense,
                 'id_paiement' => $depense->id_paiement,
                 'fournisseur_id' => $depense->fournisseur_id,
@@ -206,6 +216,7 @@ class DepenseController extends Controller
             'doc_externe' => 'nullable|string|max:255',
             'num_facture' => 'nullable|string|max:255',
             'date_facture' => 'nullable|date',
+            'image_facture' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
             'statut_depense' => 'required|in:payer,impayer',
             'id_paiement' => 'nullable|required_if:statut_depense,payer|exists:payements,id',
             'fournisseur_id' => 'nullable|exists:fournisseurs,id',
@@ -214,7 +225,11 @@ class DepenseController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-    
+        $image_facture=null;
+        if($request->hasFile('image_facture')){
+            $image_facture=$request->file('image_facture')->store('images', 'public',);
+             }
+
         // Déterminer l'utilisateur ou le sous-utilisateur connecté
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
@@ -237,9 +252,18 @@ class DepenseController extends Controller
         if (!$depense) {
             return response()->json(['error' => 'Dépense non trouvée'], 404);
         }
-    
+
+        $depense->image_facture = $image_facture;
+
         // Mettre à jour la dépense
         $depense->update($request->all());
+
+        Historique::create([
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+            'message' => 'Des depenses ont été Modifiées',
+            'id_depense' => $depense->id
+        ]);
     
         return response()->json(['message' => 'Dépense modifiée avec succès', 'depense' => $depense], 200);
     }

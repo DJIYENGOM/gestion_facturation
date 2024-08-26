@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Facture;
+use App\Models\Echeance;
+use App\Models\Historique;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
-use App\Models\Echeance;
-use App\Models\Facture;
 
 class PaiementRecuController extends Controller
 {
@@ -153,6 +154,13 @@ class PaiementRecuController extends Controller
     ]);
     // Supprimez le paiement recu
     $paiementRecu->delete();
+
+    Historique::create([
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+        'message' => 'Des Paiements Recus ont été transformées en echeances',
+        'id_facture' => $facture->id
+    ]);
 
     return response()->json([
         'message' => 'Paiement recu transformé en échéance avec succès',

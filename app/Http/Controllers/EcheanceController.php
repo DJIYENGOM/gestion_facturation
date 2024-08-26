@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Facture;
 use App\Models\Echeance;
+use App\Models\Historique;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Facture;
 
 class EcheanceController extends Controller
 {
@@ -221,6 +222,13 @@ public function transformerEcheanceEnPaiementRecu(Request $request, $EcheanceId)
     ]);
     
     $Echeance->delete();
+
+    Historique::create([
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+        'message' => 'Des Echeances ont été transformées en payment Reçu',
+        'id_facture' => $facture->id
+    ]);
 
     return response()->json([
         'message' => 'Echeance transformée en payment Recu avec succès',

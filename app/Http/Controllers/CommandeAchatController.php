@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Depense;
+use App\Models\Historique;
 use Illuminate\Http\Request;
 use App\Models\CommandeAchat;
 use App\Models\ArticleCommandeAchat;
@@ -86,7 +87,12 @@ class CommandeAchatController extends Controller
 
         NumeroGeneratorService::incrementerCompteur($userId, 'commande_achat');
 
-    
+        Historique::create([
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+            'message' => 'Des Commandes d\'achat ont été  creées',
+            'id_commandeAchat' => $commande->id
+        ]);
         // Ajouter les articles à la commande
         foreach ($request->articles as $articleData) {
             ArticleCommandeAchat::create([
@@ -158,6 +164,16 @@ class CommandeAchatController extends Controller
 
 public function modifierCommandeAchat(Request $request, $id)
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+        $sousUtilisateurId = null;
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
     $commandeAchat = CommandeAchat::findOrFail($id);
 
     $validator = Validator::make($request->all(), [
@@ -189,6 +205,14 @@ public function modifierCommandeAchat(Request $request, $id)
     }
 
     $commandeAchat->update($request->except('articles'));
+
+    Historique::create([
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+        'message' => 'Des Commandes d\'achats ont été modifiés',
+        'id_commandeAchat' => $commandeAchat->id
+
+    ]);
 
     if ($request->has('articles')) {
         // Supprimer les articles existants
@@ -242,6 +266,13 @@ public function annulerCommandeAchat($id)
     $CommandeAchat->statut_commande = 'annuler';
     $CommandeAchat->save();
 
+    Historique::create([
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+        'message' => 'Des Commandes d\'achats ont été  Annulées',
+        'id_commandeAchat' => $CommandeAchat->id
+    ]);
+
     return response()->json(['message' => 'CommandeAchat annulé avec succès', 'CommandeAchat' => $CommandeAchat], 200);
 }
 
@@ -267,7 +298,14 @@ public function RecuCommandeAchat($id)
     $CommandeAchat->statut_commande = 'recu';
     $CommandeAchat->save();
 
-    return response()->json(['message' => 'CommandeAchat annulé avec succès', 'CommandeAchat' => $CommandeAchat], 200);
+    Historique::create([
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+        'message' => 'Des Commandes d\'achats ont été Recus',
+        'id_commandeAchat' => $CommandeAchat->id
+
+    ]);
+    return response()->json(['message' => 'CommandeAchat Recu avec succès', 'CommandeAchat' => $CommandeAchat], 200);
 }
 
 public function exporterCommandesAchats()

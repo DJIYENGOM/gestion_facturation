@@ -8,6 +8,7 @@ use App\Models\Article;
 use App\Models\Entrepot;
 use App\Models\Variante;
 use App\Models\AutrePrix;
+use App\Models\Historique;
 use Illuminate\Http\Request;
 use App\Exports\ArticlesExport;
 use App\Imports\ArticlesImport;
@@ -18,8 +19,8 @@ use App\Models\NoteJustificative;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Storage;
 
+use Illuminate\Support\Facades\Storage;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -125,6 +126,22 @@ class ArticleController extends Controller
     
         $article->save();
         NumeroGeneratorService::incrementerCompteur($user_id, $typeDocument);
+
+        if($typeDocument == 'produit'){
+            Historique::create([
+                'sousUtilisateur_id' => $sousUtilisateur_id,
+                'user_id' => $user_id,
+                'message' => 'Des Produits ont été Ajoutés',
+                'is_article' => $article->id
+            ]);
+        }else{
+            Historique::create([
+                'sousUtilisateur_id' => $sousUtilisateur_id,
+                'user_id' => $user_id,
+                'message' => 'Des Services ont été Ajoutés',
+                'is_article' => $article->id
+            ]);
+        }
 
     
         if ($request->has('autres_prix')) {
@@ -370,6 +387,22 @@ class ArticleController extends Controller
         $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_achat : null;
     
         $article->update();
+
+        if($article->type_article == 'produit'){
+            Historique::create([
+                'sousUtilisateur_id' => $sousUtilisateur_id,
+                'user_id' => $user_id,
+                'message' => 'Des Produits ont été Modifiés',
+                'is_article' => $article->id
+            ]);
+        }else{
+            Historique::create([
+                'sousUtilisateur_id' => $sousUtilisateur_id,
+                'user_id' => $user_id,
+                'message' => 'Des Services ont été Modifiés',
+                'is_article' => $article->id
+            ]);
+        }
     
         // Gérer les autres prix
         if ($request->has('autres_prix')) {

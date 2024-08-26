@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\ArtcleFacture;
 use App\Models\FactureAccompt;
 use App\Models\ArticleBonCommande;
+use App\Models\Historique;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -80,6 +81,14 @@ class BonCommandeController extends Controller
     
         $commande->save();
         NumeroGeneratorService::incrementerCompteur($userId, 'commande');
+
+        Historique::create([
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+            'message' => 'Des Bons de Commandes ont été creés',
+            'id_bonCommande' => $commande->id
+
+        ]);
 
     
         // Ajouter les articles à la facture
@@ -150,14 +159,33 @@ class BonCommandeController extends Controller
 
     public function TransformeBonCommandeEnFacture($id)
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+        $sousUtilisateurId = null;
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
     $BonCommande = BonCommande::find($id);
     if (!$BonCommande) {
         return response()->json(['error' => 'BonCommande non trouvé'], 404);
     }
     $BonCommande->statut_commande = 'transformer';
     $BonCommande->save();
+
+    Historique::create([
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+        'message' => 'Des Bons de Commandes ont été transformés en Facture',
+        'id_bonCommande' => $BonCommande->id
+
+    ]);
     return response()->json(['message' => 'BonCommande transformée avec succès', 'BonCommande' => $BonCommande], 200);
 
+   
 }
 
 public function annulerBonCommande($id)
@@ -181,6 +209,13 @@ public function annulerBonCommande($id)
     // Mettre à jour le statut du BonCommandes en "annuler"
     $BonCommande->statut_commande = 'annuler';
     $BonCommande->save();
+
+    Historique::create([
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+        'message' => 'Des Bons de Commandes ont été Annulés',
+        'id_bonCommande' => $BonCommande->id
+    ]);
 
     return response()->json(['message' => 'BonCommande annulé avec succès', 'BonCommande' => $BonCommande], 200);
 }

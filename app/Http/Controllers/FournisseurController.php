@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Historique;
 use App\Models\Fournisseur;
 use Illuminate\Http\Request;
 use App\Models\CompteComptable;
-use Illuminate\Support\Facades\Validator;
 use App\Services\NumeroGeneratorService;
+use Illuminate\Support\Facades\Validator;
 
 class FournisseurController extends Controller
 {
@@ -105,6 +106,13 @@ class FournisseurController extends Controller
         $fournisseur->save();
         NumeroGeneratorService::incrementerCompteur($userId, 'fournisseur');
 
+        Historique::create([
+            'sousUtilisateur_id' => $sousUtilisateur_id,
+            'user_id' => $user_id,
+            'message' => 'Des Fournisseurs ont été Ajoutés',
+            'id_fournisseur' => $fournisseur->id
+        ]);
+
         return response()->json(['message' => 'fournisseur ajouté avec succès', 'fournisseur' => $fournisseur]);
     }
 
@@ -192,6 +200,13 @@ class FournisseurController extends Controller
     // Mettre à jour les données du fournisseur
     $fournisseur->update($request->all());
 
+    Historique::create([
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+        'message' => 'Des Fournisseurs ont été Modifiés',
+        'id_fournisseur' => $fournisseur->id
+    ]);
+
     return response()->json(['message' => 'fournisseur modifié avec succès', 'fournisseur' => $fournisseur]);
 }
 
@@ -211,7 +226,7 @@ public function supprimerFournisseur($id)
                 $fournisseur->delete();
             return response()->json(['message' => 'fournisseur supprimé avec succès']);
             }else {
-                return response()->json(['error' => 'ce sous utilisateur ne peut pas modifier ce fournisseur'], 401);
+                return response()->json(['error' => 'ce sous utilisateur ne peut pas supprimer ce fournisseur'], 401);
             }
 
     }elseif (auth()->check()) {
@@ -227,7 +242,7 @@ public function supprimerFournisseur($id)
                 $fournisseur->delete();
                 return response()->json(['message' => 'fournisseur supprimé avec succès']);
             }else {
-                return response()->json(['error' => 'cet utilisateur ne peut pas modifier ce fournisseur'], 401);
+                return response()->json(['error' => 'cet utilisateur ne peut pas supprimer ce fournisseur'], 401);
             }
 
     }else {

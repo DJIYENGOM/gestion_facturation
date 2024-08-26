@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ArticleFactureAvoir;
+use Carbon\Carbon;
 use App\Models\Facture;
+use App\Models\Historique;
 use App\Models\FactureAvoir;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use App\Services\NumeroGeneratorService;
-use Carbon\Carbon;
+use App\Models\ArticleFactureAvoir;
 use Illuminate\Support\Facades\Log;
+use App\Services\NumeroGeneratorService;
+use Illuminate\Support\Facades\Validator;
 
 
 
@@ -107,6 +108,12 @@ class FactureAvoirController extends Controller
             ]);
         }
 
+        Historique::create([
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+            'message' => 'Des Factures d\'avoir ont été crées',
+            'id_facture_avoir' => $factureAvoir->id
+        ]);
         return response()->json(['message' => 'factureAvoir créée avec succès', 'factureAvoir' => $factureAvoir], 201);
 
     }

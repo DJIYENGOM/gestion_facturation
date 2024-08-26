@@ -15,6 +15,7 @@ use App\Http\Controllers\EcheanceController;
 use App\Http\Controllers\EntrepotController;
 use App\Http\Controllers\PayementController;
 use App\Http\Controllers\LivraisonController;
+use App\Http\Controllers\HistoriqueController;
 use App\Http\Controllers\BonCommandeController;
 use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\FactureAvoirController;
@@ -269,3 +270,10 @@ Route::get('exporterCommandesAchats',[CommandeAchatController::class, 'exporterC
 
 
 Route::post('ArreteCreationAutomatiqueFactureRecurrente',[FactureController::class, 'ArreteCreationAutomatiqueFactureRecurrente']);
+
+Route::controller(HistoriqueController::class)->group(function(){
+
+    Route::get('listerMessagesHistoriqueAujourdhui','listerMessagesHistoriqueAujourdhui');
+    Route::post('supprimerHistorique/{id}','supprimerHistorique');
+
+});
