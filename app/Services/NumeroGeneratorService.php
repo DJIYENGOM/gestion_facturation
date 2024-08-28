@@ -16,7 +16,7 @@ class NumeroGeneratorService
 
         // Si aucune configuration n'est trouvée, retourner null ou générer une exception selon le besoin
         if (!$configuration) {
-            return "pas de numero";
+            return "000000";
         }
         
         // Si le compteur est à 0, initialiser à 1
@@ -31,7 +31,7 @@ class NumeroGeneratorService
         if ($configuration->type_numerotation === 'avec_prefixe' && $configuration->prefixe) {
             $numero .= $configuration->prefixe;
 
-            switch ($configuration->format ?? 'annee') { // Utiliser 'annee' comme format par défaut
+            switch ($configuration->format ?? null) { // Utiliser 'annee' comme format par défaut
                 case 'annee':
                     $numero .= Carbon::now()->format('Y');
                     break;

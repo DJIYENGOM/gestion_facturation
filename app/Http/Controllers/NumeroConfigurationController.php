@@ -22,7 +22,7 @@ class NumeroConfigurationController extends Controller
             'type_document' => 'required|in:facture,livraison,produit,service,client,devis,commande,depense,fournisseur,commande_achat',
             'type_numerotation' => 'required|in:par_defaut,avec_prefixe',
             'prefixe' => 'nullable|required_if:type_numerotation,avec_prefixe|string|max:10',
-            'format' => 'nullable|required_if:type_numerotation,avec_prefixe|in:annee,annee_mois,annee_mois_jour',
+            'format' => 'nullable|in:annee,annee_mois,annee_mois_jour',
         ]);
 
         // En cas d'échec de validation, retourner les erreurs
@@ -41,7 +41,7 @@ class NumeroConfigurationController extends Controller
             [
                 'type_numerotation' => $request->type_numerotation,
                 'prefixe' => $request->prefixe,
-                'format' => $request->format,
+                'format' => $request->format ?? null,
                 'compteur' => 0, // Réinitialiser le compteur à 0 lors de la configuration
             ]
         );

@@ -23,6 +23,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Notification;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -274,6 +275,18 @@ class ArticleController extends Controller
 
         }
 
+    if($article->quantite!= null && $article->quantite_alert!= null){
+
+        if($article->quantite== $article->quantite_alert || $article->quantite < $article->quantite_alert)
+        {
+            Notification::create([
+                'sousUtilisateur_id' => $sousUtilisateur_id,
+                'user_id' => $user_id,
+                'id_article' => $article->id,
+                'message' => 'La quantité des produits (' .$article->nom_article . ') atteind la quantité d\'alerte.',
+            ]);
+        }
+    }
         return response()->json(['message' => 'Article ajouté avec succès', 'article' => $article]);
     }
     
@@ -454,6 +467,102 @@ class ArticleController extends Controller
                     'quantiteArt_entrepot' => $entrepot['quantiteArt_entrepot'],
                 ]);
                 $entrepotArticle->save();
+            }
+        }
+
+        $numStock = $article->num_article;
+    
+        if ($request->active_Stock === 'oui') {
+            if ($request->has('lots')) {
+                foreach ($request->lots as $lot) {
+                    $stock = new Stock();
+                   $stock->date_stock = now()->format('Y-m-d');
+                    $stock->num_stock = $numStock;
+                    $stock->libelle = $article->nom_article . ' - ' . $lot['nomLot'];
+                    $stock->disponible_avant = 0;
+                    $stock->modif = $lot['quantiteLot'];
+                    $stock->disponible_apres = $lot['quantiteLot'];
+                    $stock->article_id = $article->id;
+                    $stock->facture_id = null;
+                    $stock->bonCommande_id = null;
+                    $stock->livraison_id = null;
+                    $stock->sousUtilisateur_id = $sousUtilisateur_id;
+                    $stock->user_id = $user_id;
+                    $stock->save();
+                }
+            }
+    
+            if ($request->has('entrepots')) {
+                foreach ($request->entrepots as $entrepot) {
+                    $Entrepot=Entrepot::Where('id', $entrepot['entrepot_id']);
+
+                    $nomEntrepot = $Entrepot->first()->nomEntrepot;
+
+                    $stock = new Stock();
+                    $stock->date_stock = now()->format('Y-m-d');
+                    $stock->num_stock = $numStock;
+                    $stock->libelle = $article->nom_article . ' - ' . $nomEntrepot;
+                    $stock->disponible_avant = 0;
+                    $stock->modif = $entrepot['quantiteArt_entrepot'];
+                    $stock->disponible_apres = $entrepot['quantiteArt_entrepot'];
+                    $stock->article_id = $article->id;
+                    $stock->facture_id = null;
+                    $stock->bonCommande_id = null;
+                    $stock->livraison_id = null;
+                    $stock->sousUtilisateur_id = $sousUtilisateur_id;
+                    $stock->user_id = $user_id;
+                    $stock->save();
+                }
+            }
+    
+            if ($request->has('variantes')) {
+                foreach($request->variantes as $variante) {
+                    $stock = new Stock();
+                   $stock->date_stock = now()->format('Y-m-d');
+                    $stock->num_stock = $numStock;
+                    $stock->libelle = $article->nom_article . ' - ' . $variante['nomVariante'];
+                    $stock->disponible_avant = 0;
+                    $stock->modif = $variante['quantiteVariante'];
+                    $stock->disponible_apres = $variante['quantiteVariante'];
+                    $stock->article_id = $article->id;
+                    $stock->facture_id = null;
+                    $stock->bonCommande_id = null;
+                    $stock->livraison_id = null;
+                    $stock->sousUtilisateur_id = $sousUtilisateur_id;
+                    $stock->user_id = $user_id;
+                    $stock->save();
+                }
+            }
+    
+            if (!$request->has('lots') && !$request->has('variantes') && !$request->has('entrepots')) {
+                $stock = new Stock();
+               $stock->date_stock = now()->format('Y-m-d');
+                $stock->num_stock = $numStock; 
+                $stock->libelle = $article->nom_article. ' - original';
+                $stock->disponible_avant = 0;
+                $stock->modif = $article->quantite ?? 0;
+                $stock->disponible_apres = $article->quantite ?? 0;
+                $stock->article_id = $article->id;
+                $stock->facture_id = null;
+                $stock->bonCommande_id = null;
+                $stock->livraison_id = null;
+                $stock->sousUtilisateur_id = $sousUtilisateur_id;
+                $stock->user_id = $user_id;
+                $stock->save();
+            }
+
+        }
+
+        if($article->quantite!= null && $article->quantite_alert!= null){
+
+            if($article->quantite== $article->quantite_alert || $article->quantite < $article->quantite_alert)
+            {
+                Notification::create([
+                    'sousUtilisateur_id' => $sousUtilisateur_id,
+                    'user_id' => $user_id,
+                    'id_article' => $article->id,
+                    'message' => 'La quantité des produits (' .$article->nom_article . ') atteind la quantité d\'alerte.',
+                ]);
             }
         }
     

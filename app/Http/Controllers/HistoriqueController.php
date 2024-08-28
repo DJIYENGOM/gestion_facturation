@@ -33,8 +33,8 @@ public function listerMessagesHistoriqueAujourdhui()
 
     // Filtrer par utilisateur ou sous-utilisateur
     if ($sousUtilisateurId) {
-        $historiquesQuery->where('sousUtilisateur_id', $sousUtilisateurId)
-                         ->orWhere('user_id', $userId);
+        $historiquesQuery->where('sousUtilisateur_id', $sousUtilisateurId);
+        
     } else {
         $historiquesQuery->where('user_id', $userId);
     }
@@ -44,46 +44,33 @@ public function listerMessagesHistoriqueAujourdhui()
     return response()->json($historiques);
 }
 
-public function supprimerHistorique($id)
-{
 
-    if (auth()->guard('apisousUtilisateur')->check()) {
-        $sousUtilisateurId = auth('apisousUtilisateur')->id();
-        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+    public function supprimerMessagesParType(Request $request)
+    {
+        $messageType = $request->input('message'); // Type de message à supprimer
 
-       $Historique = Historique::where('id',$id)
-            ->where('sousUtilisateur_id', $sousUtilisateurId)
-            ->orWhere('user_id', $userId)
-            ->first();
-        if ($Historique)
-            {
-                $Historique->delete();
-            return response()->json(['message' => 'Historique supprimé avec succès']);
-            }else {
-                return response()->json(['error' => 'ce sous utilisateur ne peut pas supprimé cet Historique'], 401);
-            }
+        // Vérification de l'utilisateur connecté
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user;
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+            $sousUtilisateurId = null;
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
-    }elseif (auth()->check()) {
-        $userId = auth()->id();
+        // Suppression des messages en fonction du type et de l'utilisateur
+        $historiquesQuery = Historique::where('message', $messageType);
 
-        $Historique = Historique::where('id',$id)
-            ->where('user_id', $userId)
-            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
-                $query->where('id_user', $userId);
-            })
-            ->first();
+        if ($sousUtilisateurId) {
+            $historiquesQuery->where('sousUtilisateur_id', $sousUtilisateurId);
+        } else {
+            $historiquesQuery->where('user_id', $userId);
+        }
 
-            if ($Historique)
-            {
-                $Historique->delete();
-                return response()->json(['message' => 'Historique supprimé avec succès']);
-            }else {
-                return response()->json(['error' => 'cet utilisateur ne peut pas supprimé cet Historique'], 401);
-            }
+        $deleted = $historiquesQuery->delete();
 
-    }else {
-        return response()->json(['error' => 'Unauthorizedd'], 401);
+        return response()->json(['deleted' => $deleted, 'message' => "Messages de type '{$messageType}' supprimés"], 200);
     }
-
-}
 }

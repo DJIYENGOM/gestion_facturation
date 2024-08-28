@@ -2,6 +2,7 @@
 <?php
 use App\Models\BonCommande;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TvaController;
 use App\Http\Controllers\DeviController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PromoController;
@@ -31,6 +32,7 @@ use App\Http\Controllers\CategorieDepenseController;
 use App\Http\Controllers\FactureRecurrenteController;
 use App\Http\Controllers\NoteJustificativeController;
 use App\Http\Controllers\Info_SupplementaireController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NumeroConfigurationController;
 
 Route::controller(AuthController::class)->group(function () {
@@ -275,5 +277,11 @@ Route::controller(HistoriqueController::class)->group(function(){
 
     Route::get('listerMessagesHistoriqueAujourdhui','listerMessagesHistoriqueAujourdhui');
     Route::post('supprimerHistorique/{id}','supprimerHistorique');
-
 });
+
+Route::controller(NotificationController::class)->group(function(){
+    Route::get('listerNotifications','listerNotifications');
+    Route::post('supprimeNotificationParType','supprimeNotificationParType');
+});
+
+Route::get ('InfoSurTva_Recolte_Deductif_Reverse', [TvaController::class, 'InfoSurTva_Recolte_Deductif_Reverse']);

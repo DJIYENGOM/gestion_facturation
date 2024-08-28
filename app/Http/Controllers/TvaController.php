@@ -2,64 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Tva;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TvaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function InfoSurTva_Recolte_Deductif_Reverse()
     {
-        //
-    }
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+            // Requête pour obtenir les totaux pour le sous-utilisateur et l'utilisateur parent
+            $tvas = DB::table('tvas')
+                ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                    $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                          ->orWhere('user_id', $userId);
+                })
+                ->get();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Tva $tva)
-    {
-        //
-    }
+            // Requête pour obtenir les totaux pour l'utilisateur principal et ses sous-utilisateurs
+            $tvas = DB::table('tvas')
+                ->where(function ($query) use ($userId) {
+                    $query->where('user_id', $userId)
+                          ->orWhere('sousUtilisateur_id', $userId);
+                })
+                ->get();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Tva $tva)
-    {
-        //
-    }
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Tva $tva)
-    {
-        //
-    }
+        $totalTvaRecolte = $tvas->sum('tva_recolte');
+        $totalTvaDeductif = $tvas->sum('tva_deductif');
+        $totalTvaReverse = $totalTvaRecolte - $totalTvaDeductif;
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Tva $tva)
-    {
-        //
+        // Préparation de la réponse
+        $response = [
+            'total_tva_recolte' => $totalTvaRecolte,
+            'total_tva_deductif' => $totalTvaDeductif,
+            'total_tva_reverse' => $totalTvaReverse,
+        ];
+
+        return response()->json($response, 200);
     }
 }

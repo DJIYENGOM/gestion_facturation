@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Stock;
+use App\Models\Article;
 use App\Models\Facture;
 use App\Models\Echeance;
 use App\Models\Livraison;
+use App\Models\Notification;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use App\Models\ArtcleFacture;
@@ -121,6 +123,19 @@ class LivraisonController extends Controller
                     $stock->sousUtilisateur_id = $sousUtilisateurId;
                     $stock->user_id = $userId;
                     $stock->save();
+                }
+                $articleDb = Article::find($article->id_article);
+        
+                if ($articleDb && isset($articleDb->quantite) && isset($articleDb->quantite_alert)) {
+                    // Créer une notification si la quantité atteint ou est inférieure à la quantité d'alerte
+                    if ($articleDb->quantite <= $articleDb->quantite_alert) {
+                        Notification::create([
+                            'sousUtilisateur_id' => $sousUtilisateurId,
+                            'user_id' => $userId,
+                            'id_article' => $articleDb->id,
+                            'message' => 'La quantité des produits (' . $articleDb->nom_article . ') atteint la quantité d\'alerte.',
+                        ]);
+                    }
                 }
             }
         }
