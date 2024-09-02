@@ -56,13 +56,17 @@ class DepenseController extends Controller
     
         // Déterminer l'utilisateur ou le sous-utilisateur connecté
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user;
         } elseif (auth()->check()) {
             $userId = auth()->id();
             $sousUtilisateurId = null;
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
         
@@ -144,6 +148,10 @@ class DepenseController extends Controller
     public function listerDepenses()
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+          if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+            }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
@@ -161,7 +169,7 @@ class DepenseController extends Controller
                 })
                 ->get();
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
         $response = $depenses->map(function ($depense) {
@@ -232,13 +240,17 @@ class DepenseController extends Controller
 
         // Déterminer l'utilisateur ou le sous-utilisateur connecté
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user;
         } elseif (auth()->check()) {
             $userId = auth()->id();
             $sousUtilisateurId = null;
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
         // Récupérer la dépense à modifier
@@ -272,13 +284,17 @@ class DepenseController extends Controller
 {
     // Déterminer l'utilisateur ou le sous-utilisateur connecté
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin && !$sousUtilisateur->supprimer_donnees) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user;
     } elseif (auth()->check()) {
         $userId = auth()->id();
         $sousUtilisateurId = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Récupérer la dépense à supprimer
@@ -322,6 +338,12 @@ public function exporterDepenses()
 
     // Récupérer les données des articles
     if (auth()->guard('apisousUtilisateur')->check()) {
+
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->export_excel && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
+
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -343,7 +365,7 @@ public function exporterDepenses()
         })
         ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Remplir les données
@@ -391,4 +413,5 @@ public function exporterDepenses()
     $writer->save('php://output');
     exit;
 }
+
 }

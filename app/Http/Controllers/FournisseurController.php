@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\CompteComptable;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class FournisseurController extends Controller
 {
@@ -15,6 +17,10 @@ class FournisseurController extends Controller
     public function ajouterFournisseur(Request $request)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateur_id = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user;
         } elseif (auth()->check()) {
@@ -120,6 +126,10 @@ class FournisseurController extends Controller
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+              return response()->json(['error' => 'Accès non autorisé'], 403);
+              }
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
             $fournisseurs = Fournisseur::where('sousUtilisateur_id', $sousUtilisateurId)
@@ -134,7 +144,7 @@ class FournisseurController extends Controller
                 })
                 ->get();
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
         return response()->json($fournisseurs);
@@ -146,6 +156,10 @@ class FournisseurController extends Controller
 
     // Déterminer l'utilisateur authentifié
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         if ($fournisseur->sousUtilisateur_id !== $sousUtilisateurId) {
             return response()->json(['error' => 'Cette sous-utilisateur ne peut pas modifier ce fournisseur car il ne l\'a pas créé'], 401);
@@ -156,7 +170,7 @@ class FournisseurController extends Controller
             return response()->json(['error' => 'Cet utilisateur ne peut pas modifier ce fournisseur car il ne l\'a pas créé'], 401);
         }
     } else {
-        return response()->json(['error' => 'Non autorisé'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     $commonRules = [
@@ -214,6 +228,10 @@ public function supprimerFournisseur($id)
 {
 
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin && !$sousUtilisateur->supprimer_donnees) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -246,8 +264,102 @@ public function supprimerFournisseur($id)
             }
 
     }else {
-        return response()->json(['error' => 'Unauthorizedd'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
+}
+
+public function exporterFournisseurs()
+{
+    // Créer une nouvelle feuille de calcul
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Définir les en-têtes
+    $sheet->setCellValue('A1', 'Numéro');
+    $sheet->setCellValue('B1', 'Prenom Fournisseur');
+    $sheet->setCellValue('C1', 'Nom Fournisseur');
+    $sheet->setCellValue('D1', 'Email Fournisseur');
+    $sheet->setCellValue('E1', 'Adress Fournisseur');
+    $sheet->setCellValue('F1', 'Tel Fournisseur');
+    $sheet->setCellValue('G1', 'Entreprise Fournisseur)');
+    $sheet->setCellValue('H1', 'N° Fiscal');
+    $sheet->setCellValue('I1', 'Pays Fournisseur');
+    $sheet->setCellValue('J1', 'Ville Fournisseur');
+    $sheet->setCellValue('K1', 'Note Interne');
+    $sheet->setCellValue('L1', 'Code Postal');
+
+    // Récupérer les données des articles
+    if (auth()->guard('apisousUtilisateur')->check()) {
+
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->export_excel && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
+
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+        $Fournisseurs = Fournisseur::where(function ($query) use ($sousUtilisateurId, $userId) {
+            $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                  ->orWhere('user_id', $userId);
+        })
+        ->get();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $Fournisseurs = Fournisseur::where(function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                  ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                      $query->where('id_user', $userId);
+                  });
+        })
+        ->get();
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
+
+    // Remplir les données
+    $row = 2;
+    foreach ($Fournisseurs as $Fournisseur) {
+       
+
+        $sheet->setCellValue('A' . $row, $Fournisseur->num_Fournisseur);
+        $sheet->setCellValue('B' . $row, $Fournisseur->prenom_Fournisseur);
+        $sheet->setCellValue('C' . $row, $Fournisseur->nom_Fournisseur);
+        $sheet->setCellValue('D' . $row, $Fournisseur->email_Fournisseur);
+        $sheet->setCellValue('E' . $row, $Fournisseur->adress_Fournisseur);
+        $sheet->setCellValue('F' . $row, $Fournisseur->tel_Fournisseur);
+        $sheet->setCellValue('G' . $row, $Fournisseur->nom_entreprise);
+        $sheet->setCellValue('H' . $row, $Fournisseur->num_id_fiscal);
+        $sheet->setCellValue('I' . $row, $Fournisseur->pays_fournisseur);
+        $sheet->setCellValue('J' . $row, $Fournisseur->ville_fournisseur);
+        $sheet->setCellValue('K' . $row, $Fournisseur->noteInterne_fournisseur);
+        $sheet->setCellValue('L' . $row, $Fournisseur->code_postal_fournisseur);
+   
+
+        $row++;
+    }
+
+    // Effacer les tampons de sortie pour éviter les caractères indésirables
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+
+    // Définir le nom du fichier
+    $fileName = 'Fournisseurs.xlsx';
+
+    // Définir les en-têtes HTTP pour le téléchargement
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization');
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $fileName . '"');
+    header('Cache-Control: max-age=0');
+
+    // Générer le fichier et l'envoyer au navigateur
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
 }
 }

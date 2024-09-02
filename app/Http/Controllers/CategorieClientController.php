@@ -13,13 +13,17 @@ class CategorieClientController extends Controller
     public function ajouterCategorie(Request $request)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour ce sous-utilisateur'], 403);
+            }
             $sousUtilisateur_id = auth('apisousUtilisateur')->id();
-            $user_id = null;
+            $user_id = auth('apisousUtilisateur')->user()->id_user;
         } elseif (auth()->check()) {
             $user_id = auth()->id();
             $sousUtilisateur_id = null;
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
         $validator = Validator::make($request->all(), [
@@ -60,7 +64,7 @@ class CategorieClientController extends Controller
                 })
                 ->get();
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
         return response()->json(['CategorieClient' => $categories]);
@@ -71,6 +75,10 @@ class CategorieClientController extends Controller
     $categorie = CategorieClient::findOrFail($id);
 
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
         $sousUtilisateur_id = auth('apisousUtilisateur')->id();
         if ($categorie->sousUtilisateur_id !== $sousUtilisateur_id) {
             return response()->json(['error' => 'cette sous utilisateur ne peut pas modifier ce categorie car il ne l\'a pas creer'], 401);
@@ -83,7 +91,7 @@ class CategorieClientController extends Controller
         }
         $sousUtilisateur_id = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
 
@@ -105,6 +113,10 @@ public function supprimerCategorie($id)
 {
 
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin && !$sousUtilisateur->supprimer_donnees) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -138,7 +150,7 @@ public function supprimerCategorie($id)
             }
 
     }else {
-        return response()->json(['error' => 'Unauthorizedd'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
 }

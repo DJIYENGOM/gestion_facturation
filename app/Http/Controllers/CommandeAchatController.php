@@ -46,6 +46,10 @@ class CommandeAchatController extends Controller
         }
     
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->commande_achat && !$sousUtilisateur->fonction_admin) {
+              return response()->json(['error' => 'Accès non autorisé'], 403);
+              }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user;
         } elseif (auth()->check()) {
@@ -137,6 +141,10 @@ class CommandeAchatController extends Controller
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+              return response()->json(['error' => 'Accès non autorisé'], 403);
+              }
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
             $CommandeAchats = CommandeAchat::with('articles.article', 'fournisseur', 'depense')
@@ -188,6 +196,10 @@ class CommandeAchatController extends Controller
 public function modifierCommandeAchat(Request $request, $id)
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->commande_achat && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     } elseif (auth()->check()) {
@@ -261,6 +273,21 @@ public function modifierCommandeAchat(Request $request, $id)
 
 public function supprimerCommandeAchat($id)
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->commande_achat && !$sousUtilisateur->fonction_admin && !$sousUtilisateur->supprimer_donnees) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = null;
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
+
     $commandeAchat = CommandeAchat::findOrFail($id);
     $commandeAchat->delete();
 
@@ -276,6 +303,10 @@ public function annulerCommandeAchat($id)
     }
 
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->commande_achat && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user;
     } elseif (auth()->check()) {
@@ -308,6 +339,10 @@ public function RecuCommandeAchat($id)
     }
 
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->commande_achat && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user;
     } elseif (auth()->check()) {
@@ -352,6 +387,10 @@ public function exporterCommandesAchats()
 
     // Récupérer les données des articles
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->export_excel && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 

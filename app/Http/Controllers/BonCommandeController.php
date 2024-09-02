@@ -53,13 +53,17 @@ class BonCommandeController extends Controller
     }
 
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour ce sous-utilisateur'], 403);
+            }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
         } elseif (auth()->check()) {
             $userId = auth()->id();
             $sousUtilisateurId = null;
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
 
         $typeDocument = 'commande';
@@ -175,13 +179,17 @@ class BonCommandeController extends Controller
     public function TransformeBonCommandeEnFacture($id)
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     } elseif (auth()->check()) {
         $userId = auth()->id();
         $sousUtilisateurId = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     $BonCommande = BonCommande::find($id);
@@ -212,13 +220,17 @@ public function annulerBonCommande($id)
     }
 
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user;
     } elseif (auth()->check()) {
         $userId = auth()->id();
         $sousUtilisateurId = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Mettre à jour le statut du BonCommandes en "annuler"
@@ -238,6 +250,10 @@ public function annulerBonCommande($id)
 public function listerTousBonCommande()
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
@@ -261,7 +277,7 @@ public function listerTousBonCommande()
             })
             ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 // Construire la réponse avec les détails des BonCommandes et les noms des clients
 $response = [];
@@ -288,6 +304,11 @@ return response()->json(['BonCommandes' => $response]);
 public function supprimerBonCommande($id)
 {    
     if (auth()->guard('apisousUtilisateur')->check()) {
+
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin && !$sousUtilisateur->supprimer_donnees) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -322,13 +343,27 @@ public function supprimerBonCommande($id)
             }
 
     }else {
-        return response()->json(['error' => 'Unauthorizedd'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connectéd'], 401);
     }
 
 }
 
 public function DetailsBonCommande($id)
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = null;
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
     // Rechercher la facture par son numéro
     $bonCommande = BonCommande::where('id', $id)
                 ->with(['client', 'articles.article', 'echeances'])
@@ -421,6 +456,10 @@ public function exporterBonCommandes()
 
     // Récupérer les données des articles
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->export_excel && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -442,7 +481,7 @@ public function exporterBonCommandes()
         })
         ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Remplir les données

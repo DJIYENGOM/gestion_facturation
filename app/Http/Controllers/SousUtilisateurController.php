@@ -17,6 +17,7 @@ class SousUtilisateurController extends Controller
     
     public function ajouterSousUtilisateur(Request $request)
     {
+        if (auth()->check()) {
         $user = auth()->user();
 
         // Valider les données de la requête
@@ -26,7 +27,13 @@ class SousUtilisateurController extends Controller
             'email' => 'required|string|email|unique:sous__utilisateurs|max:255',
             'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/'],
             'role'=> 'required|in:administrateur,utilisateur_simple',
-           // 'id_role' => 'required|exists:roles,id', 
+            'visibilite_globale'=> 'nullable|in:1,0',
+            'fonction_admin'=> 'nullable|in:1,0',
+            'acces_rapport'=> 'nullable|in:1,0',
+            'gestion_stock'=> 'nullable|in:1,0',
+            'commande_achat'=> 'nullable|in:1,0',
+            'export_excel'=> 'nullable|in:1,0',
+            'supprimer_donnees'=> 'nullable|in:1,0',
         ]);
 
         if ($validator->fails()) {
@@ -43,7 +50,15 @@ class SousUtilisateurController extends Controller
             'id_role' => $request->input('id_role'), 
             'id_user' => $user->id, 
             'archiver' => 'non', 
-            'role' => $request->input('role')
+            'role' => $request->input('role'),
+
+            'visibilite_globale' => $request->input('visibilite_globale'),
+            'fonction_admin' => $request->input('fonction_admin'),
+            'acces_rapport' => $request->input('acces_rapport'),
+            'gestion_stock' => $request->input('gestion_stock'),
+            'commande_achat' => $request->input('commande_achat'),
+            'export_excel' => $request->input('export_excel'),
+            'supprimer_donnees' => $request->input('supprimer_donnees'),
         ]);
 
         //dd($utilisateur);
@@ -51,6 +66,8 @@ class SousUtilisateurController extends Controller
         $utilisateur->save();
     
         return response()->json(['message' => 'Utilisateur ajouté avec succès' , 'utilisateur' => $utilisateur]);
+         }
+          return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     /**
@@ -62,14 +79,16 @@ class SousUtilisateurController extends Controller
             $user = auth()->user();
 
         $utilisateurs = DB::table('sous__utilisateurs')
-        ->select('sous__utilisateurs.id', 'sous__utilisateurs.nom', 'sous__utilisateurs.prenom', 'sous__utilisateurs.email', 'sous__utilisateurs.password', 'sous__utilisateurs.role', 'sous__utilisateurs.id_user', 'sous__utilisateurs.archiver', 'sous__utilisateurs.created_at', 'sous__utilisateurs.updated_at')
+        ->select('sous__utilisateurs.id', 'sous__utilisateurs.nom', 'sous__utilisateurs.prenom', 'sous__utilisateurs.email', 'sous__utilisateurs.password', 'sous__utilisateurs.role', 'sous__utilisateurs.id_user', 'sous__utilisateurs.archiver',
+         'sous__utilisateurs.visibilite_globale', 'sous__utilisateurs.fonction_admin', 'sous__utilisateurs.acces_rapport', 'sous__utilisateurs.gestion_stock', 'sous__utilisateurs.commande_achat', 'sous__utilisateurs.export_excel', 'sous__utilisateurs.supprimer_donnees',
+         'sous__utilisateurs.created_at', 'sous__utilisateurs.updated_at')
         ->where('sous__utilisateurs.archiver', 'non' )
         ->where('sous__utilisateurs.id_user', $user->id)
         ->get();
 
          return response()->json($utilisateurs);
         }
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
 
     }
 
@@ -87,7 +106,7 @@ class SousUtilisateurController extends Controller
 
           return response()->json($utilisateurs);
        }
-       return response()->json(['error' => 'Unauthorized'], 401);
+       return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
 
     }
     public function modifierSousUtilisateur(Request $request, $id)
@@ -102,7 +121,16 @@ class SousUtilisateurController extends Controller
             'email' => 'required|string|email|max:255|unique:sous__utilisateurs,email,'.$id,
             'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/'],
             'role'=> 'required|in:administrateur,utilisateur_simple',
-            'archiver' => 'required|in:oui,non' 
+            'archiver' => 'required|in:oui,non' ,
+            'visibilite_globale'=> 'nullable|in:1,0',
+            'fonction_admin'=> 'nullable|in:1,0',
+            'acces_rapport'=> 'nullable|in:1,0',
+            'gestion_stock'=> 'nullable|in:1,0',
+            'commande_achat'=> 'nullable|in:1,0',
+            'export_excel'=> 'nullable|in:1,0',
+            'supprimer_donnees'=> 'nullable|in:1,0',
+
+
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -118,6 +146,13 @@ class SousUtilisateurController extends Controller
         $utilisateur->role = $request->input('role'); 
         $utilisateur->archiver = $request->input('archiver'); 
         $utilisateur->id_user = $user->id; 
+        $utilisateur->visibilite_globale = $request->input('visibilite_globale');
+        $utilisateur->fonction_admin = $request->input('fonction_admin');
+        $utilisateur->acces_rapport = $request->input('acces_rapport');
+        $utilisateur->gestion_stock = $request->input('gestion_stock');
+        $utilisateur->commande_achat = $request->input('commande_achat');
+        $utilisateur->export_excel = $request->input('export_excel');
+        $utilisateur->supprimer_donnees = $request->input('supprimer_donnees');
         $utilisateur->save();
     
         return response()->json(['message' => 'Utilisateur modifié avec succès', 'utilisateur' => $utilisateur]);
@@ -138,7 +173,7 @@ class SousUtilisateurController extends Controller
         return response()->json(['message' => 'vous avez archive le sous-utilisateur ' .$utilisateur->prenom ]);
     }
     
-    public function Des_ArchiverSousUtilisateur(Request $request, $id)
+    public function DesArchiverSousUtilisateur(Request $request, $id)
     {
 
         $utilisateur = Sous_Utilisateur::findOrFail($id);

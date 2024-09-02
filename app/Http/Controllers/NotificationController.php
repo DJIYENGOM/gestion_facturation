@@ -18,7 +18,7 @@ class NotificationController extends Controller
         $userId = auth()->id();
         $sousUtilisateurId = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
    
@@ -51,7 +51,7 @@ public function supprimeNotificationParType(Request $request)
         $userId = auth()->id();
         $sousUtilisateurId = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Suppression des messages en fonction du type et de l'utilisateur

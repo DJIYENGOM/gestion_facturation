@@ -48,13 +48,17 @@ class LivraisonController extends Controller
     }
 
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
         } elseif (auth()->check()) {
             $userId = auth()->id();
             $sousUtilisateurId = null;
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
         $typeDocument = 'livraison';
         $numlivraison = NumeroGeneratorService::genererNumero($userId, $typeDocument);
@@ -147,6 +151,10 @@ class LivraisonController extends Controller
     public function listerToutesLivraisons()
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
@@ -170,7 +178,7 @@ class LivraisonController extends Controller
             })
             ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 // Construire la réponse avec les détails des livraisons et les noms des clients
 $response = [];
@@ -196,6 +204,10 @@ return response()->json(['livraisons' => $response]);
 public function supprimerLivraison($id)
 {    
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin && !$sousUtilisateur->supprimer_donnees) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -230,7 +242,7 @@ public function supprimerLivraison($id)
             }
 
     }else {
-        return response()->json(['error' => 'Unauthorizedd'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connectéd'], 401);
     }
 
 }
@@ -238,6 +250,10 @@ public function supprimerLivraison($id)
 public function PlanifierLivraison($id)
 {    
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -272,7 +288,7 @@ public function PlanifierLivraison($id)
             }
 
     }else {
-        return response()->json(['error' => 'Unauthorizedd'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connectéd'], 401);
     }
 
 }
@@ -280,6 +296,10 @@ public function PlanifierLivraison($id)
 public function RealiserLivraison($id)
 {    
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -314,7 +334,7 @@ public function RealiserLivraison($id)
             }
 
     }else {
-        return response()->json(['error' => 'Unauthorizedd'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connectéd'], 401);
     }
 
 }
@@ -322,6 +342,10 @@ public function RealiserLivraison($id)
 public function LivraisonPreparer($id)
 {    
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -356,13 +380,27 @@ public function LivraisonPreparer($id)
             }
 
     }else {
-        return response()->json(['error' => 'Unauthorizedd'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connectéd'], 401);
     }
 
 }
 
 public function transformerLivraisonEnFacture(Request $request, $id)
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = null;
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
     $livraison = Livraison::find($id);
     if (!$livraison) {
         return response()->json(['error' => 'livraison non trouvé'], 404);
@@ -377,6 +415,20 @@ public function transformerLivraisonEnFacture(Request $request, $id)
 
 public function DetailsLivraison($id)
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = null;
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
     // Rechercher la facture par son numéro
     $livraison = Livraison::where('id', $id)
                 ->with(['client', 'articles.article'])
@@ -458,6 +510,12 @@ public function exporterLivraisons()
 
     // Récupérer les données des articles
     if (auth()->guard('apisousUtilisateur')->check()) {
+
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->export_excel && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
+
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -479,7 +537,7 @@ public function exporterLivraisons()
         })
         ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Remplir les données

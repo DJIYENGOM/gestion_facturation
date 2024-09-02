@@ -1,5 +1,6 @@
 
 <?php
+use App\Models\Stock;
 use App\Models\BonCommande;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TvaController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\DeviController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\SoldeController;
+use App\Http\Controllers\StockController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\DepenseController;
@@ -20,6 +22,7 @@ use App\Http\Controllers\HistoriqueController;
 use App\Http\Controllers\BonCommandeController;
 use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\FactureAvoirController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaiementRecuController;
 use App\Http\Controllers\CommandeAchatController;
 use App\Http\Controllers\FactureAccomptController;
@@ -32,7 +35,6 @@ use App\Http\Controllers\CategorieDepenseController;
 use App\Http\Controllers\FactureRecurrenteController;
 use App\Http\Controllers\NoteJustificativeController;
 use App\Http\Controllers\Info_SupplementaireController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NumeroConfigurationController;
 
 Route::controller(AuthController::class)->group(function () {
@@ -68,7 +70,7 @@ Route::controller(SousUtilisateurController::class)->group(function () {
     Route::get('listeUtilisateurArchive', 'listeUtilisateurArchive');
     Route::post('modifierSousUtilisateur/{id}', 'modifierSousUtilisateur');
     Route::post('ArchiverSousUtilisateur/{id}', 'ArchiverSousUtilisateur');
-    Route::post('Des_ArchiverSousUtilisateur/{id}', 'Des_ArchiverSousUtilisateur');
+    Route::post('Des_ArchiverSousUtilisateur/{id}', 'DesArchiverSousUtilisateur');
 });
 
 
@@ -255,6 +257,7 @@ Route::post('supprimerFactureRecurrente/{id}',[FactureRecurrenteController::clas
 Route::post('ajouterSolde/{clientId}',[SoldeController::class, 'ajouterSolde']);
 Route::post('ajouterCategorieDepense',[CategorieDepenseController::class, 'ajouterCategorieDepense']);
 Route::get('listerCategorieDepense',[CategorieDepenseController::class, 'listerCategorieDepense']);
+Route::delete('supprimerCategorieDepense/{id}',[CategorieDepenseController::class, 'supprimerCategorieDepense']);
 
 Route::post('creerDepense',[DepenseController::class, 'creerDepense']);
 Route::get('listerDepenses',[DepenseController::class, 'listerDepenses']);
@@ -282,6 +285,12 @@ Route::controller(HistoriqueController::class)->group(function(){
 Route::controller(NotificationController::class)->group(function(){
     Route::get('listerNotifications','listerNotifications');
     Route::post('supprimeNotificationParType','supprimeNotificationParType');
+});
+
+Route::controller(StockController::class)->group(function(){
+    Route::get('listerStocks','listerStocks');
+    Route::get('ListeStock_a_modifier','ListeStock_a_modifier');
+    Route::post('modifierStock','modifierStock');
 });
 
 Route::get ('InfoSurTva_Recolte_Deductif_Reverse', [TvaController::class, 'InfoSurTva_Recolte_Deductif_Reverse']);

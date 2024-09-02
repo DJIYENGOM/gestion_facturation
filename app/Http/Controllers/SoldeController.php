@@ -18,6 +18,10 @@ class SoldeController extends Controller
         ]);
     
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = null;
         } elseif (auth()->check()) {

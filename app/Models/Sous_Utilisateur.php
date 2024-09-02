@@ -18,6 +18,7 @@ class Sous_Utilisateur extends Authenticatable implements JWTSubject
 
     protected $fillable = [
         'nom', 'prenom', 'email', 'password', 'archiver','role', 'id_user',
+        'visibilite_globale', 'fonction_admin', 'acces_rapport', 'gestion_stock','commande_achat','export_excel','supprimer_donnees'
     ];
 
     // Définir la relation entre Sous_Utilisateur et son rôle

@@ -63,13 +63,17 @@ class FactureController extends Controller
     }
 
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
         } elseif (auth()->check()) {
             $userId = auth()->id();
             $sousUtilisateurId = null;
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
 
@@ -209,13 +213,14 @@ class FactureController extends Controller
                     $stock->date_stock = now()->format('Y-m-d');
                     $stock->num_stock = $numStock; 
                     $stock->libelle = $lastStock->libelle;
-                    $stock->disponible_avant = $lastStock->disponible_avant;
+                    $stock->disponible_avant = $lastStock->disponible_apres;
                     $stock->modif = $article->quantite_article;
                     $stock->disponible_apres = $lastStock->disponible_apres - $article->quantite_article;
                     $stock->article_id = $article->id_article;
                     $stock->facture_id = $facture->id;
                     $stock->bonCommande_id = null;
                     $stock->livraison_id = null;
+                    $stock->statut_stock = 'Vente N°' . $facture->num_facture;
                     $stock->sousUtilisateur_id = $sousUtilisateurId;
                     $stock->user_id = $userId;
                     $stock->save();
@@ -254,12 +259,12 @@ public function listeArticlesFacture($id_facture)
     if ($facture->sousUtilisateur_id) {
         $userId = auth('apisousUtilisateur')->id();
         if ($facture->sousUtilisateur_id != $userId) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     } elseif ($facture->user_id) {
         $userId = auth()->id();
         if ($facture->user_id != $userId) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     }
 
@@ -304,7 +309,7 @@ public function listerToutesFactures()
             })
             ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 // Construire la réponse avec les détails des factures et les noms des clients
 $response = [];
@@ -332,6 +337,10 @@ return response()->json(['factures' => $response]);
 public function listerFacturesEcheance()
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
@@ -357,7 +366,7 @@ public function listerFacturesEcheance()
             })
             ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     return response()->json(['factures_echeance' => $factures], 200);
@@ -365,6 +374,10 @@ public function listerFacturesEcheance()
 
 public function listerFacturesAccompt()
 { if (auth()->guard('apisousUtilisateur')->check()) {
+    $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
     $sousUtilisateurId = auth('apisousUtilisateur')->id();
     $userId = auth('apisousUtilisateur')->user()->id_user; 
 
@@ -390,7 +403,7 @@ $factures = Facture::with('factureAccompts','client')
         })
         ->get();
 } else {
-    return response()->json(['error' => 'Unauthorized'], 401);
+    return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
 }
 
 return response()->json(['factures_accompt' => $factures], 200);
@@ -399,6 +412,10 @@ return response()->json(['factures_accompt' => $factures], 200);
 public function listerFacturesPayer()
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
@@ -424,7 +441,7 @@ public function listerFacturesPayer()
             })
             ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     return response()->json(['factures_Payer' => $factures], 200);
@@ -442,6 +459,10 @@ public function listerFacturesSupprimer()
 public function supprimeArchiveFacture($id)
 {    
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin && !$sousUtilisateur->supprimer_donnees) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -476,7 +497,7 @@ public function supprimeArchiveFacture($id)
             }
 
     }else {
-        return response()->json(['error' => 'Unauthorizedd'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connectéd'], 401);
     }
 
 }
@@ -484,6 +505,10 @@ public function supprimeArchiveFacture($id)
 public function listeFactureParClient($clientId){
 
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
@@ -507,7 +532,7 @@ public function listeFactureParClient($clientId){
             })
             ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     return response()->json(['factures_Payer' => $factures], 200);
@@ -515,13 +540,59 @@ public function listeFactureParClient($clientId){
 
 public function listerFacturesRecurrentes()
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = auth('apisousUtilisateur')->user()->id_user;
 
-    return response()->json(['factures_Payer' => FactureRecurrente::all()], 200);
+        $factures = FactureRecurrente::where(function ($query) use ($sousUtilisateur_id, $user_id) {
+            $query->where('sousUtilisateur_id', $sousUtilisateur_id)
+                ->orWhere('user_id', $user_id);
+        })
+        ->get();
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+
+        $factures = FactureRecurrente::with('client')
+        ->where(function ($query) use ($user_id) {
+            $query->where('user_id', $user_id)
+                ->orWhereHas('sousUtilisateur', function ($query) use ($user_id) {
+                    $query->where('id_user', $user_id);
+                });
+            })
+                ->get();
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
+
+    return response()->json(['factures_Recurrentes' => $factures], 200);
 }
 
 public function ArreteCreationAutomatiqueFactureRecurrente($id)
 {
-    $facture = Facture::find($id);
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user;
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+        $sousUtilisateurId = null;
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
+    $facture = Facture::where('id', $id)
+    ->where(function ($query) use ($userId, $sousUtilisateurId) {
+        $query->where('user_id', $userId)
+              ->orWhere('sousUtilisateur_id', $sousUtilisateurId);
+    })
+    ->first();
     $facture->id_recurrent = null;
     $facture->save();
     return response()->json(['message' => 'Creation automatique de facture recurrente arreter avec succes.'], 200); 
@@ -645,6 +716,12 @@ public function exportFactures()
 
     // Récupérer les factures simples et les factures d'avoir
     if (auth()->guard('apisousUtilisateur')->check()) {
+
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->export_excel && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
+
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user;
 
@@ -683,7 +760,7 @@ public function exportFactures()
             })
             ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Fusionner les factures simples et les factures d'avoir

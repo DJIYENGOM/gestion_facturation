@@ -14,13 +14,17 @@ class EcheanceController extends Controller
     public function creerEcheance(Request $request, $factureId)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateur_id = auth('apisousUtilisateur')->id();
             $user_id = null;
         } elseif (auth()->check()) {
             $user_id = auth()->id();
             $sousUtilisateur_id = null;
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
 
         $validator = Validator::make($request->all(), [
@@ -54,6 +58,10 @@ class EcheanceController extends Controller
     {
       
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -73,7 +81,7 @@ class EcheanceController extends Controller
             $echeances = Echeance::where('facture_id', $factureId)->get();
 
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
         return response()->json(['echeances' => $echeances], 200);
@@ -82,6 +90,10 @@ class EcheanceController extends Controller
     public function supprimerEcheance($echeanceId)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin && !$sousUtilisateur->supprimer_donnees) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
@@ -116,7 +128,7 @@ class EcheanceController extends Controller
                 }
     
         }else {
-            return response()->json(['error' => 'Unauthorizedd'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connectéd'], 401);
         }
     }
 
@@ -124,13 +136,17 @@ class EcheanceController extends Controller
 {
     // Vérifiez les permissions de l'utilisateur
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     } elseif (auth()->check()) {
         $userId = auth()->id();
         $sousUtilisateurId = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Valider les données entrantes
@@ -152,10 +168,10 @@ class EcheanceController extends Controller
 
     // Vérifiez que l'utilisateur a accès à l'échéance
     if ($echeance->sousUtilisateur_id && $echeance->sousUtilisateur_id !== $sousUtilisateurId) {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
     if ($echeance->user_id && $echeance->user_id !== $userId) {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Mettre à jour les informations de l'échéance
@@ -201,7 +217,7 @@ public function transformerEcheanceEnPaiementRecu(Request $request, $EcheanceId)
         $userId = auth()->id();
         $sousUtilisateurId = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     $paiementRecu = PaiementRecu::create([

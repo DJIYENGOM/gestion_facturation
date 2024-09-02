@@ -16,13 +16,17 @@ class FactureAccomptController extends Controller
 public function creerFactureAccomp(Request $request)
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user;
     } elseif (auth()->check()) {
         $userId = auth()->id();
         $sousUtilisateurId = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Validation des données
@@ -81,6 +85,10 @@ public function creerFactureAccomp(Request $request)
 public function listerfactureAccomptsParFacture($id_facture)
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
@@ -104,7 +112,7 @@ public function listerfactureAccomptsParFacture($id_facture)
             })
             ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 // Construire la réponse avec les détails des factures et les noms des clients
 $response = [];

@@ -19,11 +19,13 @@ return new class extends Migration
             $table->integer('disponible_avant')->nullable();
             $table->integer('modif')->nullable();
             $table->integer('disponible_apres')->nullable();
+            $table->integer('quantite_ajoutee')->nullable()->default(0);
             $table->foreignId('article_id')->constrained('articles')->onDelete('cascade');
             $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('set null');
             $table->foreignId('bonCommande_id')->nullable()->constrained('bon_commandes')->onDelete('set null');
             $table->foreignId('livraison_id')->nullable()->constrained('livraisons')->onDelete('set null');
-            
+            $table->string('statut_stock')->nullable();
+
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();   

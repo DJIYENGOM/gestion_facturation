@@ -13,6 +13,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
          $schedule->command('command:factureRecurrente')->daily();
+         
+         $schedule->command('command:genererNotification')->daily();
     }
 
     /**

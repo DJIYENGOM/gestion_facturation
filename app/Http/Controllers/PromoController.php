@@ -17,13 +17,17 @@ class PromoController extends Controller
 public function ajouterPromo(Request $request)
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateur_id = auth('apisousUtilisateur')->id();
         $user_id = null;
     } elseif (auth()->check()) {
         $user_id = auth()->id();
         $sousUtilisateur_id = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
         $validator = Validator::make($request->all(), [
             'nom_promo' => 'required|string|max:255',
@@ -71,7 +75,7 @@ public function ajouterPromo(Request $request)
                 })
                 ->get();
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
         foreach ($promos as $promo) {
@@ -88,6 +92,10 @@ public function modifierPromo(Request $request, $id)
     $promo = Promo::findOrFail($id);
 
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateur_id = auth('apisousUtilisateur')->id();
         if ($promo->sousUtilisateur_id !== $sousUtilisateur_id) {
             return response()->json(['error' => 'cette sous utilisateur ne peut pas modifier ce promo car il ne l\'a pas creer'], 401);
@@ -100,7 +108,7 @@ public function modifierPromo(Request $request, $id)
         }
         $sousUtilisateur_id = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     $validator = Validator::make($request->all(), [
@@ -128,6 +136,10 @@ public function modifierPromo(Request $request, $id)
     public function supprimerPromo($id)
     {    
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
@@ -161,7 +173,7 @@ public function modifierPromo(Request $request, $id)
                 }
     
         }else {
-            return response()->json(['error' => 'Unauthorizedd'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
     }

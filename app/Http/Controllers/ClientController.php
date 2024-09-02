@@ -22,13 +22,17 @@ class ClientController extends Controller
     public function ajouterClient(Request $request)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateur_id = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
         } elseif (auth()->check()) {
             $userId = auth()->id();
             $sousUtilisateur_id = null;
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
         $commonRules = [
@@ -126,6 +130,7 @@ class ClientController extends Controller
     public function listerClients()
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
+        
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
@@ -143,7 +148,7 @@ class ClientController extends Controller
                 })
                 ->get();
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
         $clientsArray = $clients->map(function ($client) {
@@ -163,6 +168,10 @@ public function modifierClient(Request $request, $id)
 
     // Déterminer l'utilisateur authentifié
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         if ($client->sousUtilisateur_id !== $sousUtilisateurId) {
             return response()->json(['error' => 'Cette sous-utilisateur ne peut pas modifier ce client car il ne l\'a pas créé'], 401);
@@ -225,6 +234,10 @@ public function supprimerClient($id)
 {
 
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin && !$sousUtilisateur->supprimer_donnees) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -257,7 +270,7 @@ public function supprimerClient($id)
             }
 
     }else {
-        return response()->json(['error' => 'Unauthorizedd'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connectéd'], 401);
     }
 
 }
@@ -271,7 +284,7 @@ public function importClient(Request $request)
         $user_id = auth()->id();
         $sousUtilisateur_id = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     $validator = Validator::make($request->all(), [
@@ -331,6 +344,10 @@ public function exportClients()
 
     // Récupérer les données des clients
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->export_excel && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -346,7 +363,7 @@ public function exportClients()
             })
             ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Remplir les données

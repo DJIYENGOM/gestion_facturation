@@ -15,13 +15,17 @@ class EntrepotController extends Controller
     ]);
 
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = null;
     } elseif (auth()->check()) {
         $userId = auth()->id();
         $sousUtilisateurId = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     $entrepot = new Entrepot([
@@ -38,12 +42,16 @@ class EntrepotController extends Controller
 public function listerEntrepots()
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     } elseif (auth()->check()) {
         $userId = auth()->id();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     $notes = Entrepot::where('user_id', $userId)
@@ -56,6 +64,10 @@ public function listerEntrepots()
 public function modifierEntrepot(Request $request, $id)
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -104,7 +116,7 @@ public function modifierEntrepot(Request $request, $id)
             return response()->json(['error' => ' ce utilisateur n\'est pas autorisé à modifier ce entrepot'], 401);
         }
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 }
   
@@ -113,6 +125,10 @@ public function supprimerEntrepot($id)
 {
 
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin && !$sousUtilisateur->supprimer_donnees) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -125,7 +141,7 @@ public function supprimerEntrepot($id)
                 $entrepot->delete();
             return response()->json(['message' => 'Entrepot supprimé avec succès']);
             }else {
-                return response()->json(['error' => 'Unauthorized'], 401);
+                return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
             }
 
     }elseif (auth()->check()) {
@@ -142,11 +158,11 @@ public function supprimerEntrepot($id)
                 $entrepot->delete();
                 return response()->json(['message' => 'Entrepot supprimé avec succès']);
             }else {
-                return response()->json(['error' => 'Unauthorized'], 401);
+                return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
             }
 
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
 }  

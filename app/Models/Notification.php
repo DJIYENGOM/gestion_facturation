@@ -11,6 +11,11 @@ class Notification extends Model
 
     protected $fillable = [
         'message', 
+        'produit_rupture',
+        'depense_impayer',
+        'payement_attente',
+        'devis_expirer',
+        'relance_automatique',
         'sousUtilisateur_id', 
         'user_id',
         'id_article',

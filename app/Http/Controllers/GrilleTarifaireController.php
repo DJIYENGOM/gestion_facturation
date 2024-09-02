@@ -18,7 +18,7 @@ class GrilleTarifaireController extends Controller
             $user_id = auth()->id();
             $sousUtilisateur_id = null;
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
 
         $validator = Validator::make($request->all(), [
@@ -75,7 +75,7 @@ class GrilleTarifaireController extends Controller
                 -> where('idClient', $clientId)->where('idArticle', $article) ->get();
 
             } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
         $response = [];
         foreach ($grillesTarifaires as $grille) {
@@ -165,7 +165,7 @@ class GrilleTarifaireController extends Controller
                 }
     
         }else {
-            return response()->json(['error' => 'Unauthorizedd'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connectéd'], 401);
         }
 
     }

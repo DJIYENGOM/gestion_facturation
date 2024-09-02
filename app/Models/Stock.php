@@ -16,10 +16,12 @@ class Stock extends Model
         'disponible_avant',
         'modif',
         'disponible_apres',
+        'quantite_ajoutee',
         'article_id',
         'facture_id',
         'bonCommande_id',
         'livraison_id',
+        'statut_stock',
         'sousUtilisateur_id',
         'user_id',
     ];

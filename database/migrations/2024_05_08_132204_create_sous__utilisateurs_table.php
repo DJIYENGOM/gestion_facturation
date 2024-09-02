@@ -17,10 +17,16 @@ return new class extends Migration
             $table->string('prenom');
             $table->string('email')->unique();
             $table->string('password');
-           // $table->foreignId('id_role')->constrained('roles')->onDelete('cascade');
             $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->enum('archiver', ['oui', 'non'])->default('non');
             $table->enum('role', ['administrateur', 'utilisateur_simple'])->default('utilisateur_simple');
+            $table->boolean('visibilite_globale')->default('1');
+            $table->boolean('fonction_admin')->default('1');
+            $table->boolean('acces_rapport')->default('1');
+            $table->boolean('gestion_stock')->default('1');
+            $table->boolean('commande_achat')->default('1');
+            $table->boolean('export_excel')->default('1');
+            $table->boolean('supprimer_donnees')->default('1');
             $table->timestamps();
         });
     }

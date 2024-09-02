@@ -32,13 +32,18 @@ class ArticleController extends Controller
     public function ajouterArticle(Request $request)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateur_id = auth('apisousUtilisateur')->id();
             $user_id = auth('apisousUtilisateur')->user()->id_user;
+
         } elseif (auth()->check()) {
             $user_id = auth()->id();
             $sousUtilisateur_id = null;
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
         
         $validator = Validator::make($request->all(), [
@@ -294,13 +299,17 @@ class ArticleController extends Controller
     public function modifierArticle(Request $request, $id)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateur_id = auth('apisousUtilisateur')->id();
             $user_id = null;
         } elseif (auth()->check()) {
             $user_id = auth()->id();
             $sousUtilisateur_id = null;
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
         $validator = Validator::make($request->all(), [
@@ -575,6 +584,10 @@ public function supprimerArticle($id)
 {
 
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin && !$sousUtilisateur->supprimer_donnees) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -609,7 +622,7 @@ public function supprimerArticle($id)
             }
 
     }else {
-        return response()->json(['error' => 'Unauthorizedd'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connectéd'], 401);
     }
 
 }
@@ -635,7 +648,7 @@ public function listerArticles()
             })
             ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     $articlesArray = $articles->map(function ($article) {
@@ -651,6 +664,19 @@ public function listerArticles()
 
 public function affecterPromoArticle(Request $request, $id)
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = null;
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
     $article = Article::findOrFail($id);
 
     $request->validate([
@@ -681,6 +707,20 @@ public function affecterPromoArticle(Request $request, $id)
 
 public function affecterCategorieArticle(Request $request, $id)
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = null;
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
+
     $article = Article::findOrFail($id);
 
     $request->validate([
@@ -697,6 +737,19 @@ public function affecterCategorieArticle(Request $request, $id)
 
 public function modifierQuantite(Request $request, $id)
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = null;
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
     $request->validate([
         'quantite' => 'required|integer',
         'note' => 'required|string|max:255',
@@ -712,7 +765,7 @@ public function modifierQuantite(Request $request, $id)
         $userId = auth()->id();
         $sousUtilisateurId = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Modifier la quantité de l'article
@@ -732,6 +785,20 @@ public function modifierQuantite(Request $request, $id)
 
 public function affecterComptableArticle(Request $request, $id)
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $user_id = null;
+    } elseif (auth()->check()) {
+        $user_id = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
+
     $article = Article::findOrFail($id);
 
     $request->validate([
@@ -790,7 +857,7 @@ public function listerLotsArticle($articleId)
             $lots = Lot::where('article_id', $articleId)->get();
 
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     return response()->json(['lots' => $lots]);
@@ -818,7 +885,7 @@ public function listerAutrePrixArticle($articleId)
             $prixAlternatifs = AutrePrix::where('article_id', $articleId)->get();
 
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
     return response()->json(['autre_prix' => $prixAlternatifs]);
 }
@@ -845,7 +912,7 @@ public function listerEntrepotsArticle($articleId)
             $entrepots = EntrepotArticle::where('article_id', $articleId)->get();
 
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
     return response()->json(['entrepots' => $entrepots]);
 }
@@ -888,7 +955,7 @@ public function importArticle(Request $request)
         $user_id = auth()->id();
         $sousUtilisateur_id = null;
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     $validator = Validator::make($request->all(), [
@@ -949,6 +1016,10 @@ public function exportArticles()
 
     // Récupérer les données des articles
     if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->export_excel && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
@@ -972,7 +1043,7 @@ public function exportArticles()
         })
         ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Remplir les données
@@ -1071,7 +1142,7 @@ public function exportServices()
         })
         ->get();
     } else {
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
     // Remplir les données

@@ -7,6 +7,7 @@ use App\Models\Facture;
 use App\Models\Historique;
 use App\Models\FactureAvoir;
 use Illuminate\Http\Request;
+use App\Models\FactureRecurrente;
 use App\Models\ArticleFactureAvoir;
 use Illuminate\Support\Facades\Log;
 use App\Services\NumeroGeneratorService;
@@ -46,13 +47,17 @@ class FactureAvoirController extends Controller
     }
 
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
         } elseif (auth()->check()) {
             $userId = auth()->id();
             $sousUtilisateurId = null;
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
 
         $typeDocument = 'facture';
@@ -121,6 +126,10 @@ class FactureAvoirController extends Controller
     public function listerToutesFacturesAvoirs()
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; 
     
@@ -142,7 +151,7 @@ class FactureAvoirController extends Controller
                 })
                 ->get();
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     // Construire la réponse avec les détails des factures et les noms des clients
     $response = [];
@@ -175,6 +184,10 @@ class FactureAvoirController extends Controller
         $facturesAvoirs = [];
         
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; 
     
@@ -214,7 +227,7 @@ class FactureAvoirController extends Controller
                 })
                 ->get();
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
         // Construire la réponse avec les détails combinés des factures simples et des factures d'avoirs
@@ -268,6 +281,10 @@ class FactureAvoirController extends Controller
     public function supprimerFacture($num_facture)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin && !$sousUtilisateur->supprimer_donnees) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user;
     
@@ -324,7 +341,7 @@ class FactureAvoirController extends Controller
                 
             }
          else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
 
         return response()->json(['error' => 'Facture non trouvée.'], 404);
@@ -335,6 +352,10 @@ class FactureAvoirController extends Controller
     {
         // Vérifier l'authentification pour les sous-utilisateurs
         if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+          if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+            }
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user;
     
@@ -376,7 +397,7 @@ class FactureAvoirController extends Controller
                     ->first();
             }
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
         // Vérifier si la facture est trouvée
