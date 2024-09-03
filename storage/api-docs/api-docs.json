@@ -23,6 +23,420 @@
         "multipart/form-data"
     ],
     "paths": {
+        "/api/modifierStock": {
+            "post": {
+                "summary": "Modifier Stock",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des Stocks"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "stock_modifier": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "stock_modifier": [
+                                    {
+                                        "id_stock": "6",
+                                        "quantite_ajoutee": 1
+                                    },
+                                    {
+                                        "id_stock": "5",
+                                        "quantite_ajoutee": 2
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/ListeStock_a_modifier": {
+            "get": {
+                "summary": "Liste Stock à modifier",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des Stocks"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listerStocks": {
+            "get": {
+                "summary": "lister le stock",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des Stocks"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/supprimeNotificationParType": {
+            "post": {
+                "summary": "supprimer Notification Par Type Msg",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des Stocks"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listerNotifications": {
+            "get": {
+                "summary": "lister Notifications",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des Stocks"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/InfoSurTva_Recolte_Deductif_Reverse": {
+            "get": {
+                "summary": "Info Sur Tva_Recolte_Deductif_Reverse",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Info Sur les Tva"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/supprimerHistorique": {
+            "post": {
+                "summary": "supprimer Historique",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Historiques"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listerMessagesHistoriqueAujourdhui": {
+            "get": {
+                "summary": "liste des historique",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Historiques"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/exporterDepenses": {
             "get": {
                 "summary": "exporter Depenses",
@@ -408,7 +822,7 @@
                 ]
             }
         },
-        "/api/annulerCommandeAchat/2": {
+        "/api/annulerCommandeAchat/{id}": {
             "post": {
                 "summary": "annuler Commande Achat",
                 "description": "",
@@ -467,8 +881,8 @@
                 "summary": "exporter Commandes Achats",
                 "description": "",
                 "responses": {
-                    "201": {
-                        "description": "Created successfully",
+                    "200": {
+                        "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {},
@@ -476,8 +890,8 @@
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "404": {
+                        "description": "Not Found",
                         "content": {
                             "application/json": {
                                 "schema": {},
@@ -485,17 +899,8 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "application/json": {
                                 "schema": {},
@@ -516,7 +921,7 @@
                 ]
             }
         },
-        "/api/supprimerCommandeAchat/1": {
+        "/api/supprimerCommandeAchat/{id}": {
             "delete": {
                 "summary": "supprimer Commande Achat",
                 "description": "",
@@ -570,7 +975,7 @@
                 ]
             }
         },
-        "/api/modifierCommandeAchat/1": {
+        "/api/modifierCommandeAchat/{id}": {
             "post": {
                 "summary": "modifier Commande Achat",
                 "description": "",
@@ -702,7 +1107,7 @@
                 }
             }
         },
-        "/api/afficherDetailCommandeAchat/1": {
+        "/api/afficherDetailCommandeAchat/{id}": {
             "get": {
                 "summary": "afficher Detail  Commande Achat",
                 "description": "",
@@ -876,6 +1281,9 @@
                                     "description": {
                                         "type": "string"
                                     },
+                                    "active_Stock": {
+                                        "type": "boolean"
+                                    },
                                     "total_TTC": {
                                         "type": "integer"
                                     },
@@ -897,11 +1305,12 @@
                                 "note_interne": "Some notes about the facture",
                                 "titre": "jgjgkbnf",
                                 "description": "hfrfbrhb",
+                                "active_Stock": true,
                                 "total_TTC": 25000,
                                 "type_reccurente": "creer_brouillon",
                                 "articles": [
                                     {
-                                        "id_article": 1,
+                                        "id_article": 3,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 5000,
                                         "TVA_article": 50,
@@ -1256,12 +1665,10 @@
                                         "format": "binary"
                                     },
                                     "montant_depense_ht": {
-                                        "type": "string",
-                                        "format": "binary"
+                                        "type": "integer"
                                     },
                                     "montant_depense_ttc": {
-                                        "type": "string",
-                                        "format": "binary"
+                                        "type": "integer"
                                     },
                                     "num_facture": {
                                         "type": "string"
@@ -1310,8 +1717,8 @@
                                 "commentaire": "gbdhxdbdbbhei",
                                 "date_paiement": "2024-07-23",
                                 "tva_depense": null,
-                                "montant_depense_ht": null,
-                                "montant_depense_ttc": null,
+                                "montant_depense_ht": 30000,
+                                "montant_depense_ttc": 50000,
                                 "num_facture": "000001",
                                 "date_facture": "2024-06-20",
                                 "fournisseur_id": null,
@@ -2097,9 +2504,9 @@
                             },
                             "example": {
                                 "type_document": "devis",
-                                "type_numerotation": "par_defaut",
+                                "type_numerotation": "avec_prefixe",
                                 "prefixe": "dev",
-                                "format": ""
+                                "format": "annee"
                             }
                         }
                     }
@@ -6266,11 +6673,18 @@
                                     "id_paiement": {
                                         "type": "integer"
                                     },
+                                    "active_Stock": {
+                                        "type": "string"
+                                    },
                                     "articles": {
                                         "type": "string",
                                         "format": "binary"
                                     },
                                     "facture_accompts": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "echeances": {
                                         "type": "string",
                                         "format": "binary"
                                     }
@@ -6286,9 +6700,10 @@
                                 "type_paiement": "facture_Accompt",
                                 "id_recurrent": null,
                                 "id_paiement": 1,
+                                "active_Stock": "oui",
                                 "articles": [
                                     {
-                                        "id_article": 3,
+                                        "id_article": 1,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 5000,
                                         "TVA_article": 50,
@@ -6297,8 +6712,8 @@
                                         "prix_total_tva_article": 8000
                                     },
                                     {
-                                        "id_article": 2,
-                                        "quantite_article": 3,
+                                        "id_article": 4,
+                                        "quantite_article": 4,
                                         "prix_unitaire_article": 1000,
                                         "TVA_article": 10,
                                         "reduction_article": 50,
@@ -6312,6 +6727,12 @@
                                         "dateAccompt": "2024-06-28",
                                         "dateEcheance": "2024-07-28",
                                         "montant": 4000
+                                    }
+                                ],
+                                "echeances": [
+                                    {
+                                        "date_pay_echeance": "2024-08-29",
+                                        "montant_echeance": "4000.00"
                                     }
                                 ]
                             }
@@ -8707,7 +9128,7 @@
                 ]
             }
         },
-        "/api/modifierArticle/3": {
+        "/api/modifierArticle/2": {
             "post": {
                 "summary": "modifier un article",
                 "description": "",
@@ -8797,6 +9218,9 @@
                                     "quantite": {
                                         "type": "string"
                                     },
+                                    "quantite_alert": {
+                                        "type": "integer"
+                                    },
                                     "autres_prix": {
                                         "type": "string",
                                         "format": "binary"
@@ -8806,10 +9230,6 @@
                                         "format": "binary"
                                     },
                                     "lots": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "entrepots": {
                                         "type": "string",
                                         "format": "binary"
                                     }
@@ -8824,7 +9244,8 @@
                                 "type_article": "produit",
                                 "active_Stock": "oui",
                                 "unité": "tonne",
-                                "quantite": "10",
+                                "quantite": "5",
+                                "quantite_alert": 10,
                                 "autres_prix": [
                                     {
                                         "titrePrix": "prix client fidel",
@@ -8847,12 +9268,6 @@
                                     {
                                         "nomLot": "lot2",
                                         "quantiteLot": 5
-                                    }
-                                ],
-                                "entrepots": [
-                                    {
-                                        "entrepot_id": 1,
-                                        "quantiteArt_entrepot": 5
                                     }
                                 ]
                             }
@@ -8973,7 +9388,7 @@
                                 "unité": "tonne",
                                 "active_Stock": "oui",
                                 "id_categorie_article": 2,
-                                "quantite": 20,
+                                "quantite": 10,
                                 "quantite_alert": 10,
                                 "autres_prix": [
                                     {
@@ -9592,7 +10007,25 @@
                                     "role": {
                                         "type": "string"
                                     },
-                                    "archiver": {
+                                    "visibilite_globale": {
+                                        "type": "string"
+                                    },
+                                    "fonction_admin": {
+                                        "type": "string"
+                                    },
+                                    "acces_rapport": {
+                                        "type": "string"
+                                    },
+                                    "gestion_stock": {
+                                        "type": "string"
+                                    },
+                                    "commande_achat": {
+                                        "type": "string"
+                                    },
+                                    "export_excel": {
+                                        "type": "string"
+                                    },
+                                    "supprimer_donnees": {
                                         "type": "string"
                                     }
                                 }
@@ -9600,10 +10033,16 @@
                             "example": {
                                 "nom": "ima",
                                 "prenom": "diop",
-                                "email": "ima@gmail.com",
+                                "email": "diop@gmail.com",
                                 "password": "123456p@",
                                 "role": "administrateur",
-                                "archiver": "oui"
+                                "visibilite_globale": "1",
+                                "fonction_admin": "0",
+                                "acces_rapport": "1",
+                                "gestion_stock": "0",
+                                "commande_achat": "0",
+                                "export_excel": "1",
+                                "supprimer_donnees": "1"
                             }
                         }
                     }
@@ -10126,7 +10565,7 @@
                                 }
                             },
                             "example": {
-                                "email": "ima@gmail.com",
+                                "email": "diop@gmail.com",
                                 "password": "123456p@"
                             }
                         }
