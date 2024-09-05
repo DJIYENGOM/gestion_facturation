@@ -64,7 +64,7 @@ class CommandeAchatController extends Controller
     
         $commandeData = [
             'num_commandeAchat' => $numBonCommande,
-            'activation' => $request->activation,
+            'activation' => $request->activation ?? false,
             'date_commandeAchat' => $request->date_commandeAchat,
             'date_livraison' => $request->date_livraison,
             'total_TTC' => $request->total_TTC,
@@ -218,7 +218,7 @@ public function modifierCommandeAchat(Request $request, $id)
         'total_TTC'=>'nullable|numeric',
         'titre'=>'nullable|string',
         'description'=>'nullable|string',
-        'active_Stock'=> 'nullable|boolean',
+        'active_Stock'=> false,
         'statut_commande'=> 'nullable|in:commander,recu,annuler,brouillon',
         'fournisseur_id'=> 'nullable|exists:fournisseurs,id',
         'depense_id'=> 'nullable|exists:depenses,id',
