@@ -18,7 +18,7 @@ class CommandeAchatController extends Controller
     public function creerCommandeAchat(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'activation'=> 'required|boolean',
+            'activation'=> 'nullable|boolean',
             'date_commandeAchat'=>'required|date',
             'date_livraison'=>'nullable|date',
             'total_TTC'=>'nullable|numeric',
@@ -212,7 +212,7 @@ public function modifierCommandeAchat(Request $request, $id)
     $commandeAchat = CommandeAchat::findOrFail($id);
 
     $validator = Validator::make($request->all(), [
-        'activation'=> 'required|boolean',
+        'activation'=> 'nullable|boolean',
         'date_commandeAchat'=>'required|date',
         'date_livraison'=>'nullable|date',
         'total_TTC'=>'nullable|numeric',
