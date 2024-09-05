@@ -18,6 +18,7 @@ class CommandeAchatController extends Controller
     public function creerCommandeAchat(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'num_commandeAchat'=>'nullable|string',
             'activation'=> 'nullable|boolean',
             'date_commandeAchat'=>'required|date',
             'date_livraison'=>'nullable|date',
@@ -63,7 +64,7 @@ class CommandeAchatController extends Controller
         $numBonCommande = NumeroGeneratorService::genererNumero($userId, $typeDocument);
     
         $commandeData = [
-            'num_commandeAchat' => $numBonCommande,
+            'num_commandeAchat' => $request->num_commandeAchat ?? $numBonCommande,
             'activation' => $request->activation ?? false,
             'date_commandeAchat' => $request->date_commandeAchat,
             'date_livraison' => $request->date_livraison,
@@ -212,6 +213,7 @@ public function modifierCommandeAchat(Request $request, $id)
     $commandeAchat = CommandeAchat::findOrFail($id);
 
     $validator = Validator::make($request->all(), [
+        'num_commandeAchat' => 'required|string',
         'activation'=> 'nullable|boolean',
         'date_commandeAchat'=>'required|date',
         'date_livraison'=>'nullable|date',
