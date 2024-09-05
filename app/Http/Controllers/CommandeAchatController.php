@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Article;
 use App\Models\Depense;
 use App\Models\Historique;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\CommandeAchat;
 use App\Models\ArticleCommandeAchat;
@@ -12,7 +14,7 @@ use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use App\Models\Notification;
+
 class CommandeAchatController extends Controller
 {
     public function creerCommandeAchat(Request $request)
@@ -187,12 +189,84 @@ class CommandeAchatController extends Controller
     }
 
     public function afficherDetailCommandeAchat($id)
-{
-    $commandeAchat = CommandeAchat::with(['fournisseur', 'articles.article','depense'])
-        ->findOrFail($id);
-
-    return response()->json($commandeAchat);
-}
+    {
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Accès non autorisé'], 403);
+            }
+            $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+            $user_id = null;
+        } elseif (auth()->check()) {
+            $user_id = auth()->id();
+            $sousUtilisateur_id = null;
+        } else {
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+        }
+    
+        // Rechercher la commande d'achat par son ID
+        $commandeAchat = CommandeAchat::with(['fournisseur', 'articles.article', 'depense'])
+            ->where('id', $id)
+            ->first();
+    
+        // Vérifier si la commandeAchat existe
+        if (!$commandeAchat) {
+            return response()->json(['error' => 'Commande d\'achat non trouvée'], 404);
+        }
+    
+        // Convertir date_creation en instance de Carbon si ce n'est pas déjà le cas
+        $dateCreation = Carbon::parse($commandeAchat->date_commandeAchat);
+    
+        // Préparer la réponse
+        $response = [
+            'id_commandeAchat' => $commandeAchat->id,
+            'numero_commandeAchat' => $commandeAchat->num_commandeAchat,
+            'titre' => $commandeAchat->titre,
+            'date_commandeAchat' => $dateCreation->format('Y-m-d H:i:s'),
+            'date_livraison' => $commandeAchat->date_livraison,
+            'date_paiement' => $commandeAchat->date_paiement,
+            'fournisseur' => $commandeAchat->fournisseur ? [
+                'id_fournisseur' => $commandeAchat->fournisseur->id,
+                'nom' => $commandeAchat->fournisseur->nom_fournisseur,
+                'prenom' => $commandeAchat->fournisseur->prenom_fournisseur,
+                'adresse' => $commandeAchat->fournisseur->adress_fournisseur,
+                'telephone' => $commandeAchat->fournisseur->tel_fournisseur,
+                'nom_entreprise' => $commandeAchat->fournisseur->nom_entreprise,
+            ] : null,
+            'depense' => $commandeAchat->depense ? [
+                'id_depense' => $commandeAchat->depense->id,
+                'num_depense' => $commandeAchat->depense->num_depense,
+                'date_paiement' => $commandeAchat->depense->date_paiement,
+                'statut_depense' => $commandeAchat->depense->statut_depense,
+            ] : null,
+            'note_commandeAchat' => $commandeAchat->note_interne,
+            'active_Stock' => $commandeAchat->active_Stock,
+            'prix_TTC' => $commandeAchat->prix_TTC,
+            'commentaire' => $commandeAchat->commentaire,
+            'statut_commandeAchat' => $commandeAchat->statut_commande,
+            'doc_interne' => $commandeAchat->doc_interne ?? null,
+            'articles' => [],
+        ];
+    
+        // Vérifier si 'articles' est non nul et une collection
+        if ($commandeAchat->articles && $commandeAchat->articles->isNotEmpty()) {
+            foreach ($commandeAchat->articles as $articlecommandeAchat) {
+                $response['articles'][] = [
+                    'id_article' => $articlecommandeAchat->id_article,
+                    'nom_article' => optional($articlecommandeAchat->article)->nom_article,
+                    'TVA' => $articlecommandeAchat->TVA_article,
+                    'quantite_article' => $articlecommandeAchat->quantite_article,
+                    'prix_unitaire_article' => $articlecommandeAchat->prix_unitaire_article,
+                    'prix_total_tva_article' => $articlecommandeAchat->prix_total_tva_article,
+                    'prix_total_article' => $articlecommandeAchat->prix_total_article,
+                    'reduction_article' => $articlecommandeAchat->reduction_article,
+                ];
+            }
+        }
+    
+        return response()->json($response, 200);
+    }
+    
 
 public function modifierCommandeAchat(Request $request, $id)
 {
