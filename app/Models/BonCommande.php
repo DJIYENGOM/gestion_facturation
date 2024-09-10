@@ -58,7 +58,10 @@ class BonCommande extends Model
         return $this->belongsTo(CompteComptable::class, 'id_comptable');
     }
 
-
+    public function Etiquettes()
+    {
+        return $this->hasMany(Facture_Etiquette::class, 'bonCommande_id');
+    }
    
 
 }

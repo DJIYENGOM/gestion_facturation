@@ -58,5 +58,9 @@ class Livraison extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function Etiquettes()
+    {
+        return $this->hasMany(Facture_Etiquette::class, 'livraison_id');
+    }
 
 }

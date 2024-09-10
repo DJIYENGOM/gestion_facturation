@@ -7,6 +7,7 @@ use App\Models\Stock;
 use App\Models\Article;
 use App\Models\Facture;
 use App\Models\Echeance;
+use App\Models\facture_Etiquette;
 use App\Models\Livraison;
 use App\Models\Notification;
 use App\Models\PaiementRecu;
@@ -41,7 +42,11 @@ class LivraisonController extends Controller
             'articles.*.TVA_article' => 'nullable|numeric',
             'articles.*.reduction_article' => 'nullable|numeric',
             'articles.*.prix_total_article'=>'nullable|numeric',
-            'articles.*.prix_total_tva_article'=>'nullable|numeric'
+            'articles.*.prix_total_tva_article'=>'nullable|numeric',
+
+            'etiquettes' => 'nullable|array',
+            'etiquettes.*.id_etiquette' => 'nullable|exists:etiquettes,id',
+            
         ]);
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 422);
@@ -103,6 +108,18 @@ class LivraisonController extends Controller
             ]);
         }
 
+        if ($request->has('etiquettes')) {
+
+            foreach ($request->etiquettes as $etiquette) {
+               $id_etiquette = $etiquette['id_etiquette'];
+    
+               facture_Etiquette::create([
+                   'livraison_id' => $livraison->id,
+                   'etiquette_id' => $id_etiquette
+               ]);
+            }
+        }
+
         if ($livraison->active_Stock == 'oui') {
             foreach ($livraison->articles as $article) {
                 if (Stock::where('article_id', $article->id_article)->exists()) {
@@ -158,7 +175,7 @@ class LivraisonController extends Controller
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
-        $livraisons = Livraison::with('client')
+        $livraisons = Livraison::with('client','articles.article', 'Etiquettes.etiquette')
             ->where('archiver', 'non')
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
                 $query->where('sousUtilisateur_id', $sousUtilisateurId)
@@ -168,7 +185,7 @@ class LivraisonController extends Controller
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $livraisons = Livraison::with('client')
+        $livraisons = Livraison::with('client','articles.article', 'Etiquettes.etiquette')
             ->where('archiver', 'non')
             ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
@@ -195,6 +212,95 @@ foreach ($livraisons as $livraison) {
         'nom_client' => $livraison->client->nom_client, 
         'active_Stock' => $livraison->active_Stock,
         'reduction_livraison' => $livraison->reduction_livraison,
+        'articles' => $livraison->articles->map(function ($articlelivraison) {
+                return [
+                    'id' => $articlelivraison->article->id,
+                    'nom' => $articlelivraison->article->nom_article,
+                    'quantite' => $articlelivraison->quantite_article,
+                    'prix' => $articlelivraison->prix_total_tva_article,
+                ];
+            }),
+        'etiquettes' => $livraison->Etiquettes->map(function ($etiquette) {
+                    return [
+                        'id' => optional($etiquette->etiquette)->id,
+                        'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+                    ];
+                })->filter(function ($etiquette) {
+                    return !is_null($etiquette['id']);
+                })->values()->all(),
+          
+        
+    ];
+}
+
+return response()->json(['livraisons' => $response]);
+}
+
+public function listerToutesLivraisonsParClient($clientId)
+{
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; 
+
+        $livraisons = Livraison::with('articles.article', 'Etiquettes.etiquette')
+            ->where('client_id', $clientId)
+            ->where('archiver', 'non')
+            ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                    ->orWhere('user_id', $userId);
+            })
+            ->get();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $livraisons = Livraison::with('articles.article', 'Etiquettes.etiquette')
+            ->where('client_id', $clientId)
+            ->where('archiver', 'non')
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                        $query->where('user_id', $userId);
+                    });
+            })
+            ->get();
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
+// Construire la réponse avec les détails des livraisons et les noms des clients
+$response = [];
+foreach ($livraisons as $livraison) {
+    $response[] = [
+        'id' => $livraison->id,
+        'num_livraison' => $livraison->num_livraison,
+        'date_livraison' => $livraison->date_livraison,
+        'statut_livraison' => $livraison->statut_livraison,
+        'prix_Ht' => $livraison->prix_HT,
+        'prix_Ttc' => $livraison->prix_TTC,
+        'note_livraison' => $livraison->note_livraison,
+        'prenom_client' => $livraison->client->prenom_client, 
+        'nom_client' => $livraison->client->nom_client, 
+        'active_Stock' => $livraison->active_Stock,
+        'reduction_livraison' => $livraison->reduction_livraison,
+        'articles' => $livraison->articles->map(function ($articlelivraison) {
+                return [
+                    'id' => $articlelivraison->article->id,
+                    'nom' => $articlelivraison->article->nom_article,
+                    'quantite' => $articlelivraison->quantite_article,
+                    'prix' => $articlelivraison->prix_total_tva_article,
+                ];
+            }),
+        'etiquettes' => $livraison->Etiquettes->map(function ($etiquette) {
+                    return [
+                        'id' => optional($etiquette->etiquette)->id,
+                        'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+                    ];
+                })->filter(function ($etiquette) {
+                    return !is_null($etiquette['id']);
+                })->values()->all(),
     ];
 }
 
@@ -431,7 +537,7 @@ public function DetailsLivraison($id)
     }
     // Rechercher la facture par son numéro
     $livraison = Livraison::where('id', $id)
-                ->with(['client', 'articles.article'])
+                ->with(['client', 'articles.article', 'Etiquettes.etiquette'])
                 ->first();
 
     // Vérifier si la livraison existe
@@ -463,6 +569,15 @@ public function DetailsLivraison($id)
         'nom_comptable' => $livraison->compteComptable->nom_compte_comptable ?? null,
         'articles' => [],
         'active_Stock' => $livraison->active_Stock,
+        
+        'etiquettes' => $livraison->Etiquettes->map(function ($etiquette) {
+            return [
+                'id' => optional($etiquette->etiquette)->id,
+                'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+            ];
+        })->filter(function ($etiquette) {
+            return !is_null($etiquette['id']);
+        })->values()->all(),
     ];
 
     // Vérifier si 'articles' est non nul et une collection

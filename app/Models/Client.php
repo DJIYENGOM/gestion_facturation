@@ -83,4 +83,11 @@ class Client extends Model
     {
         return $this->belongsTo(CompteComptable::class, 'id_comptable');
     }
+
+    public function Etiquetttes()
+    {
+        return $this->hasMany(Client_Etiquette::class, 'client_id');
+    }
+
+   
 }

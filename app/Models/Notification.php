@@ -10,15 +10,21 @@ class Notification extends Model
     use HasFactory;
 
     protected $fillable = [
-        'message', 
         'produit_rupture',
         'depense_impayer',
         'payement_attente',
         'devis_expirer',
         'relance_automatique',
+
         'sousUtilisateur_id', 
         'user_id',
-        'id_article',
+        'quantite_produit',
+        'nombre_jourNotif_brouillon',
+        'nombre_jourNotif_depense',
+        'nombre_jourNotif_echeance',
+        'nombre_jourNotif_devi',
+        'recevoir_notification',
+
     ];
 
     public function sousUtilisateur()

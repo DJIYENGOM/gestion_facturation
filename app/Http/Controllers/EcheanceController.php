@@ -51,6 +51,9 @@ class EcheanceController extends Controller
             'sousUtilisateur_id' => $sousUtilisateur_id,
             'user_id' => $user_id,
         ]);
+
+        Echeance::envoyerNotificationSEcheanceImpayer($echeance);
+
         return response()->json(['message' => 'Échéance créée avec succès', 'echeance' => $echeance], 201);
     }
 
@@ -180,6 +183,8 @@ class EcheanceController extends Controller
         'montant_echeance' => $request->montant_echeance,
         'commentaire' => $request->commentaire,
     ]);
+
+    Echeance::envoyerNotificationSEcheanceImpayer($echeance);
 
     return response()->json(['message' => 'Échéance mise à jour avec succès', 'echeance' => $echeance], 200);
 }

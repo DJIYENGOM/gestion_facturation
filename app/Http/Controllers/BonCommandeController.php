@@ -14,7 +14,9 @@ use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use App\Models\ArtcleFacture;
 use App\Models\FactureAccompt;
+use App\Models\facture_Etiquette;
 use App\Models\ArticleBonCommande;
+use App\Models\MessageNotification;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -46,7 +48,10 @@ class BonCommandeController extends Controller
             'articles.*.TVA_article' => 'nullable|numeric',
             'articles.*.reduction_article' => 'nullable|numeric',
             'articles.*.prix_total_article'=>'nullable|numeric',
-            'articles.*.prix_total_tva_article'=>'nullable|numeric'
+            'articles.*.prix_total_tva_article'=>'nullable|numeric',
+
+            'etiquettes' => 'nullable|array',
+            'etiquettes.*.id_etiquette' => 'nullable|exists:etiquettes,id',
         ]);
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 422);
@@ -95,6 +100,18 @@ class BonCommandeController extends Controller
             'id_bonCommande' => $commande->id
 
         ]);
+
+        if ($request->has('etiquettes')) {
+
+            foreach ($request->etiquettes as $etiquette) {
+               $id_etiquette = $etiquette['id_etiquette'];
+    
+               facture_Etiquette::create([
+                   'bonCommande_id' => $commande->id,
+                   'etiquette_id' => $id_etiquette
+               ]);
+            }
+        }
 
     
         // Ajouter les articles à la facture
@@ -155,19 +172,26 @@ class BonCommandeController extends Controller
                     $stock->user_id = $userId;
                     $stock->save();
                 }
-                $articleDb = Article::find($article->id_article);
+                $article = Article::find($article->id_article);
+
+                $article->quantite_disponible = $stock->disponible_apres;
+                $article->save();
         
-                if ($articleDb && isset($articleDb->quantite) && isset($articleDb->quantite_alert)) {
-                    // Créer une notification si la quantité atteint ou est inférieure à la quantité d'alerte
-                    if ($articleDb->quantite <= $articleDb->quantite_alert) {
-                        Notification::create([
-                            'sousUtilisateur_id' => $sousUtilisateurId,
-                            'user_id' => $userId,
-                            'id_article' => $articleDb->id,
-                            'message' => 'La quantité des produits (' . $articleDb->nom_article . ') atteint la quantité d\'alerte.',
-                        ]);
-                    }
+                $notificationConfig = Notification::where('user_id', $article->user_id)
+                    ->orWhere('sousUtilisateur_id', $sousUtilisateurId)
+                    ->first();
+
+             if ( $notificationConfig->produit_rupture && $notificationConfig->quantite_produit > 0) {
+                if ($article->quantite_disponible <= $notificationConfig->quantite_produit) {
+                MessageNotification::create([
+                    'sousUtilisateur_id' => $sousUtilisateurId,
+                    'user_id' => $userId,
+                    'article_id' => $article->id,
+                    'message' => 'Poduits ont moins de ' . $notificationConfig->quantite_produit . ' dans leur stock',
+                ]);
                 }
+          }
+
             }
         }
         
@@ -257,7 +281,7 @@ public function listerTousBonCommande()
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
-        $BonCommandes = BonCommande::with('client')
+        $BonCommandes = BonCommande::with('client','articles.article', 'Etiquettes.etiquette')
             ->where('archiver', 'non')
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
                 $query->where('sousUtilisateur_id', $sousUtilisateurId)
@@ -267,7 +291,7 @@ public function listerTousBonCommande()
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $BonCommandes = BonCommande::with('client')
+        $BonCommandes = BonCommande::with('client','articles.article', 'Etiquettes.etiquette')
             ->where('archiver', 'non')
             ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
@@ -295,12 +319,98 @@ foreach ($BonCommandes as $BonCommande) {
         'nom_client' => $BonCommande->client->nom_client, 
         'active_Stock' => $BonCommande->active_Stock,
         'reduction_commande' => $BonCommande->reduction_commande,
+        'articles' => $BonCommande->articles->map(function ($articleBonCommande) {
+                return [
+                    'id' => $articleBonCommande->article->id,
+                    'nom' => $articleBonCommande->article->nom_article,
+                    'quantite' => $articleBonCommande->quantite_article,
+                    'prix' => $articleBonCommande->prix_total_tva_article,
+                ];
+            }),
+            'etiquettes' => $BonCommande->Etiquettes->map(function ($etiquette) {
+                return [
+                    'id' => optional($etiquette->etiquette)->id,
+                    'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+                ];
+            })->filter(function ($etiquette) {
+                return !is_null($etiquette['id']);
+            })->values()->all(),
     ];
 }
 
 return response()->json(['BonCommandes' => $response]);
 }
 
+
+public function listeBonCommandeParClient($clientId)
+{
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; 
+
+        $BonCommandes = BonCommande::with('articles.article', 'Etiquettes.etiquette')
+            ->where('client_id', $clientId)
+            ->where('archiver', 'non')
+            ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                    ->orWhere('user_id', $userId);
+            })
+            ->get();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $BonCommandes = BonCommande::with('articles.article', 'Etiquettes.etiquette')
+            ->where('client_id', $clientId)
+            ->where('archiver', 'non')
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                        $query->where('id_user', $userId);
+                    });
+            })
+            ->get();
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
+// Construire la réponse avec les détails des BonCommandes et les noms des clients
+$response = [];
+foreach ($BonCommandes as $BonCommande) {
+    $response[] = [
+        'id' => $BonCommande->id,
+        'num_BonCommande' => $BonCommande->num_commande,
+        'date_BonCommande' => $BonCommande->date_commande,
+        'statut_BonCommande' => $BonCommande->statut_commande,
+        'date_limite' => $BonCommande->date_limite_commande,
+        'prix_Ht' => $BonCommande->prix_HT,
+        'prix_Ttc' => $BonCommande->prix_TTC,
+        'nom_client' => $BonCommande->client->nom_client, 
+        'active_Stock' => $BonCommande->active_Stock,
+        'reduction_commande' => $BonCommande->reduction_commande,
+        'articles' => $BonCommande->articles->map(function ($articleBonCommande) {
+                return [
+                    'id' => $articleBonCommande->article->id,
+                    'nom' => $articleBonCommande->article->nom_article,
+                    'quantite' => $articleBonCommande->quantite_article,
+                    'prix' => $articleBonCommande->prix_total_tva_article,
+                ];
+            }),
+        'etiquettes' => $BonCommande->Etiquettes->map(function ($etiquette) {
+                return [
+                    'id' => optional($etiquette->etiquette)->id,
+                    'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+                ];
+            })->filter(function ($etiquette) {
+                return !is_null($etiquette['id']);
+            })->values()->all(),
+    ];
+}
+
+return response()->json(['BonCommandes' => $response]);
+}
 public function supprimerBonCommande($id)
 {    
     if (auth()->guard('apisousUtilisateur')->check()) {
@@ -366,7 +476,7 @@ public function DetailsBonCommande($id)
     }
     // Rechercher la facture par son numéro
     $bonCommande = BonCommande::where('id', $id)
-                ->with(['client', 'articles.article', 'echeances'])
+                ->with(['client', 'articles.article', 'Etiquettes.etiquette', 'echeances'])
                 ->first();
 
     // Vérifier si la bonCommande existe
@@ -401,6 +511,15 @@ public function DetailsBonCommande($id)
         'echeances' => [],
         'nombre_echeance' => $bonCommande->echeances ? $bonCommande->echeances->count() : 0,
         'active_Stock' => $bonCommande->active_Stock,
+
+        'etiquettes' => $bonCommande->Etiquettes->map(function ($etiquette) {
+            return [
+                'id' => optional($etiquette->etiquette)->id,
+                'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+            ];
+        })->filter(function ($etiquette) {
+            return !is_null($etiquette['id']);
+        })->values()->all(),
     ];
 
     // Vérifier si 'articles' est non nul et une collection

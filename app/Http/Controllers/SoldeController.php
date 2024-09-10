@@ -46,6 +46,38 @@ class SoldeController extends Controller
     
         return response()->json(['message' => 'solde ajouté avec succès', 'solde' => $solde]);
      }
+
+    public function listeSoldeParClient($clientId)
+    {
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+              return response()->json(['error' => 'Accès non autorisé'], 403);
+              }
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user; 
     
+            $soldes = Solde::where('client_id', $clientId)
+                ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                    $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                        ->orWhere('user_id', $userId);
+                })
+                ->get();
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
     
+            $soldes = Solde::where('client_id', $clientId)
+                ->where(function ($query) use ($userId) {
+                    $query->where('user_id', $userId)
+                        ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                            $query->where('user_id', $userId);
+                        });
+                })
+                ->get();
+        } else {
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+        }
+    
+    return response()->json(['soldes' => $soldes]);
+    }
 }

@@ -11,7 +11,6 @@ class CommandeAchat extends Model
 
     protected $fillable = [
         'num_commandeAchat',
-        'activation',
         'date_commandeAchat',
         'date_livraison',
         'titre',
@@ -55,5 +54,10 @@ class CommandeAchat extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function Etiquettes()
+    {
+        return $this->hasMany(Facture_Etiquette::class, 'commandeAchat_id');
     }
 }

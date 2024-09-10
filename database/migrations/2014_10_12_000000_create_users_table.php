@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('logo')->nullable();
             $table->string('adress_entreprise')->nullable();
             $table->string('tel_entreprise')->nullable();
-            $table->integer('devise')->nullable();
+            $table->string('devise')->nullable();
             $table->string('langue')->nullable();
             
             $table->timestamp('email_verified_at')->nullable();

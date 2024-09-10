@@ -13,8 +13,18 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->string('message');
-            $table->foreignId('id_article')->nullable()->constrained('articles')->onDelete('set null');
+            $table->boolean('produit_rupture')->default(true);
+            $table->boolean('depense_impayer')->default(true);
+            $table->boolean('payement_attente')->default(true);
+            $table->boolean('devis_expirer')->default(true);
+            $table->boolean('relance_automatique')->default(true);
+
+            $table->integer('quantite_produit')->default(5);
+            $table->integer('nombre_jourNotif_brouillon')->default(7);
+            $table->integer('nombre_jourNotif_depense')->default(7);
+            $table->integer('nombre_jourNotif_echeance')->default(7);
+            $table->integer('nombre_jourNotif_devi')->default(7);
+            $table->boolean('recevoir_notification')->default(true);
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();

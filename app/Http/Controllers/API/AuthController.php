@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\NumeroConfiguration;
 use App\Models\Sous_Utilisateur;
-use Illuminate\Support\Facades\Validator;
+use App\Models\NumeroConfiguration;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 
 class AuthController extends Controller
@@ -93,6 +94,22 @@ class AuthController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+
+        Notification::create([
+            'produit_rupture' => 1,
+            'depense_impayere' => 1,
+            'payement_attente' => 1,
+            'devis_expirer' => 1,
+            'relance_automatique' => 1,
+
+            'quantite_produit'=> 5,
+            'nombre_jourNotif_brouillon' => 7,
+            'nombre_jourNotif_depense' => 7,
+            'nombre_jourNotif_echeance' => 7,
+            'nombre_jourNotif_devis' => 7,
+            'recevoir_notifications' => 1,
+            'user_id' => $user->id
+        ]);
 
 
         return response()->json([

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Facture;
+use App\Models\facture_Etiquette;
 use App\Models\Historique;
 use App\Models\FactureAvoir;
 use Illuminate\Http\Request;
@@ -40,7 +41,10 @@ class FactureAvoirController extends Controller
             'articles.*.TVA_article' => 'nullable|numeric',
             'articles.*.reduction_article' => 'nullable|numeric',
             'articles.*.prix_total_article'=>'nullable|numeric',
-            'articles.*.prix_total_tva_article'=>'nullable|numeric'
+            'articles.*.prix_total_tva_article'=>'nullable|numeric',
+
+            'etiquettes' => 'nullable|array',
+            'etiquettes.*.id_etiquette' => 'nullable|exists:etiquettes,id',
         ]);
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 422);
@@ -119,6 +123,19 @@ class FactureAvoirController extends Controller
             'message' => 'Des Factures d\'avoir ont été crées',
             'id_facture_avoir' => $factureAvoir->id
         ]);
+
+        
+        if ($request->has('etiquettes')) {
+
+            foreach ($request->etiquettes as $etiquette) {
+               $id_etiquette = $etiquette['id_etiquette'];
+    
+               facture_Etiquette::create([
+                   'factureAvoir_id' => $factureAvoir->id,
+                   'etiquette_id' => $id_etiquette
+               ]);
+            }
+        }
         return response()->json(['message' => 'factureAvoir créée avec succès', 'factureAvoir' => $factureAvoir], 201);
 
     }
@@ -191,7 +208,7 @@ class FactureAvoirController extends Controller
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; 
     
-            $facturesSimples = Facture::with('client')
+            $facturesSimples = Facture::with('client', 'articles.article', 'Etiquettes.etiquette')
                 ->where('archiver', 'non')
                 ->where(function ($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
@@ -199,7 +216,7 @@ class FactureAvoirController extends Controller
                 })
                 ->get();
     
-            $facturesAvoirs = FactureAvoir::with('client')
+            $facturesAvoirs = FactureAvoir::with('client', 'articles.article', 'Etiquettes.etiquette')
                 ->where(function ($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
                         ->orWhere('user_id', $userId);
@@ -208,7 +225,7 @@ class FactureAvoirController extends Controller
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $facturesSimples = Facture::with('client')
+            $facturesSimples = Facture::with('client', 'articles.article', 'Etiquettes.etiquette')
                 ->where('archiver', 'non')
                 ->where(function ($query) use ($userId) {
                     $query->where('user_id', $userId)
@@ -218,7 +235,7 @@ class FactureAvoirController extends Controller
                 })
                 ->get();
     
-            $facturesAvoirs = FactureAvoir::with('client')
+            $facturesAvoirs = FactureAvoir::with('client', 'articles.article', 'Etiquettes.etiquette')
                 ->where(function ($query) use ($userId) {
                     $query->where('user_id', $userId)
                         ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
@@ -248,6 +265,23 @@ class FactureAvoirController extends Controller
                 'note_fact' => $facture->note_fact,
                 'reduction_facture' => $facture->reduction_facture,
                 'type'=> 'simple',
+                'articles' => $facture->articles->map(function ($articleFacture) {
+                return [
+                    'id' => $articleFacture->article->id,
+                    'nom' => $articleFacture->article->nom_article,
+                    'quantite' => $articleFacture->quantite_article,
+                    'prix' => $articleFacture->prix_total_tva_article,
+                ];
+            }),
+            'etiquettes' => ($facture->Etiquettes ?? collect())->map(function ($etiquette) {
+                return [
+                    'id' => optional($etiquette->etiquette)->id,
+                    'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette,
+                ];
+            })->filter(function ($etiquette) {
+                return !is_null($etiquette['id']);
+            })->values()->all(), 
+        
             ];
         }
     
@@ -266,6 +300,22 @@ class FactureAvoirController extends Controller
                 'commentaire' => $facture->commentaire,
                 'type_facture' => $facture->type_facture,
                 'type'=> 'avoir',
+                'articles' => $facture->articles->map(function ($articleFacture) {
+                return [
+                    'id' => $articleFacture->article->id,
+                    'nom' => $articleFacture->article->nom_article,
+                    'quantite' => $articleFacture->quantite_article,
+                    'prix' => $articleFacture->prix_total_tva_article,
+                ];
+            }),
+            'etiquettes' => ($facture->Etiquettes ?? collect())->map(function ($etiquette) {
+                return [
+                    'id' => optional($etiquette->etiquette)->id,
+                    'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette,
+                ];
+            })->filter(function ($etiquette) {
+                return !is_null($etiquette['id']);
+            })->values()->all(), 
             ];
         }
     
@@ -360,7 +410,7 @@ class FactureAvoirController extends Controller
             $userId = auth('apisousUtilisateur')->user()->id_user;
     
             $facture = Facture::where('num_facture', $num_facture)
-                ->with(['client', 'articles.article', 'echeances', 'factureAccompts', 'paiement'])
+                ->with(['client', 'articles.article', 'Etiquettes.etiquette', 'echeances', 'factureAccompts', 'paiement'])
                 ->where(function($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
                           ->orWhere('user_id', $userId);
@@ -369,7 +419,7 @@ class FactureAvoirController extends Controller
     
             if (!$facture) {
                 $facture = FactureAvoir::where('num_facture', $num_facture)
-                    ->with(['client', 'articles.article'])
+                    ->with(['client', 'articles.article', 'Etiquettes.etiquette'])
                     ->where(function($query) use ($sousUtilisateurId, $userId) {
                         $query->where('sousUtilisateur_id', $sousUtilisateurId)
                               ->orWhere('user_id', $userId);
@@ -380,7 +430,7 @@ class FactureAvoirController extends Controller
             $userId = auth()->id();
     
             $facture = Facture::where('num_facture', $num_facture)
-                ->with(['client', 'articles.article', 'echeances', 'factureAccompts', 'paiement'])
+                ->with(['client', 'articles.article', 'Etiquettes.etiquette', 'echeances', 'factureAccompts', 'paiement'])
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                     $query->where('id_user', $userId);
@@ -389,7 +439,7 @@ class FactureAvoirController extends Controller
     
             if (!$facture) {
                 $facture = FactureAvoir::where('num_facture', $num_facture)
-                    ->with(['client', 'articles.article'])
+                    ->with(['client', 'articles.article', 'Etiquettes.etiquette'])
                     ->where('user_id', $userId)
                     ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                         $query->where('id_user', $userId);
@@ -421,7 +471,16 @@ class FactureAvoirController extends Controller
             'prix_TTC' => $facture->prix_TTC,
             'articles' => [],
             'echeances' => [],
-            'factures_accomptes' => []
+            'factures_accomptes' => [],
+
+            'etiquettes' => ($facture->Etiquettes ?? collect())->map(function ($etiquette) {
+                return [
+                    'id' => optional($etiquette->etiquette)->id,
+                    'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette,
+                ];
+            })->filter(function ($etiquette) {
+                return !is_null($etiquette['id']);
+            })->values()->all(), 
         ];
     
         // Ajouter des champs spécifiques aux factures simples

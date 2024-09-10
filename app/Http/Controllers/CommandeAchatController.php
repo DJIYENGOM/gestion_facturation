@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Article;
 use App\Models\Depense;
+use App\Models\facture_Etiquette;
 use App\Models\Historique;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -21,7 +22,6 @@ class CommandeAchatController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'num_commandeAchat'=>'nullable|string',
-            'activation'=> 'nullable|boolean',
             'date_commandeAchat'=>'required|date',
             'date_livraison'=>'nullable|date',
             'total_TTC'=>'nullable|numeric',
@@ -41,7 +41,10 @@ class CommandeAchatController extends Controller
             'articles.*.TVA_article' => 'nullable|numeric',
             'articles.*.reduction_article' => 'nullable|numeric',
             'articles.*.prix_total_article'=>'nullable|numeric',
-            'articles.*.prix_total_tva_article'=>'nullable|numeric'
+            'articles.*.prix_total_tva_article'=>'nullable|numeric',
+
+            'etiquettes' => 'nullable|array',
+            'etiquettes.*.id_etiquette' => 'nullable|exists:etiquettes,id',
         ]);
     
         if ($validator->fails()) {
@@ -67,7 +70,6 @@ class CommandeAchatController extends Controller
     
         $commandeData = [
             'num_commandeAchat' => $request->num_commandeAchat ?? $numBonCommande,
-            'activation' => $request->activation ?? false,
             'date_commandeAchat' => $request->date_commandeAchat,
             'date_livraison' => $request->date_livraison,
             'total_TTC' => $request->total_TTC,
@@ -102,6 +104,18 @@ class CommandeAchatController extends Controller
             'message' => 'Des Commandes d\'achat ont été  creées',
             'id_commandeAchat' => $commande->id
         ]);
+
+        if ($request->has('etiquettes')) {
+
+            foreach ($request->etiquettes as $etiquette) {
+               $id_etiquette = $etiquette['id_etiquette'];
+    
+               facture_Etiquette::create([
+                   'commandeAchat_id' => $commande->id,
+                   'etiquette_id' => $id_etiquette
+               ]);
+            }
+        }
         // Ajouter les articles à la commande
         foreach ($request->articles as $articleData) {
             ArticleCommandeAchat::create([
@@ -150,14 +164,14 @@ class CommandeAchatController extends Controller
               }
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
-            $CommandeAchats = CommandeAchat::with('articles.article', 'fournisseur', 'depense')
+            $CommandeAchats = CommandeAchat::with('articles.article','Etiquettes.etiquette', 'fournisseur', 'depense')
                 ->where('sousUtilisateur_id', $sousUtilisateurId)
                 ->orWhere('user_id', $userId)
                 ->get();
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $CommandeAchats = CommandeAchat::with('articles.article', 'fournisseur', 'depense')
+            $CommandeAchats = CommandeAchat::with('articles.article','Etiquettes.etiquette', 'fournisseur', 'depense')
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
                     $query->where('id_user', $userId);
@@ -178,9 +192,16 @@ class CommandeAchatController extends Controller
                 'Prenom_fournisseur' => $CommandeAchat->fournisseur->prenom_fournisseur ?? null, 
                 'Nom_Fournisseur'=>$CommandeAchat->fournisseur->nom_fournisseur  ?? null,
                 'note_interne' => $CommandeAchat->note_interne,
-                
-           
                 'statut' => $CommandeAchat->statut_commande,
+
+                'etiquettes' => $CommandeAchat->Etiquettes->map(function ($etiquette) {
+                    return [
+                        'id' => optional($etiquette->etiquette)->id,
+                        'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+                    ];
+                })->filter(function ($etiquette) {
+                    return !is_null($etiquette['id']);
+                })->values()->all(),
             ];
         }
        
@@ -205,7 +226,7 @@ class CommandeAchatController extends Controller
         }
     
         // Rechercher la commande d'achat par son ID
-        $commandeAchat = CommandeAchat::with(['fournisseur', 'articles.article', 'depense'])
+        $commandeAchat = CommandeAchat::with(['fournisseur', 'articles.article','Etiquettes.etiquette', 'depense'])
             ->where('id', $id)
             ->first();
     
@@ -246,6 +267,15 @@ class CommandeAchatController extends Controller
             'statut_commandeAchat' => $commandeAchat->statut_commande,
             'doc_interne' => $commandeAchat->doc_interne ?? null,
             'articles' => [],
+
+            'etiquettes' => $commandeAchat->Etiquettes->map(function ($etiquette) {
+                return [
+                    'id' => optional($etiquette->etiquette)->id,
+                    'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+                ];
+            })->filter(function ($etiquette) {
+                return !is_null($etiquette['id']);
+            })->values()->all(),
         ];
     
         // Vérifier si 'articles' est non nul et une collection
@@ -288,7 +318,6 @@ public function modifierCommandeAchat(Request $request, $id)
 
     $validator = Validator::make($request->all(), [
         'num_commandeAchat' => 'required|string',
-        'activation'=> 'nullable|boolean',
         'date_commandeAchat'=>'required|date',
         'date_livraison'=>'nullable|date',
         'total_TTC'=>'nullable|numeric',

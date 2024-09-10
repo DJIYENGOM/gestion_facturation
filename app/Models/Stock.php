@@ -22,6 +22,7 @@ class Stock extends Model
         'bonCommande_id',
         'livraison_id',
         'statut_stock',
+        'type_stock',
         'sousUtilisateur_id',
         'user_id',
     ];

@@ -26,7 +26,12 @@ class Fournisseur extends Model
         'pays_fournisseur',
         'noteInterne_fournisseur',
         'doc_associer',
-        'id_comptable'
+        'id_comptable',
+        'code_banque',
+        'code_guichet',
+        'num_compte',
+        'cle_rib',
+        'iban',
     ];
 
   
@@ -44,5 +49,10 @@ class Fournisseur extends Model
     public function depenses()
     {
         return $this->hasMany(Depense::class, 'fournisseur_id');
+    }
+
+    public function Etiquettes()
+    {
+        return $this->hasMany(Facture_Etiquette::class, 'fournisseur_id');
     }
 }

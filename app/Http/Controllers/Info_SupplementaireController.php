@@ -20,7 +20,7 @@ class Info_SupplementaireController extends Controller
                 'logo' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'adress_entreprise' => 'nullable|string|max:255|min:2,',
                 'tel_entreprise' => 'nullable|string|max:20|min:9',
-                'devise' => 'nullable|numeric|max:255',
+                'devise' => 'nullable|string|max:255',
                 'langue' => 'nullable|string|max:255',
             ]);
     

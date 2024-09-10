@@ -180,7 +180,7 @@ class SousUtilisateurController extends Controller
         if($utilisateur->archiver == 'non'){
             return response()->json(['message' => 'ce sous utilisateur est deja desarchivé']);
         }
-    
+      
         $utilisateur->archiver = 'non';
     
         $utilisateur->save();

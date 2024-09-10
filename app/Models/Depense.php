@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Depense extends Model
 {
@@ -11,7 +12,6 @@ class Depense extends Model
 
     protected $fillable = [
         'num_depense',
-        'activation',
         'id_categorie_depense',
         'commentaire',
         'date_paiement',
@@ -64,6 +64,43 @@ class Depense extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function Etiquetttes()
+    {
+        return $this->hasMany(Facture_Etiquette::class, 'depense_id');
+    }
+
+
+    public static function creerNotification($config, $message, $depense_id)
+    {
+        $notification = new MessageNotification();
+        $notification->message = $message;
+        $notification->user_id = $config->user_id;
+        $notification->sousUtilisateur_id = $config->sousUtilisateur_id;
+        $notification->depense_id = $depense_id;
+        $notification->save();
+    }
+
+    public static function envoyerNotificationSiImpayer($depense)
+    {
+        $config = Notification::where('user_id', $depense->user_id)
+            ->orWhere('sousUtilisateur_id', $depense->sousUtilisateur_id)
+            ->first();
+
+        if ($config && $config->depense_impayer && $config->nombre_jourNotif_depense >= 1) {
+            $nombre_jour = $config->nombre_jourNotif_depense;
+
+            $now = Carbon::now();
+            $date_paiement = Carbon::parse($depense->date_paiement);
+
+            if ($date_paiement->isToday()) {
+                $depense->creerNotification($config, 'Nouvelles dépenses prevues aujourd\'hui', $depense->id);
+            } elseif ($date_paiement->diffInDays($now) == $nombre_jour) {
+                $message = "Dépenses à payer dans les {$nombre_jour} prochains jours";
+                $depense->creerNotification($config, $message, $depense->id);
+            }
+        }
     }
 }
 

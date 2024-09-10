@@ -14,7 +14,14 @@ class Kernel extends ConsoleKernel
     {
          $schedule->command('command:factureRecurrente')->daily();
          
-         $schedule->command('command:genererNotification')->daily();
+         $schedule->command('notification:genererDepense')->daily();
+
+         $schedule->command('notification:genererNotificationEcheance')->daily();
+
+         $schedule->command('notification:generer_notification_sur_devi')->daily();
+
+         $schedule->command('command:supprimer_historique')->daily();
+
     }
 
     /**

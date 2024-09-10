@@ -124,4 +124,9 @@ class Article extends Model
     {
         return $this->hasMany(Stock::class, 'article_id');
     }
+
+    public function Etiquetttes()
+    {
+        return $this->hasMany(Article_Etiquette::class, 'article_id');
+    }
 }

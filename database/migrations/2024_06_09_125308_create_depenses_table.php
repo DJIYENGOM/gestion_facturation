@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('depenses', function (Blueprint $table) {
             $table->id();
             $table->string('num_depense')->nullable();
-            $table->boolean('activation')->default(true);
             $table->text('commentaire')->nullable();
             $table->date('date_paiement')->nullable();
             $table->integer('tva_depense')->nullable();
@@ -31,7 +30,7 @@ return new class extends Migration
             $table->enum('statut_depense', ['payer', 'impayer'])->default('impayer');
             $table->foreignId('id_paiement')->nullable()->constrained('payements')->onDelete('set null');
             $table->foreignId('fournisseur_id')->nullable()->constrained('fournisseurs')->onDelete('set null');
-            $table->foreignId('id_categorie_depense')->constrained('categorie_depenses')->onDelete('cascade');
+            $table->foreignId('id_categorie_depense')->nullable()->constrained('categorie_depenses')->onDelete('set null');
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();

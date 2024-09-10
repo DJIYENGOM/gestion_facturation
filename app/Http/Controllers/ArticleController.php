@@ -8,7 +8,10 @@ use App\Models\Article;
 use App\Models\Entrepot;
 use App\Models\Variante;
 use App\Models\AutrePrix;
+use App\Models\Article_Etiquette;
+use App\Models\Etiquette;
 use App\Models\Historique;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Exports\ArticlesExport;
 use App\Imports\ArticlesImport;
@@ -17,13 +20,12 @@ use App\Models\EntrepotArticle;
 use App\Models\CategorieArticle;
 use App\Models\NoteJustificative;
 use Illuminate\Support\Facades\DB;
+
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
-
 use Illuminate\Support\Facades\Storage;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Notification;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -47,7 +49,7 @@ class ArticleController extends Controller
         }
         
         $validator = Validator::make($request->all(), [
-            'nom_article' => 'required|string',
+            'nom_article' => 'nullable|string',
             'description' => 'nullable|string',
             'prix_unitaire' => 'required|numeric|min:0',
             'tva'=>'nullable|numeric|min:0',
@@ -76,6 +78,9 @@ class ArticleController extends Controller
             'entrepots' => 'nullable|array',
             'entrepots.*.entrepot_id' => 'nullable|exists:entrepots,id',
             'entrepots.*.quantiteArt_entrepot' => 'nullable|integer|min:0',
+
+            'etiquettes' => 'nullable|array',
+            'etiquettes.*.id_etiquette' => 'nullable|exists:etiquettes,id',
         ]);
     
         if ($validator->fails()) {
@@ -126,12 +131,24 @@ class ArticleController extends Controller
         $article->quantite = $request->quantite;
         $article->quantite_alert = $request->quantite_alert;
         $article->active_Stock = $request->active_Stock ?? 'non';
-        $article->quantite_disponible = $request->quantite ?? 0;
+        $article->quantite_disponible = $request->quantite ?? null;
         $article->benefice = $request->prix_unitaire - $request->prix_achat;
         $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_achat : null;
     
         $article->save();
         NumeroGeneratorService::incrementerCompteur($user_id, $typeDocument);
+
+        if ($request->has('etiquettes')) {
+
+        foreach ($request->etiquettes as $etiquette) {
+            $id_etiquette = $etiquette['id_etiquette'];
+ 
+            Article_Etiquette::create([
+                'article_id' => $article->id,
+                'etiquette_id' => $id_etiquette
+            ]);
+         }
+        }
 
         if($typeDocument == 'produit'){
             Historique::create([
@@ -203,7 +220,8 @@ class ArticleController extends Controller
             if ($request->has('lots')) {
                 foreach ($request->lots as $lot) {
                     $stock = new Stock();
-                   $stock->date_stock = now()->format('Y-m-d');
+                    $stock->type_stock = 'entree';
+                    $stock->date_stock = now()->format('Y-m-d');
                     $stock->num_stock = $numStock;
                     $stock->libelle = $article->nom_article . ' - ' . $lot['nomLot'];
                     $stock->disponible_avant = 0;
@@ -226,6 +244,7 @@ class ArticleController extends Controller
                     $nomEntrepot = $Entrepot->first()->nomEntrepot;
 
                     $stock = new Stock();
+                    $stock->type_stock = 'entree';
                     $stock->date_stock = now()->format('Y-m-d');
                     $stock->num_stock = $numStock;
                     $stock->libelle = $article->nom_article . ' - ' . $nomEntrepot;
@@ -245,6 +264,7 @@ class ArticleController extends Controller
             if ($request->has('variantes')) {
                 foreach($request->variantes as $variante) {
                     $stock = new Stock();
+                    $stock->type_stock = 'entree';
                    $stock->date_stock = now()->format('Y-m-d');
                     $stock->num_stock = $numStock;
                     $stock->libelle = $article->nom_article . ' - ' . $variante['nomVariante'];
@@ -263,7 +283,8 @@ class ArticleController extends Controller
     
             if (!$request->has('lots') && !$request->has('variantes') && !$request->has('entrepots')) {
                 $stock = new Stock();
-               $stock->date_stock = now()->format('Y-m-d');
+                $stock->type_stock = 'entree';
+                $stock->date_stock = now()->format('Y-m-d');
                 $stock->num_stock = $numStock; 
                 $stock->libelle = $article->nom_article. ' - original';
                 $stock->disponible_avant = 0;
@@ -342,6 +363,9 @@ class ArticleController extends Controller
             'entrepots' => 'nullable|array',
             'entrepots.*.entrepot_id' => 'nullable|exists:entrepots,id',
             'entrepots.*.quantiteArt_entrepot' => 'nullable|integer|min:0',
+
+            'etiquettes' => 'nullable|array',
+            'etiquettes.*.id_etiquette' => 'nullable|exists:etiquettes,id',
         ]);
     
         if ($validator->fails()) {
@@ -404,6 +428,7 @@ class ArticleController extends Controller
         $article->code_barre = $request->code_barre;
         $article->prix_achat = $request->prix_achat;
         $article->quantite = $request->quantite;
+        $article->quantite_disponible = $request->quantite ?? null;
         $article->quantite_alert = $request->quantite_alert;
         $article->benefice = $request->prix_unitaire - $request->prix_achat;
         $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_achat : null;
@@ -424,6 +449,20 @@ class ArticleController extends Controller
                 'message' => 'Des Services ont été Modifiés',
                 'is_article' => $article->id
             ]);
+        }
+
+        if ($request->has('etiquettes')) {
+            Article_Etiquette::where('article_id', $id)->delete();
+
+        foreach ($request->etiquettes as $etiquette) {
+            $id_etiquette = $etiquette['id_etiquette'];
+ 
+            $articleEtiquette= new Article_Etiquette([
+            'article_id' => $article->id,
+            'etiquette_id' => $id_etiquette
+           ]);
+           $articleEtiquette->save();
+         }
         }
     
         // Gérer les autres prix
@@ -485,7 +524,8 @@ class ArticleController extends Controller
             if ($request->has('lots')) {
                 foreach ($request->lots as $lot) {
                     $stock = new Stock();
-                   $stock->date_stock = now()->format('Y-m-d');
+                    $stock->type_stock = 'entree';
+                    $stock->date_stock = now()->format('Y-m-d');
                     $stock->num_stock = $numStock;
                     $stock->libelle = $article->nom_article . ' - ' . $lot['nomLot'];
                     $stock->disponible_avant = 0;
@@ -508,6 +548,7 @@ class ArticleController extends Controller
                     $nomEntrepot = $Entrepot->first()->nomEntrepot;
 
                     $stock = new Stock();
+                    $stock->type_stock = 'entree';
                     $stock->date_stock = now()->format('Y-m-d');
                     $stock->num_stock = $numStock;
                     $stock->libelle = $article->nom_article . ' - ' . $nomEntrepot;
@@ -527,7 +568,8 @@ class ArticleController extends Controller
             if ($request->has('variantes')) {
                 foreach($request->variantes as $variante) {
                     $stock = new Stock();
-                   $stock->date_stock = now()->format('Y-m-d');
+                    $stock->type_stock = 'entree';
+                    $stock->date_stock = now()->format('Y-m-d');
                     $stock->num_stock = $numStock;
                     $stock->libelle = $article->nom_article . ' - ' . $variante['nomVariante'];
                     $stock->disponible_avant = 0;
@@ -545,7 +587,8 @@ class ArticleController extends Controller
     
             if (!$request->has('lots') && !$request->has('variantes') && !$request->has('entrepots')) {
                 $stock = new Stock();
-               $stock->date_stock = now()->format('Y-m-d');
+                $stock->type_stock = 'entree';
+                $stock->date_stock = now()->format('Y-m-d');
                 $stock->num_stock = $numStock; 
                 $stock->libelle = $article->nom_article. ' - original';
                 $stock->disponible_avant = 0;
@@ -598,9 +641,22 @@ public function supprimerArticle($id)
         if ($Article)
             {
                 $Article->delete();
+
+                $stock = Stock::where('article_id',$id)
+                ->where('sousUtilisateur_id', $sousUtilisateurId)
+                ->orWhere('user_id', $userId)
+                ->first();
+            if ($stock)
+            {
+                $stock->delete();
+            }
+
+            Article_Etiquette::where('article_id', $id)->delete();
+
+
             return response()->json(['message' => 'Article supprimé avec succès']);
             }else {
-                return response()->json(['error' => 'ce sous utilisateur ne peut pas supprimé cet Article'], 401);
+                return response()->json(['error' => 'Vous ne pouvez pas supprimé cet Article'], 401);
             }
 
     }elseif (auth()->check()) {
@@ -616,9 +672,22 @@ public function supprimerArticle($id)
             if ($Article)
             {
                 $Article->delete();
+                $stock = Stock::where('article_id',$id)
+                ->where('user_id', $userId)
+                ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                    $query->where('id_user', $userId);
+                })
+                ->first();
+            if ($stock)
+            {
+                $stock->delete();
+            }
+
+            Article_Etiquette::where('article_id', $id)->delete();
+
                 return response()->json(['message' => 'Article supprimé avec succès']);
             }else {
-                return response()->json(['error' => 'cet utilisateur ne peut pas supprimé cet Article'], 401);
+                return response()->json(['error' => 'Vous ne pouvez pas supprimé cet Article'], 401);
             }
 
     }else {
@@ -634,21 +703,21 @@ public function listerArticles()
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
 
-        $articles = Article::with('categorieArticle', 'CompteComptable','Stocks', 'EntrepotArt', 'lot', 'autrePrix', 'variante')
+        $articles = Article::with('categorieArticle', 'CompteComptable', 'Stocks', 'EntrepotArt', 'lot', 'autrePrix', 'variante', 'Etiquetttes.etiquette')
             ->where('sousUtilisateur_id', $sousUtilisateurId)
             ->orWhere('user_id', $userId)
             ->get();
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $articles = Article::with('categorieArticle', 'CompteComptable','Stocks', 'EntrepotArt', 'lot', 'autrePrix', 'variante')
+        $articles = Article::with('categorieArticle', 'CompteComptable', 'Stocks', 'EntrepotArt', 'lot', 'autrePrix', 'variante', 'Etiquetttes.etiquette')
             ->where('user_id', $userId)
             ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                 $query->where('id_user', $userId);
             })
             ->get();
     } else {
-        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+        return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
     }
 
     $articlesArray = $articles->map(function ($article) {
@@ -656,10 +725,27 @@ public function listerArticles()
         $articleArray['quantite_disponible'] = optional($article->Stocks->last())->disponible_apres;
         $articleArray['nom_categorie'] = optional($article->categorieArticle)->nom_categorie_article;
         $articleArray['nom_comptable'] = optional($article->CompteComptable)->nom_compte_comptable;
+
+        // Formatter les étiquettes pour n'inclure que les attributs nécessaires
+        $articleArray['etiquettes'] = $article->Etiquetttes->map(function ($etiquette) {
+            return [
+                'id' => optional($etiquette->etiquette)->id,
+                'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+            ];
+        })->filter(function ($etiquette) {
+            // Filtrer les étiquettes pour s'assurer qu'aucune entrée null ne soit incluse
+            return !is_null($etiquette['id']);
+        })->values()->all();
+
+        // Supprimer les autres attributs non nécessaires si existants
+        unset($articleArray['etiquetttes']); // Enlever si `etiquetttes` existe comme attribut principal
+
         return $articleArray;
     });
+
     return response()->json($articlesArray);
 }
+
 
 
 public function affecterPromoArticle(Request $request, $id)

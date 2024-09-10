@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Tva;
 use App\Models\Depense;
 use App\Models\Echeance;
 use App\Models\Historique;
+use App\Models\Notification;
 use Illuminate\Http\Request;
+use App\Models\facture_Etiquette;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -20,8 +23,7 @@ class DepenseController extends Controller
         // Valider les données entrantes
         $validator = Validator::make($request->all(), [
             'num_depense' => 'nullable|string',
-            'activation' => 'boolean',
-            'id_categorie_depense' => 'required|exists:categorie_depenses,id',
+            'id_categorie_depense' => 'nullable|exists:categorie_depenses,id',
             'commentaire' => 'nullable|string',
             'date_paiement' => 'nullable|date',
             'tva_depense' => 'nullable|integer',
@@ -43,6 +45,9 @@ class DepenseController extends Controller
             'statut_depense' => 'required|in:payer,impayer',
             'id_paiement' => 'nullable|required_if:statut_depense,payer|exists:payements,id',
             'fournisseur_id' => 'nullable|exists:fournisseurs,id',
+
+            'etiquettes' => 'nullable|array',
+            'etiquettes.*.id_etiquette' => 'nullable|exists:etiquettes,id',
         ]);
     
         if ($validator->fails()) {
@@ -75,7 +80,6 @@ class DepenseController extends Controller
         
                 $depense = Depense::create([
                     'num_depense' => $request->num_depense. '-' .($index + 1),
-                    'activation' => $request->input('activation', true),
                     'commentaire' => $request->input('commentaire'),
                     'date_paiement' => $echeanceData['date_pay_echeance'] ?? $request->date_paiement,
                     'montant_depense_ht' => $echeanceData['montant_echeance'] ?? $request->montant_depense_ht,
@@ -102,7 +106,6 @@ class DepenseController extends Controller
     
             $depense = Depense::create([
                 'num_depense' =>  $request->num_depense ?? $numero,
-                'activation' => $request->input('activation', true),
                 'id_categorie_depense' => $request->id_categorie_depense,
                 'commentaire' => $request->input('commentaire'),
                 'date_paiement' => $request->date_paiement,
@@ -141,6 +144,21 @@ class DepenseController extends Controller
             'message' => 'Des depenses ont été crées',
             'id_depense' => $depense->id
         ]);
+
+        if ($request->has('etiquettes')) {
+
+            foreach ($request->etiquettes as $etiquette) {
+               $id_etiquette = $etiquette['id_etiquette'];
+    
+               facture_Etiquette::create([
+                   'depense_id' => $depense->id,
+                   'etiquette_id' => $id_etiquette
+               ]);
+            }
+        }
+        if ($depense->statut_depense == 'impayer') {
+            Depense::envoyerNotificationSiImpayer($depense);
+        }
     
         return response()->json(['message' => 'Dépense créée avec succès', 'depense' => $depense], 201);
     }
@@ -149,34 +167,36 @@ class DepenseController extends Controller
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur = auth('apisousUtilisateur')->user();
-          if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
-            return response()->json(['error' => 'Accès non autorisé'], 403);
+            if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Accès non autorisé'], 403);
             }
-            $sousUtilisateurId = auth('apisousUtilisateur')->id();
-            $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+            $sousUtilisateurId = $sousUtilisateur->id;
+            $userId = $sousUtilisateur->id_user; // ID de l'utilisateur parent
     
-            $depenses = Depense::with('categorieDepense', 'fournisseur')
-                ->where('sousUtilisateur_id', $sousUtilisateurId)
-                ->orWhere('user_id', $userId)
+            $depenses = Depense::with(['categorieDepense', 'fournisseur', 'Etiquettes.etiquette'])
+                ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                    $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                          ->orWhere('user_id', $userId);
+                })
                 ->get();
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $depenses = Depense::with('categorieDepense', 'fournisseur')
+            $depenses = Depense::with(['categorieDepense', 'fournisseur', 'Etiquettes.etiquette'])
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
                     $query->where('id_user', $userId);
                 })
                 ->get();
         } else {
-            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+            return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
         }
     
-        $response = $depenses->map(function ($depense) {
+        // Formatter les dépenses
+        $depensesArray = $depenses->map(function ($depense) {
             return [
                 'num_depense' => $depense->num_depense,
                 'id' => $depense->id,
-                'activation' => $depense->activation,
                 'commentaire' => $depense->commentaire,
                 'date_paiement' => $depense->date_paiement,
                 'tva_depense' => $depense->tva_depense,
@@ -193,15 +213,24 @@ class DepenseController extends Controller
                 'statut_depense' => $depense->statut_depense,
                 'id_paiement' => $depense->id_paiement,
                 'fournisseur_id' => $depense->fournisseur_id,
-                'categorie_depense_id' => $depense->id_categorie_depense,
-                'nom_categorie_depense' => $depense->categorieDepense ? $depense->categorieDepense->nom_categorie_depense : null,
-                'nom_fournisseur' => $depense->fournisseur ? $depense->fournisseur->nom : null,
-                'prenom_fournisseur' => $depense->fournisseur ? $depense->fournisseur->prenom : null,
+                'categorie_depense_id' => $depense->categorie_depense_id,
+                'nom_categorie_depense' => optional($depense->categorieDepense)->nom_categorie_depense,
+                'nom_fournisseur' => optional($depense->fournisseur)->nom,
+                'prenom_fournisseur' => optional($depense->fournisseur)->prenom,
+                'etiquettes' => $depense->Etiquettes->map(function ($etiquette) {
+                    return [
+                        'id' => optional($etiquette->etiquette)->id,
+                        'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+                    ];
+                })->filter(function ($etiquette) {
+                    return !is_null($etiquette['id']);
+                })->values()->all(),
             ];
         });
     
-        return response()->json(['depenses' => $response], 200);
+        return response()->json(['depenses' => $depensesArray], 200);
     }
+    
     
 
     
@@ -210,7 +239,6 @@ class DepenseController extends Controller
         // Valider les données entrantes
         $validator = Validator::make($request->all(), [
             'num_depense' => 'nullable|string|max:255',
-            'activation' => 'boolean',
             'id_categorie_depense' => 'required|exists:categorie_depenses,id',
             'commentaire' => 'nullable|string',
             'date_paiement' => 'nullable|date',
@@ -276,6 +304,24 @@ class DepenseController extends Controller
             'message' => 'Des depenses ont été Modifiées',
             'id_depense' => $depense->id
         ]);
+
+        if ($request->has('etiquettes')) {
+        facture_Etiquette::where('depense_id', $id)->delete();
+    
+        foreach ($request->etiquettes as $etiquette) {
+            $id_etiquette = $etiquette['id_etiquette'];
+    
+            $depenseEtiquette= new facture_Etiquette([
+            'depense_id' => $depense->id,
+            'etiquette_id' => $id_etiquette
+           ]);
+           $depenseEtiquette->save();
+         }
+        }
+        
+        if ($depense->statut_depense == 'impayer') {
+            Depense::envoyerNotificationSiImpayer($depense);
+        }
     
         return response()->json(['message' => 'Dépense modifiée avec succès', 'depense' => $depense], 200);
     }

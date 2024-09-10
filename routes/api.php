@@ -17,10 +17,12 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\EcheanceController;
 use App\Http\Controllers\EntrepotController;
 use App\Http\Controllers\PayementController;
+use App\Http\Controllers\EtiquetteController;
 use App\Http\Controllers\LivraisonController;
 use App\Http\Controllers\HistoriqueController;
 use App\Http\Controllers\BonCommandeController;
 use App\Http\Controllers\FournisseurController;
+use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\FactureAvoirController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaiementRecuController;
@@ -120,6 +122,7 @@ Route::controller(ClientController::class)->group(function () {
     Route::delete('supprimerClient/{id}', 'supprimerClient');
     Route::post('importClient', 'importClient');
     Route::get('exportClients', 'exportClients');
+    Route::post('sendClientEmail', 'sendClientEmail');
 
 });
 
@@ -202,12 +205,14 @@ Route::controller(DeviController::class)->group(function(){
     Route::post('annulerDevi/{deviId}','annulerDevi');  
     Route::post('DetailsDevis/{id}','DetailsDevis'); 
     Route::get('exporterDevis','exporterDevis'); 
+    Route::get('listeDeviParClient/{clientId}','listeDeviParClient');
 });
 
 Route::controller(BonCommandeController::class)->group(function(){
     Route::post('creerBonCommande','creerBonCommande');
     Route::post('TransformeBonCommandeEnFacture/{id}','TransformeBonCommandeEnFacture');
     Route::get('listerTousBonCommande','listerTousBonCommande');
+    Route::get('listeBonCommandeParClient/{clientId}','listeBonCommandeParClient');
     Route::post('supprimerBonCommande/{id}','supprimerBonCommande');
     Route::post('annulerBonCommande/{id}','annulerBonCommande');
     Route::post('DetailsBonCommande/{id}','DetailsBonCommande');  
@@ -231,6 +236,7 @@ Route::controller(LivraisonController::class)->group(function(){
     Route::post('RealiserLivraison/{id}','RealiserLivraison');
     Route::post('DetailsLivraison/{id}','DetailsLivraison');
     Route::get('exporterLivraison','exporterLivraisons');
+    Route::get('listerToutesLivraisonsParClient/{clientId}','listerToutesLivraisonsParClient');
 });
 
 Route::post('configurerNumeros',[NumeroConfigurationController::class, 'configurerNumeros']);
@@ -255,6 +261,9 @@ Route::get('listerToutesFacturesRecurrentes',[FactureRecurrenteController::class
 Route::post('supprimerFactureRecurrente/{id}',[FactureRecurrenteController::class, 'supprimerFactureRecurrente']);
 
 Route::post('ajouterSolde/{clientId}',[SoldeController::class, 'ajouterSolde']);
+Route::get('listeSoldeParClient/{clientId}',[SoldeController::class, 'listeSoldeParClient']);
+
+
 Route::post('ajouterCategorieDepense',[CategorieDepenseController::class, 'ajouterCategorieDepense']);
 Route::get('listerCategorieDepense',[CategorieDepenseController::class, 'listerCategorieDepense']);
 Route::delete('supprimerCategorieDepense/{id}',[CategorieDepenseController::class, 'supprimerCategorieDepense']);
@@ -283,7 +292,8 @@ Route::controller(HistoriqueController::class)->group(function(){
 });
 
 Route::controller(NotificationController::class)->group(function(){
-    Route::get('listerNotifications','listerNotifications');
+    Route::post('configurerNotification','configurerNotification');
+    Route::get('listerConfigurationNotification','listerConfigurationNotification');
     Route::post('supprimeNotificationParType','supprimeNotificationParType');
 });
 
@@ -294,3 +304,18 @@ Route::controller(StockController::class)->group(function(){
 });
 
 Route::get ('InfoSurTva_Recolte_Deductif_Reverse', [TvaController::class, 'InfoSurTva_Recolte_Deductif_Reverse']);
+
+Route::controller(ConversationController::class)->group(function(){
+    Route::get('listerConversations','listerConversations');
+    Route::post('ajouterConversation','ajouterConversation');
+    Route::post('supprimerConversation/{id}','supprimerConversation');
+    Route::post('modifierConversation/{id}','modifierConversation');
+    Route::get('detailConversation/{id}','detailConversation');
+});
+
+Route::post('creerEtiquette',[EtiquetteController::class, 'creerEtiquette']);
+Route::get('ListerEtiquette',[EtiquetteController::class, 'ListerEtiquette']);
+Route::post('modifierEtiquette/{id}',[EtiquetteController::class, 'modifierEtiquette']);
+Route::post('supprimerEtiquette/{id}',[EtiquetteController::class, 'supprimerEtiquette']);  
+  
+

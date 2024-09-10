@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('commande_achats', function (Blueprint $table) {
             $table->id();
             $table->string('num_commandeAchat')->nullable();
-            $table->boolean('activation')->default(0);
             $table->date('date_commandeAchat')->nullable();
             $table->date('date_livraison')->nullable();
             $table->string('titre')->nullable();

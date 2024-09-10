@@ -3,19 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Etiquette;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
-use App\Http\Requests\StoreClientRequest;
-use App\Http\Requests\UpdateClientRequest;
-use App\Models\CompteComptable;
-use App\Services\NumeroGeneratorService;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\ClientsImport;
+use Swift_TransportException;
 use App\Exports\ClientsExport;
+use App\Imports\ClientsImport;
+use App\Models\CompteComptable;
+use App\Models\Client_Etiquette;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
+use App\Services\NumeroGeneratorService;
+use App\Http\Requests\StoreClientRequest;
+use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\Mailer\Exception\TransportException;
 
 class ClientController extends Controller
 {
@@ -40,6 +45,9 @@ class ClientController extends Controller
             'statut_client' => 'required|in:client,prospect',
             'categorie_id' => 'nullable|exists:categorie_clients,id',
             'num_client' => 'nullable|string|unique:clients,num_client',
+            'etiquettes' => 'nullable|array',
+            'etiquettes.*.id_etiquette' => 'nullable|exists:etiquettes,id',
+
 
         ];
     
@@ -123,6 +131,18 @@ class ClientController extends Controller
         $client->save();
         NumeroGeneratorService::incrementerCompteur($userId, 'client');
 
+        if ($request->has('etiquettes')) {
+
+        foreach ($request->etiquettes as $etiquette) {
+           $id_etiquette = $etiquette['id_etiquette'];
+
+           Client_Etiquette::create([
+               'client_id' => $client->id,
+               'etiquette_id' => $id_etiquette
+           ]);
+        }
+    }
+
         return response()->json(['message' => 'Client ajouté avec succès', 'client' => $client]);
     }
     
@@ -134,14 +154,14 @@ class ClientController extends Controller
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
-            $clients = Client::with('categorie','CompteComptable')
+            $clients = Client::with('categorie','CompteComptable', 'Etiquetttes.etiquette')
                 ->where('sousUtilisateur_id', $sousUtilisateurId)
                 ->orWhere('user_id', $userId)
                 ->get();
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $clients = Client::with('categorie','CompteComptable')
+            $clients = Client::with('categorie','CompteComptable', 'Etiquetttes.etiquette')
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                     $query->where('id_user', $userId);
@@ -155,6 +175,20 @@ class ClientController extends Controller
             $clientArray = $client->toArray();
             $clientArray['nom_categorie'] = optional($client->categorie)->nom_categorie;
             $clientArray['nom_comptable'] = optional($client->CompteComptable)->nom_compte_comptable;
+
+             // Formatter les étiquettes pour n'inclure que les attributs nécessaires
+        $clientArray['etiquettes'] = $client->Etiquetttes->map(function ($etiquette) {
+            return [
+                'id' => optional($etiquette->etiquette)->id,
+                'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+            ];
+        })->filter(function ($etiquette) {
+            // Filtrer les étiquettes pour s'assurer qu'aucune entrée null ne soit incluse
+            return !is_null($etiquette['id']);
+        })->values()->all();
+
+        // Supprimer les autres attributs non nécessaires si existants
+        unset($clientArray['etiquetttes']); // Enlever si `etiquetttes` existe comme attribut principal
             return $clientArray;
         });
     
@@ -174,12 +208,12 @@ public function modifierClient(Request $request, $id)
         }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         if ($client->sousUtilisateur_id !== $sousUtilisateurId) {
-            return response()->json(['error' => 'Cette sous-utilisateur ne peut pas modifier ce client car il ne l\'a pas créé'], 401);
+            return response()->json(['error' => 'Vous ne pouvez pas modifier ce client car il ne l\'a pas créé'], 401);
         }
     } elseif (auth()->check()) {
         $userId = auth()->id();
         if ($client->user_id !== $userId) {
-            return response()->json(['error' => 'Cet utilisateur ne peut pas modifier ce client car il ne l\'a pas créé'], 401);
+            return response()->json(['error' => 'Vous ne pouvez pas modifier ce client car il ne l\'a pas créé'], 401);
         }
     } else {
         return response()->json(['error' => 'Non autorisé'], 401);
@@ -189,6 +223,9 @@ public function modifierClient(Request $request, $id)
         'type_client' => 'required|in:particulier,entreprise',
         'statut_client' => 'required|in:client,prospect',
         'categorie_id' => 'nullable|exists:categorie_clients,id',
+
+        'etiquettes' => 'nullable|array',
+        'etiquettes.*.id_etiquette' => 'nullable|exists:etiquettes,id',
     ];
 
     $particulierRules = [
@@ -226,6 +263,20 @@ public function modifierClient(Request $request, $id)
     // Mettre à jour les données du client
     $client->update($request->all());
 
+    if ($request->has('etiquettes')) {
+        Client_Etiquette::where('client_id', $id)->delete();
+
+    foreach ($request->etiquettes as $etiquette) {
+        $id_etiquette = $etiquette['id_etiquette'];
+
+        $clientEtiquette= new Client_Etiquette([
+        'client_id' => $client->id,
+        'etiquette_id' => $id_etiquette
+       ]);
+       $clientEtiquette->save();
+     }
+    }
+
     return response()->json(['message' => 'Client modifié avec succès', 'client' => $client]);
 }
 
@@ -250,7 +301,7 @@ public function supprimerClient($id)
                 $client->delete();
             return response()->json(['message' => 'client supprimé avec succès']);
             }else {
-                return response()->json(['error' => 'ce sous utilisateur ne peut pas modifier ce client'], 401);
+                return response()->json(['error' => 'Vous ne pouvez pas modifier ce client'], 401);
             }
 
     }elseif (auth()->check()) {
@@ -266,7 +317,7 @@ public function supprimerClient($id)
                 $client->delete();
                 return response()->json(['message' => 'client supprimé avec succès']);
             }else {
-                return response()->json(['error' => 'cet utilisateur ne peut pas modifier ce client'], 401);
+                return response()->json(['error' => 'Vous ne peuvez pas modifier ce client'], 401);
             }
 
     }else {
@@ -415,5 +466,51 @@ public function exportClients()
     exit;
 }
 
+public function sendClientEmail(Request $request, Client $client)
+{
+    // Valider les informations nécessaires
+    $validatedData = $request->validate([
+        'adresse_destinataire' => 'required|email',
+        'objet' => 'required|string|max:255',
+        'message' => 'required|string',
+        'facture' => 'required|file|mimes:pdf|max:2048', // Limiter à des fichiers PDF de 2MB max par exemple
+    ]);
 
+    // Récupérer le fichier PDF de la requête
+    $pdf = $request->file('facture');
+
+    // Générer un nom de fichier unique et stocker le fichier
+    $fileName = 'uploads/' . uniqid() . '_' . time() . '.pdf';
+    $path = $pdf->storeAs('public', $fileName);
+
+    // Vérifier que le fichier a été stocké avec succès
+    if (!$path) {
+        return response()->json(['error' => 'Erreur lors du téléchargement du fichier'], 500);
+    }
+
+    // Récupérer les informations supplémentaires
+    $adresseDestinataire = $validatedData['adresse_destinataire'];
+    $objet = $validatedData['objet'];
+    $messageEmail = $validatedData['message'];
+
+    try {
+        // Envoyer l'email au destinataire avec le fichier en pièce jointe
+        Mail::send([], [], function ($message) use ($adresseDestinataire, $objet, $messageEmail, $path) {
+            $message->from('ngomdjiye@gmail.com', 'Votre Nom ou Entreprise'); // Définir le nom ou l'entreprise
+            $message->to($adresseDestinataire)
+                ->subject($objet)
+                ->html($messageEmail) // Définit le contenu HTML de l'email
+                ->attach(storage_path('app/' . $path), [ // Attache le fichier PDF stocké
+                    'as' => 'Facture.pdf',
+                    'mime' => 'application/pdf',
+                ]);
+        });
+
+        return response()->json(['success' => 'Email envoyé avec succès']);
+
+    } catch (Swift_TransportException $e) {
+        // Gestion des exceptions si l'envoi échoue
+        return response()->json(['error' => 'Erreur lors de l\'envoi de l\'email : ' . $e->getMessage()], 500);
+    }
+}
 }

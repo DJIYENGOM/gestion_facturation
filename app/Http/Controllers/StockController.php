@@ -46,6 +46,7 @@ class StockController extends Controller
     foreach ($stocks as $stock) {
         $response[] = [
             'id' => $stock->id,
+            'type_stock' => $stock->type_stock,
             'num_stock' => $stock->num_stock,
             'date_stock' => $stock->date_stock,
             'libelle' => $stock->libelle,
@@ -112,6 +113,7 @@ class StockController extends Controller
     foreach ($stocks as $stock) {
         $response[] = [
             'id' => $stock->id,
+            'type_stock' => $stock->type_stock,
             'Code' => $stock->num_stock,
             'libelle' => $stock->libelle,
             'disponible_actuel' => $stock->disponible_apres,
@@ -178,6 +180,7 @@ public function modifierStock(Request $request)
                 'num_stock' => $stock->Code,
                 'date_stock' => now(),
                 'libelle' => $stock->libelle,
+                'type_stock' => $stock->type_stock,
                 'disponible_avant' => $stock->disponible_actuel,
                 'modif' => $quantiteAjoutee,
                 'disponible_apres' => $stock->disponible_actuel + $quantiteAjoutee,

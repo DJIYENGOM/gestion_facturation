@@ -15,7 +15,9 @@ use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use App\Models\ArtcleFacture;
 use App\Models\FactureAccompt;
+use App\Models\facture_Etiquette;
 use App\Models\FactureRecurrente;
+use App\Models\MessageNotification;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -56,7 +58,10 @@ class FactureController extends Controller
             'articles.*.TVA_article' => 'nullable|numeric',
             'articles.*.reduction_article' => 'nullable|numeric',
             'articles.*.prix_total_article'=>'nullable|numeric',
-            'articles.*.prix_total_tva_article'=>'nullable|numeric'
+            'articles.*.prix_total_tva_article'=>'nullable|numeric',
+
+            'etiquettes' => 'nullable|array',
+            'etiquettes.*.id_etiquette' => 'nullable|exists:etiquettes,id',
         ]);
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 422);
@@ -122,6 +127,17 @@ class FactureController extends Controller
             'id_facture' => $facture->id
         ]);
 
+        if ($request->has('etiquettes')) {
+
+            foreach ($request->etiquettes as $etiquette) {
+               $id_etiquette = $etiquette['id_etiquette'];
+    
+               facture_Etiquette::create([
+                   'facture_id' => $facture->id,
+                   'etiquette_id' => $id_etiquette
+               ]);
+            }
+        }
         
 
         // Ajouter les articles à la facture
@@ -151,13 +167,16 @@ class FactureController extends Controller
         // Gestion des échéances si type_paiement est 'echeance'
         if ($request->type_paiement == 'echeance') {
             foreach ($request->echeances as $echeanceData) {
-                Echeance::create([
+               $echeance = Echeance::create([
                     'facture_id' => $facture->id,
                     'date_pay_echeance' => $echeanceData['date_pay_echeance'],
                     'montant_echeance' => $echeanceData['montant_echeance'],
                     'sousUtilisateur_id' => $sousUtilisateurId,
                     'user_id' => $userId,
                 ]);
+
+                Echeance::envoyerNotificationSEcheanceImpayer($echeance);
+
             }
         }
     
@@ -210,6 +229,7 @@ class FactureController extends Controller
         
                     // Créer une nouvelle entrée de stock
                     $stock = new Stock();
+                    $stock->type_stock = 'Sortie';
                     $stock->date_stock = now()->format('Y-m-d');
                     $stock->num_stock = $numStock; 
                     $stock->libelle = $lastStock->libelle;
@@ -227,20 +247,31 @@ class FactureController extends Controller
                 }
             
 
-                $articleDb = Article::find($article->id_article);
+                $article = Article::find($article->id_article);
+
+                $article->quantite_disponible = $stock->disponible_apres;
+                $article->save();
         
-                if ($articleDb && isset($articleDb->quantite) && isset($articleDb->quantite_alert)) {
-                    // Créer une notification si la quantité atteint ou est inférieure à la quantité d'alerte
-                    if ($articleDb->quantite <= $articleDb->quantite_alert) {
-                        Notification::create([
-                            'sousUtilisateur_id' => $sousUtilisateurId,
-                            'user_id' => $userId,
-                            'id_article' => $articleDb->id,
-                            'message' => 'La quantité des produits (' . $articleDb->nom_article . ') atteint la quantité d\'alerte.',
-                        ]);
-                    }
+                $notificationConfig = Notification::where('user_id', $article->user_id)
+                    ->orWhere('sousUtilisateur_id', $sousUtilisateurId)
+                    ->first();
+
+             if ( $notificationConfig->produit_rupture && $notificationConfig->quantite_produit > 0) {
+                if ($article->quantite_disponible <= $notificationConfig->quantite_produit) {
+                MessageNotification::create([
+                    'sousUtilisateur_id' => $sousUtilisateurId,
+                    'user_id' => $userId,
+                    'article_id' => $article->id,
+                    'message' => 'Poduits ont moins de ' . $notificationConfig->quantite_produit . ' dans leur stock',
+                ]);
                 }
-            }
+          }
+
+        }
+
+        // if ($request->type_paiement == 'echeance') {
+        //     Echeance::envoyerNotificationSEcheanceImpayer($echeance);
+        // }
         }
             
         
@@ -502,41 +533,138 @@ public function supprimeArchiveFacture($id)
 
 }
 
-public function listeFactureParClient($clientId){
+
+public function listeFactureParClient($clientId)
+{
+    $facturesSimples = [];
+    $facturesAvoirs = [];
 
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateur = auth('apisousUtilisateur')->user();
-            if (!$sousUtilisateur->fonction_admin) {
-                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
-            }
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
-        $userId = auth('apisousUtilisateur')->user()->id_user; 
+        $userId = $sousUtilisateur->id_user;
 
-    $factures = Facture::where('archiver', 'non')
-        ->where('client_id', $clientId)
-        ->where(function ($query) use ($sousUtilisateurId, $userId) {
-            $query->where('sousUtilisateur_id', $sousUtilisateurId)
-                ->orWhere('user_id', $userId);
-        })
-        ->get();
+        $facturesSimples = Facture::with('articles.article', 'Etiquettes.etiquette')
+            ->where('archiver', 'non')
+            ->where('client_id', $clientId)
+            ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                      ->orWhere('user_id', $userId);
+            })
+            ->get();
+
+        $facturesAvoirs = FactureAvoir::with('articles.article', 'Etiquettes.etiquette')
+            ->where('client_id', $clientId)
+            ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                      ->orWhere('user_id', $userId);
+            })
+            ->get();
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $factures = Facture::where('archiver', 'non')
+        $facturesSimples = Facture::with('articles.article', 'Etiquettes.etiquette')
+            ->where('archiver', 'non')
             ->where('client_id', $clientId)
             ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
-                    ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
-                        $query->where('id_user', $userId);
-                    });
+                      ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                          $query->where('id_user', $userId);
+                      });
+            })
+            ->get();
+
+        $facturesAvoirs = FactureAvoir::with('articles.article', 'Etiquettes.etiquette')
+            ->where('client_id', $clientId)
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                      ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                          $query->where('id_user', $userId);
+                      });
             })
             ->get();
     } else {
-        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+        return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
     }
 
-    return response()->json(['factures_Payer' => $factures], 200);
+    // Construire la réponse avec les détails combinés des factures simples et des factures d'avoirs
+    $response = [];
+
+    foreach ($facturesSimples as $facture) {
+        $response[] = [
+            'id' => $facture->id,
+            'numero' => $facture->num_facture,
+            'date_creation' => $facture->date_creation,
+            'prix_HT' => $facture->prix_HT,
+            'prix_TTC' => $facture->prix_TTC,
+            'date' => $facture->date_creation,
+            'statut_paiement' => $facture->statut_paiement,
+            'type_facture' => $facture->type_facture,
+            'note_fact' => $facture->note_fact,
+            'reduction_facture' => $facture->reduction_facture,
+            'type' => 'simple',
+            'articles' => $facture->articles->map(function ($articleFacture) {
+                return [
+                    'id' => $articleFacture->article->id,
+                    'nom' => $articleFacture->article->nom_article,
+                    'quantite' => $articleFacture->quantite_article,
+                    'prix' => $articleFacture->prix_total_tva_article,
+                ];
+            }),
+            'etiquettes' => $facture->Etiquettes->map(function ($etiquette) {
+                    return [
+                        'id' => optional($etiquette->etiquette)->id,
+                        'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+                    ];
+                })->filter(function ($etiquette) {
+                    return !is_null($etiquette['id']);
+                })->values()->all(),
+        ];
+    }
+
+    foreach ($facturesAvoirs as $facture) {
+        $response[] = [
+            'id' => $facture->id,
+            'numero' => $facture->num_facture,
+            'prix_HT' => $facture->prix_HT,
+            'prix_TTC' => $facture->prix_TTC,
+            'date' => $facture->date,
+            'statut_paiement' => 'Note de crédit',
+            'titre' => $facture->titre,
+            'description' => $facture->description,
+            'commentaire' => $facture->commentaire,
+            'type_facture' => $facture->type_facture,
+            'type' => 'avoir',
+            'articles' => $facture->articles->map(function ($articleFactureAvoir) {
+                return [
+                    'id' => $articleFactureAvoir->article->id,
+                    'nom' => $articleFactureAvoir->article->nom_article,
+                    'quantite' => $articleFactureAvoir->quantite_article,
+                    'prix' => $articleFactureAvoir->prprix_total_tva_articleix,
+                ];
+            }),
+            'etiquettes' => $facture->Etiquettes->map(function ($etiquette) {
+                    return [
+                        'id' => optional($etiquette->etiquette)->id,
+                        'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+                    ];
+                })->filter(function ($etiquette) {
+                    return !is_null($etiquette['id']);
+                })->values()->all(),
+        ];
+    }
+
+    // Trier la collection fusionnée par date de création
+    usort($response, function ($a, $b) {
+        return strtotime($a['date']) - strtotime($b['date']);
+    });
+
+    return response()->json(['factures' => $response]);
 }
+
 
 public function listerFacturesRecurrentes()
 {

@@ -25,7 +25,8 @@ return new class extends Migration
             $table->foreignId('bonCommande_id')->nullable()->constrained('bon_commandes')->onDelete('set null');
             $table->foreignId('livraison_id')->nullable()->constrained('livraisons')->onDelete('set null');
             $table->string('statut_stock')->nullable();
-
+            $table->enum('type_stock', ['entree', 'sortie'])->nullable();
+            
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();   

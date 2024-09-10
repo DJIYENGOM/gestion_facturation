@@ -31,6 +31,11 @@ return new class extends Migration
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');            
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('id_comptable')->nullable()->constrained('compte_comptables')->onDelete('set null');
+            $table->string('code_banque')->nullable();
+            $table->string('code_guichet')->nullable();
+            $table->string('num_compte')->nullable();
+            $table->string('cle_rib')->nullable();
+            $table->string('iban')->nullable();
 
             $table->timestamps();
         });
