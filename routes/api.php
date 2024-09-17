@@ -163,7 +163,7 @@ Route::get('RapportFacture', [FactureController::class, 'RapportFacture']);
 
 Route::get('exportFactures', [FactureController::class, 'exportFactures']);
 
-Route::post('genererPDF/{id_facture}', [FactureController::class, 'genererPDF']);
+Route::post('DetailEmailFacture_genererPDF/{id_facture}', [EmailModeleController::class, 'DetailEmailFacture_genererPDF']);
 
 
 Route::post('ajouterCompteComptable', [CompteComptableController::class, 'ajouterCompteComptable']);

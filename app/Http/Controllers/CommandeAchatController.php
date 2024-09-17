@@ -217,7 +217,7 @@ class CommandeAchatController extends Controller
                 return response()->json(['error' => 'Accès non autorisé'], 403);
             }
             $sousUtilisateur_id = auth('apisousUtilisateur')->id();
-            $user_id = null;
+            $user_id = auth('apisousUtilisateur')->user()->id_user;
         } elseif (auth()->check()) {
             $user_id = auth()->id();
             $sousUtilisateur_id = null;
@@ -228,6 +228,10 @@ class CommandeAchatController extends Controller
         // Rechercher la commande d'achat par son ID
         $commandeAchat = CommandeAchat::with(['fournisseur', 'articles.article','Etiquettes.etiquette', 'depense'])
             ->where('id', $id)
+            ->where(function ($query) use ($sousUtilisateur_id, $user_id) {
+                $query->where('sousUtilisateur_id', $sousUtilisateur_id)
+                    ->orWhere('user_id', $user_id);
+            })
             ->first();
     
         // Vérifier si la commandeAchat existe

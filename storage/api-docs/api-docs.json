@@ -23,6 +23,929 @@
         "multipart/form-data"
     ],
     "paths": {
+        "/api/DetailEmailFacture_genererPDF/3": {
+            "post": {
+                "summary": "DetailEmailFacture_genererPDF",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/createEmailModele": {
+            "post": {
+                "summary": "create Email Modele",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "type_modele": {
+                                        "type": "string"
+                                    },
+                                    "object": {
+                                        "type": "string"
+                                    },
+                                    "contenu": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "type_modele": "facture",
+                                "object": "mon objet de email, du facture n° {num_facture}",
+                                "contenu": "mon contenu $numero email {num_facture} ,vous avez une facture {statut_paiement}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/listerConversationsParClient/1": {
+            "get": {
+                "summary": "lister Conversations Par Client",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Notification"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listerConfigurationNotification": {
+            "get": {
+                "summary": "lister la Configuration des Notifications",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Notification"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/configurerNotification": {
+            "post": {
+                "summary": "configurer Notification",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Notification"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "produit_rupture": {
+                                        "type": "integer"
+                                    },
+                                    "depense_impayer": {
+                                        "type": "integer"
+                                    },
+                                    "payement_attente": {
+                                        "type": "integer"
+                                    },
+                                    "devis_expirer": {
+                                        "type": "integer"
+                                    },
+                                    "relance_automatique": {
+                                        "type": "integer"
+                                    },
+                                    "quantite_produit": {
+                                        "type": "integer"
+                                    },
+                                    "nombre_jourNotif_brouillon": {
+                                        "type": "integer"
+                                    },
+                                    "nombre_jourNotif_depense": {
+                                        "type": "integer"
+                                    },
+                                    "nombre_jourNotif_echeance": {
+                                        "type": "integer"
+                                    },
+                                    "nombre_jourNotif_devi": {
+                                        "type": "integer"
+                                    },
+                                    "recevoir_notification": {
+                                        "type": "integer"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "produit_rupture": 1,
+                                "depense_impayer": 1,
+                                "payement_attente": 0,
+                                "devis_expirer": 1,
+                                "relance_automatique": 1,
+                                "quantite_produit": 1,
+                                "nombre_jourNotif_brouillon": 5,
+                                "nombre_jourNotif_depense": 9,
+                                "nombre_jourNotif_echeance": 5,
+                                "nombre_jourNotif_devi": 4,
+                                "recevoir_notification": 1
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/supprimerEtiquette/4": {
+            "post": {
+                "summary": "supprimer Etiquette",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des etiquettes"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/modifierEtiquette/1": {
+            "post": {
+                "summary": "modifier Etiquette",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des etiquettes"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nomEtiquette": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nomEtiquette": "parfum"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/ListerEtiquette": {
+            "get": {
+                "summary": "Lister Etiquette",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des etiquettes"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/creerEtiquette": {
+            "post": {
+                "summary": "creer Etiquette",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des etiquettes"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nomEtiquette": {
+                                        "type": "string"
+                                    },
+                                    "": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "nomEtiquette": "table",
+                                "": ""
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/detailConversation/1": {
+            "get": {
+                "summary": "detail Conversation",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des conversations"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/supprimerConversation/{id}": {
+            "post": {
+                "summary": "supprimer Conversation",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des conversations"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/modifierConversation/{id}": {
+            "post": {
+                "summary": "modifier Conversation",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des conversations"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "date_conversation": {
+                                        "type": "string"
+                                    },
+                                    "interlocuteur": {
+                                        "type": "string"
+                                    },
+                                    "objet": {
+                                        "type": "string"
+                                    },
+                                    "message_conversation": {
+                                        "type": "string"
+                                    },
+                                    "statut": {
+                                        "type": "string"
+                                    },
+                                    "client_id": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "type": "message",
+                                "date_conversation": "2024-07-23",
+                                "interlocuteur": "modou",
+                                "objet": "depense",
+                                "message_conversation": "dhdncbhcbshdyhd",
+                                "statut": "en_attente",
+                                "client_id": "1"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/listerConversations": {
+            "get": {
+                "summary": "lister Conversations",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des conversations"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/ajouterConversation": {
+            "post": {
+                "summary": "ajouter Conversation",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des conversations"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "date_conversation": {
+                                        "type": "string"
+                                    },
+                                    "interlocuteur": {
+                                        "type": "string"
+                                    },
+                                    "objet": {
+                                        "type": "string"
+                                    },
+                                    "message_conversation": {
+                                        "type": "string"
+                                    },
+                                    "statut": {
+                                        "type": "string"
+                                    },
+                                    "client_id": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "type": "personnelle",
+                                "date_conversation": "2024-07-23",
+                                "interlocuteur": "falloushop",
+                                "objet": "dossiers projet",
+                                "message_conversation": "jnhfrgnvnjgreug",
+                                "statut": "termine",
+                                "client_id": "2"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/modifierStock": {
             "post": {
                 "summary": "Modifier Stock",
@@ -77,7 +1000,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -752,7 +1675,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -1029,7 +1952,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -1107,7 +2030,7 @@
                 }
             }
         },
-        "/api/afficherDetailCommandeAchat/{id}": {
+        "/api/afficherDetailCommandeAchat/3": {
             "get": {
                 "summary": "afficher Detail  Commande Achat",
                 "description": "",
@@ -1251,13 +2174,10 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "activation": {
-                                        "type": "boolean"
-                                    },
                                     "date_commandeAchat": {
                                         "type": "string"
                                     },
@@ -1293,11 +2213,14 @@
                                     "articles": {
                                         "type": "string",
                                         "format": "binary"
+                                    },
+                                    "etiquettes": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "activation": true,
                                 "date_commandeAchat": "2024-07-23",
                                 "date_livraison": "2024-07-23",
                                 "fournisseur_id": null,
@@ -1310,7 +2233,7 @@
                                 "type_reccurente": "creer_brouillon",
                                 "articles": [
                                     {
-                                        "id_article": 3,
+                                        "id_article": 1,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 5000,
                                         "TVA_article": 50,
@@ -1326,6 +2249,11 @@
                                         "reduction_article": 50,
                                         "prix_total_article": 5000,
                                         "prix_total_tva_article": 8000
+                                    }
+                                ],
+                                "etiquettes": [
+                                    {
+                                        "id_etiquette": 1
                                     }
                                 ]
                             }
@@ -1393,7 +2321,7 @@
                 ]
             }
         },
-        "/api/modifierDepense/{id}": {
+        "/api/modifierDepense/1": {
             "post": {
                 "summary": "modifier Depense",
                 "description": "",
@@ -1452,7 +2380,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -1510,6 +2438,10 @@
                                     "echeances": {
                                         "type": "string",
                                         "format": "binary"
+                                    },
+                                    "etiquettes": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 }
                             },
@@ -1537,6 +2469,11 @@
                                     {
                                         "date_pay_echeance": "2024-07-28",
                                         "montant_echeance": 5000
+                                    }
+                                ],
+                                "etiquettes": [
+                                    {
+                                        "id_etiquette": 1
                                     }
                                 ]
                             }
@@ -1644,13 +2581,10 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "activation": {
-                                        "type": "boolean"
-                                    },
                                     "id_categorie_depense": {
                                         "type": "integer"
                                     },
@@ -1708,14 +2642,17 @@
                                     "echeances": {
                                         "type": "string",
                                         "format": "binary"
+                                    },
+                                    "etiquettes": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "activation": true,
                                 "id_categorie_depense": 1,
                                 "commentaire": "gbdhxdbdbbhei",
-                                "date_paiement": "2024-07-23",
+                                "date_paiement": "2024-09-10",
                                 "tva_depense": null,
                                 "montant_depense_ht": 30000,
                                 "montant_depense_ttc": 50000,
@@ -1737,6 +2674,11 @@
                                     {
                                         "date_pay_echeance": "2024-07-27",
                                         "montant_echeance": 20000
+                                    }
+                                ],
+                                "etiquettes": [
+                                    {
+                                        "id_etiquette": null
                                     }
                                 ]
                             }
@@ -1844,7 +2786,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -1960,7 +2902,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -2029,6 +2971,51 @@
                 }
             }
         },
+        "/api/listeSoldeParClient/1": {
+            "get": {
+                "summary": "liste Solde Par Client",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des facture d'avoir"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/listerToutesFacturesAvoirs": {
             "get": {
                 "summary": "lister Toutes Factures Avoirs",
@@ -2074,7 +3061,7 @@
                 ]
             }
         },
-        "/api/ajouterSolde/{clientId}": {
+        "/api/ajouterSolde/2": {
             "post": {
                 "summary": "ajouter Solde",
                 "description": "",
@@ -2133,7 +3120,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -2270,7 +3257,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -2300,6 +3287,10 @@
                                         "type": "string"
                                     },
                                     "articles": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "etiquettes": {
                                         "type": "string",
                                         "format": "binary"
                                     }
@@ -2332,6 +3323,11 @@
                                         "reduction_article": 50,
                                         "prix_total_article": 5000,
                                         "prix_total_tva_article": 8000
+                                    }
+                                ],
+                                "etiquettes": [
+                                    {
+                                        "id_etiquette": 1
                                     }
                                 ]
                             }
@@ -2484,7 +3480,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -2513,7 +3509,52 @@
                 }
             }
         },
-        "/api/DetailsLivraison/1": {
+        "/api/listerToutesLivraisonsParClient/1": {
+            "get": {
+                "summary": "lister Toutes Livraisons Par Client",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des livraisons"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/DetailsLivraison/2": {
             "post": {
                 "summary": "Details Livraison",
                 "description": "",
@@ -2626,7 +3667,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3055,7 +4096,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3092,7 +4133,7 @@
                                 "prix_TTC": 25000,
                                 "articles": [
                                     {
-                                        "id_article": 3,
+                                        "id_article": 1,
                                         "quantite_article": 2,
                                         "prix_unitaire_article": 5000,
                                         "reduction_article": 0,
@@ -3174,7 +4215,7 @@
                 ]
             }
         },
-        "/api/modifierFournisseur/{id}": {
+        "/api/modifierFournisseur/1": {
             "post": {
                 "summary": "modifier un Fournisseur",
                 "description": "",
@@ -3233,12 +4274,13 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
                                     "nom_fournisseur": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "binary"
                                     },
                                     "prenom_fournisseur": {
                                         "type": "string"
@@ -3273,29 +4315,30 @@
                                     "noteInterne_fournisseur": {
                                         "type": "string"
                                     },
-                                    "doc_fournisseur": {
+                                    "etiquettes": {
                                         "type": "string",
                                         "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "nom_fournisseur": "fallou",
-                                "prenom_fournisseur": "ibou",
-                                "nom_entreprise": "",
+                                "nom_fournisseur": null,
+                                "prenom_fournisseur": "fall",
+                                "nom_entreprise": "ngombusiness",
                                 "adress_fournisseur": "dakar",
                                 "email_fournisseur": "ibou@gmail.com",
                                 "tel_fournisseur": "764538303",
-                                "type_fournisseur": "particulier",
+                                "type_fournisseur": "entreprise",
                                 "num_id_fiscal": "1209",
                                 "code_postal_fournisseur": "0000",
                                 "ville_fournisseur": "dakar",
                                 "pays_fournisseur": "senegal",
                                 "noteInterne_fournisseur": "jvhbefg\"ehjfgyfeyfh\"ygf",
-                                "doc_fournisseur": {
-                                    "type": "string",
-                                    "format": "binary"
-                                }
+                                "etiquettes": [
+                                    {
+                                        "id_etiquette": 2
+                                    }
+                                ]
                             }
                         }
                     }
@@ -3356,12 +4399,13 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
                                     "nom_fournisseur": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "binary"
                                     },
                                     "prenom_fournisseur": {
                                         "type": "string"
@@ -3396,16 +4440,31 @@
                                     "noteInterne_fournisseur": {
                                         "type": "string"
                                     },
-                                    "doc_fournisseur": {
+                                    "code_banque": {
+                                        "type": "string"
+                                    },
+                                    "code_guichet": {
+                                        "type": "integer"
+                                    },
+                                    "num_compte": {
+                                        "type": "integer"
+                                    },
+                                    "cle_rib": {
+                                        "type": "integer"
+                                    },
+                                    "iban": {
+                                        "type": "string"
+                                    },
+                                    "etiquettes": {
                                         "type": "string",
                                         "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "nom_fournisseur": "",
+                                "nom_fournisseur": null,
                                 "prenom_fournisseur": "fall",
-                                "nom_entreprise": "",
+                                "nom_entreprise": "ngombusiness",
                                 "adress_fournisseur": "dakar",
                                 "email_fournisseur": "ibou@gmail.com",
                                 "tel_fournisseur": "764538303",
@@ -3415,10 +4474,16 @@
                                 "ville_fournisseur": "dakar",
                                 "pays_fournisseur": "senegal",
                                 "noteInterne_fournisseur": "jvhbefg\"ehjfgyfeyfh\"ygf",
-                                "doc_fournisseur": {
-                                    "type": "string",
-                                    "format": "binary"
-                                }
+                                "code_banque": "SN251",
+                                "code_guichet": 12345,
+                                "num_compte": 234223212454,
+                                "cle_rib": 34,
+                                "iban": "1234EJFHEJ34324984551234567893ERNS",
+                                "etiquettes": [
+                                    {
+                                        "id_etiquette": 1
+                                    }
+                                ]
                             }
                         }
                     }
@@ -3470,7 +4535,52 @@
                 ]
             }
         },
-        "/api/DetailsBonCommande/2": {
+        "/api/listeBonCommandeParClient/1": {
+            "get": {
+                "summary": "liste BonCommande Par Client",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des Bons de commandes"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/DetailsBonCommande/1": {
             "post": {
                 "summary": "Details Bon Commande",
                 "description": "",
@@ -3746,7 +4856,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3888,7 +4998,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -3920,11 +5030,15 @@
                                     "echeances": {
                                         "type": "string",
                                         "format": "binary"
+                                    },
+                                    "etiquettes": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "client_id": 2,
+                                "client_id": 1,
                                 "note_commande": "Some notes about the facture",
                                 "reduction_commande": 1000,
                                 "date_commande": "2024-06-29",
@@ -3933,7 +5047,7 @@
                                 "prix_TTC": 25000,
                                 "articles": [
                                     {
-                                        "id_article": 3,
+                                        "id_article": 1,
                                         "quantite_article": 2,
                                         "prix_unitaire_article": 5000,
                                         "reduction_article": 0,
@@ -3955,6 +5069,11 @@
                                         "date_pay_echeance": "2024-06-28",
                                         "montant_echeance": 4000
                                     }
+                                ],
+                                "etiquettes": [
+                                    {
+                                        "id_etiquette": 1
+                                    }
                                 ]
                             }
                         }
@@ -3962,7 +5081,52 @@
                 }
             }
         },
-        "/api/DetailsDevis/2": {
+        "/api/listeDeviParClient/1": {
+            "get": {
+                "summary": "liste Devi Par Client",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des devis"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/DetailsDevis/1": {
             "post": {
                 "summary": "Details Devis",
                 "description": "",
@@ -4238,7 +5402,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -4385,7 +5549,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -4513,7 +5677,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -4541,6 +5705,10 @@
                                     "articles": {
                                         "type": "string",
                                         "format": "binary"
+                                    },
+                                    "etiquettes": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 }
                             },
@@ -4549,9 +5717,9 @@
                                 "note_devi": "Some notes about the facture",
                                 "reduction_devi": 2000,
                                 "date_devi": "2024-06-29",
-                                "date_limite": "2024-06-30",
+                                "date_limite": "2024-09-10",
                                 "prix_HT": 20000,
-                                "prix_TTC": 250000,
+                                "prix_TTC": 2500000,
                                 "articles": [
                                     {
                                         "id_article": 1,
@@ -4562,13 +5730,18 @@
                                         "prix_total_tva_article": 8000
                                     },
                                     {
-                                        "id_article": 3,
+                                        "id_article": 2,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 1000,
                                         "TVA_article": 10,
                                         "reduction_article": 0,
                                         "prix_total_article": 5000,
                                         "prix_total_tva_article": 8000
+                                    }
+                                ],
+                                "etiquettes": [
+                                    {
+                                        "id_etiquette": 1
                                     }
                                 ]
                             }
@@ -4754,7 +5927,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {}
@@ -4819,7 +5992,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -4915,7 +6088,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -5008,7 +6181,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -5210,7 +6383,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -5353,7 +6526,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -5479,7 +6652,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -5626,7 +6799,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -5742,7 +6915,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -5818,7 +6991,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -5938,7 +7111,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -5957,6 +7130,105 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/genererPDF/4": {
+            "post": {
+                "summary": "generer PDF",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listeFactureParClient/2": {
+            "get": {
+                "summary": "liste Facture Par Client",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
             }
         },
         "/api/supprimerFacture/000004": {
@@ -6058,7 +7330,7 @@
                 ]
             }
         },
-        "/api/DetailsFacture/000001": {
+        "/api/DetailsFacture/000000": {
             "get": {
                 "summary": "details facture",
                 "description": "",
@@ -6158,7 +7430,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -6229,7 +7501,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -6641,7 +7913,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -6691,20 +7963,20 @@
                                 }
                             },
                             "example": {
-                                "client_id": 1,
+                                "client_id": 2,
                                 "type": "simple",
                                 "note_fact": "Some notes about the facture",
                                 "reduction_facture": 1000,
                                 "prix_HT": 20000,
                                 "prix_TTC": 25000,
-                                "type_paiement": "facture_Accompt",
+                                "type_paiement": "echeance",
                                 "id_recurrent": null,
                                 "id_paiement": 1,
                                 "active_Stock": "oui",
                                 "articles": [
                                     {
                                         "id_article": 1,
-                                        "quantite_article": 3,
+                                        "quantite_article": 10,
                                         "prix_unitaire_article": 5000,
                                         "TVA_article": 50,
                                         "reduction_article": 5,
@@ -6712,7 +7984,7 @@
                                         "prix_total_tva_article": 8000
                                     },
                                     {
-                                        "id_article": 4,
+                                        "id_article": 2,
                                         "quantite_article": 4,
                                         "prix_unitaire_article": 1000,
                                         "TVA_article": 10,
@@ -6731,7 +8003,7 @@
                                 ],
                                 "echeances": [
                                     {
-                                        "date_pay_echeance": "2024-08-29",
+                                        "date_pay_echeance": "2024-09-10",
                                         "montant_echeance": "4000.00"
                                     }
                                 ]
@@ -6854,7 +8126,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -6970,7 +8242,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -7105,7 +8377,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -7225,7 +8497,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -7361,7 +8633,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -7392,6 +8664,89 @@
                                     "type": "string",
                                     "format": "binary"
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sendClientEmail/4": {
+            "post": {
+                "summary": "sendClientEmail",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des clients"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "adresse_destinataire": {
+                                        "type": "string"
+                                    },
+                                    "objet": {
+                                        "type": "string"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    },
+                                    "": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "adresse_destinataire": "ngomdjiye@gmail.com",
+                                "objet": "facture à payer",
+                                "message": "bonjour votre fature doit etre payer",
+                                "": ""
                             }
                         }
                     }
@@ -7497,7 +8852,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -7676,62 +9031,27 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
+                                    "nom_client": {
+                                        "type": "string"
+                                    },
                                     "prenom_client": {
                                         "type": "string"
                                     },
-                                    "nom_client": {
+                                    "nom_entreprise": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "adress_client": {
                                         "type": "string"
                                     },
                                     "email_client": {
                                         "type": "string"
                                     },
-                                    "adress_client": {
-                                        "type": "string"
-                                    },
                                     "tel_client": {
-                                        "type": "string"
-                                    },
-                                    "categorie_id": {
-                                        "type": "string"
-                                    },
-                                    "nom_entreprise": {
-                                        "type": "string"
-                                    },
-                                    "num_id_fiscal": {
-                                        "type": "string"
-                                    },
-                                    "ville_client": {
-                                        "type": "string"
-                                    },
-                                    "pays_client": {
-                                        "type": "string"
-                                    },
-                                    "noteInterne_client": {
-                                        "type": "string"
-                                    },
-                                    "nom_destinataire": {
-                                        "type": "string"
-                                    },
-                                    "pays_livraison": {
-                                        "type": "string"
-                                    },
-                                    "code_postal_livraison": {
-                                        "type": "string"
-                                    },
-                                    "ville_livraison": {
-                                        "type": "string"
-                                    },
-                                    "tel_destinataire": {
-                                        "type": "string"
-                                    },
-                                    "email_destinataire": {
-                                        "type": "string"
-                                    },
-                                    "infoSupplemnt": {
                                         "type": "string"
                                     },
                                     "type_client": {
@@ -7739,37 +9059,107 @@
                                     },
                                     "statut_client": {
                                         "type": "string"
+                                    },
+                                    "num_id_fiscal": {
+                                        "type": "string"
+                                    },
+                                    "code_postal_client": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "ville_client": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "pays_client": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "noteInterne_client": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "nom_destinataire": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "pays_livraison": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "ville_livraison": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "code_postal_livraison": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "tel_destinataire": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "email_destinataire": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "infoSupplemnt": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "sousUtilisateur_id": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "user_id": {
+                                        "type": "integer"
+                                    },
+                                    "categorie_id": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "etiquettes": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "prenom_client": "falou",
                                 "nom_client": "ngom",
-                                "email_client": "LILou@gmail.com",
+                                "prenom_client": "falou",
+                                "nom_entreprise": null,
                                 "adress_client": "parcelle",
+                                "email_client": "LILou@gmail.com",
                                 "tel_client": "768947493",
-                                "categorie_id": "2",
-                                "nom_entreprise": "",
-                                "num_id_fiscal": "0012",
-                                "ville_client": "",
-                                "pays_client": "",
-                                "noteInterne_client": "",
-                                "nom_destinataire": "",
-                                "pays_livraison": "",
-                                "code_postal_livraison": "",
-                                "ville_livraison": "",
-                                "tel_destinataire": "",
-                                "email_destinataire": "",
-                                "infoSupplemnt": "",
                                 "type_client": "particulier",
-                                "statut_client": "client"
+                                "statut_client": "client",
+                                "num_id_fiscal": "0012",
+                                "code_postal_client": null,
+                                "ville_client": null,
+                                "pays_client": null,
+                                "noteInterne_client": null,
+                                "nom_destinataire": null,
+                                "pays_livraison": null,
+                                "ville_livraison": null,
+                                "code_postal_livraison": null,
+                                "tel_destinataire": null,
+                                "email_destinataire": null,
+                                "infoSupplemnt": null,
+                                "sousUtilisateur_id": null,
+                                "user_id": 3,
+                                "categorie_id": null,
+                                "etiquettes": [
+                                    {
+                                        "id_etiquette": 1
+                                    }
+                                ]
                             }
                         }
                     }
                 }
             }
         },
-        "/api/modifierClient/{id}": {
+        "/api/modifierClient/3": {
             "post": {
                 "summary": "modifier un Client",
                 "description": "",
@@ -7828,62 +9218,27 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
+                                    "nom_client": {
+                                        "type": "string"
+                                    },
                                     "prenom_client": {
                                         "type": "string"
                                     },
-                                    "nom_client": {
+                                    "nom_entreprise": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "adress_client": {
                                         "type": "string"
                                     },
                                     "email_client": {
                                         "type": "string"
                                     },
-                                    "adress_client": {
-                                        "type": "string"
-                                    },
                                     "tel_client": {
-                                        "type": "string"
-                                    },
-                                    "categorie_id": {
-                                        "type": "string"
-                                    },
-                                    "nom_entreprise": {
-                                        "type": "string"
-                                    },
-                                    "num_id_fiscal": {
-                                        "type": "string"
-                                    },
-                                    "ville_client": {
-                                        "type": "string"
-                                    },
-                                    "pays_client": {
-                                        "type": "string"
-                                    },
-                                    "noteInterne_client": {
-                                        "type": "string"
-                                    },
-                                    "nom_destinataire": {
-                                        "type": "string"
-                                    },
-                                    "pays_livraison": {
-                                        "type": "string"
-                                    },
-                                    "code_postal_livraison": {
-                                        "type": "string"
-                                    },
-                                    "ville_livraison": {
-                                        "type": "string"
-                                    },
-                                    "tel_destinataire": {
-                                        "type": "string"
-                                    },
-                                    "email_destinataire": {
-                                        "type": "string"
-                                    },
-                                    "infoSupplemnt": {
                                         "type": "string"
                                     },
                                     "type_client": {
@@ -7891,30 +9246,100 @@
                                     },
                                     "statut_client": {
                                         "type": "string"
+                                    },
+                                    "num_id_fiscal": {
+                                        "type": "string"
+                                    },
+                                    "code_postal_client": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "ville_client": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "pays_client": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "noteInterne_client": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "nom_destinataire": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "pays_livraison": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "ville_livraison": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "code_postal_livraison": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "tel_destinataire": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "email_destinataire": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "infoSupplemnt": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "sousUtilisateur_id": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "user_id": {
+                                        "type": "integer"
+                                    },
+                                    "categorie_id": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "etiquettes": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "prenom_client": "die",
-                                "nom_client": "diouf",
-                                "email_client": "ibou@gmail.com",
+                                "nom_client": "ngom",
+                                "prenom_client": "falou",
+                                "nom_entreprise": null,
                                 "adress_client": "parcelle",
+                                "email_client": "LILou@gmail.com",
                                 "tel_client": "768947493",
-                                "categorie_id": "",
-                                "nom_entreprise": "",
-                                "num_id_fiscal": "",
-                                "ville_client": "",
-                                "pays_client": "",
-                                "noteInterne_client": "",
-                                "nom_destinataire": "",
-                                "pays_livraison": "",
-                                "code_postal_livraison": "",
-                                "ville_livraison": "",
-                                "tel_destinataire": "",
-                                "email_destinataire": "",
-                                "infoSupplemnt": "",
                                 "type_client": "particulier",
-                                "statut_client": "client"
+                                "statut_client": "client",
+                                "num_id_fiscal": "0012",
+                                "code_postal_client": null,
+                                "ville_client": null,
+                                "pays_client": null,
+                                "noteInterne_client": null,
+                                "nom_destinataire": null,
+                                "pays_livraison": null,
+                                "ville_livraison": null,
+                                "code_postal_livraison": null,
+                                "tel_destinataire": null,
+                                "email_destinataire": null,
+                                "infoSupplemnt": null,
+                                "sousUtilisateur_id": null,
+                                "user_id": 3,
+                                "categorie_id": null,
+                                "etiquettes": [
+                                    {
+                                        "id_etiquette": 2
+                                    }
+                                ]
                             }
                         }
                     }
@@ -8039,7 +9464,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -8155,7 +9580,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -8335,7 +9760,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -8451,7 +9876,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -8571,7 +9996,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -8851,7 +10276,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -8931,7 +10356,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -9007,7 +10432,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -9128,7 +10553,7 @@
                 ]
             }
         },
-        "/api/modifierArticle/2": {
+        "/api/modifierArticle/4": {
             "post": {
                 "summary": "modifier un article",
                 "description": "",
@@ -9187,7 +10612,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -9232,6 +10657,10 @@
                                     "lots": {
                                         "type": "string",
                                         "format": "binary"
+                                    },
+                                    "etiquettes": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 }
                             },
@@ -9248,11 +10677,6 @@
                                 "quantite_alert": 10,
                                 "autres_prix": [
                                     {
-                                        "titrePrix": "prix client fidel",
-                                        "montant": 10000,
-                                        "tva": 50
-                                    },
-                                    {
                                         "titrePrix": "prix des senegalais",
                                         "montant": 15000,
                                         "tva": 50
@@ -9268,6 +10692,11 @@
                                     {
                                         "nomLot": "lot2",
                                         "quantiteLot": 5
+                                    }
+                                ],
+                                "etiquettes": [
+                                    {
+                                        "id_etiquette": 1
                                     }
                                 ]
                             }
@@ -9330,7 +10759,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -9363,13 +10792,15 @@
                                         "type": "string"
                                     },
                                     "id_categorie_article": {
-                                        "type": "integer"
+                                        "type": "string",
+                                        "format": "binary"
                                     },
                                     "quantite": {
                                         "type": "integer"
                                     },
                                     "quantite_alert": {
-                                        "type": "integer"
+                                        "type": "string",
+                                        "format": "binary"
                                     },
                                     "autres_prix": {
                                         "type": "string",
@@ -9378,18 +10809,18 @@
                                 }
                             },
                             "example": {
-                                "nom_article": "table",
+                                "nom_article": "montre",
                                 "description": "Some notes about the facture",
                                 "prix_unitaire": 20000,
                                 "prix_achat": 25000,
                                 "promo_id": null,
                                 "tva": 18,
                                 "type_article": "produit",
-                                "unité": "tonne",
+                                "unité": "unite",
                                 "active_Stock": "oui",
-                                "id_categorie_article": 2,
+                                "id_categorie_article": null,
                                 "quantite": 10,
-                                "quantite_alert": 10,
+                                "quantite_alert": null,
                                 "autres_prix": [
                                     {
                                         "titrePrix": "prix client fidel",
@@ -9512,7 +10943,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -9650,7 +11081,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -9897,7 +11328,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -9988,7 +11419,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -10153,7 +11584,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -10328,7 +11759,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -10552,7 +11983,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -10735,7 +12166,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -10810,7 +12241,7 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
@@ -10826,7 +12257,7 @@
                                 }
                             },
                             "example": {
-                                "name": "ibou",
+                                "name": "ibou fall",
                                 "email": "ibou@gmail.com",
                                 "password": "ciss123@"
                             }

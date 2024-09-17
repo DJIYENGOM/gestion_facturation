@@ -502,7 +502,7 @@ public function sendClientEmail(Request $request, $id_facture)
     try {
         // Envoyer l'email au destinataire avec le fichier PDF en pièce jointe
         Mail::send([], [], function ($message) use ($adresseDestinataire, $objet, $messageEmail, $pdfPath) {
-            $message->from('yokoosn@gmail.com');
+            $message->from('yokoo');
             $message->to($adresseDestinataire)
                 ->subject($objet)
                 ->html($messageEmail)
