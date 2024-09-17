@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('tel_entreprise')->nullable();
             $table->string('devise')->nullable();
             $table->string('langue')->nullable();
+            $table->string('signature')->nullable();
             
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

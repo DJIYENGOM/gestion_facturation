@@ -21,6 +21,7 @@ use App\Http\Controllers\EtiquetteController;
 use App\Http\Controllers\LivraisonController;
 use App\Http\Controllers\HistoriqueController;
 use App\Http\Controllers\BonCommandeController;
+use App\Http\Controllers\EmailModeleController;
 use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\FactureAvoirController;
@@ -122,7 +123,7 @@ Route::controller(ClientController::class)->group(function () {
     Route::delete('supprimerClient/{id}', 'supprimerClient');
     Route::post('importClient', 'importClient');
     Route::get('exportClients', 'exportClients');
-    Route::post('sendClientEmail', 'sendClientEmail');
+    Route::post('sendClientEmail/{id_facture}', 'sendClientEmail');
 
 });
 
@@ -161,6 +162,8 @@ Route::get('listeFactureParClient/{clientId}', [FactureController::class, 'liste
 Route::get('RapportFacture', [FactureController::class, 'RapportFacture']);
 
 Route::get('exportFactures', [FactureController::class, 'exportFactures']);
+
+Route::post('genererPDF/{id_facture}', [FactureController::class, 'genererPDF']);
 
 
 Route::post('ajouterCompteComptable', [CompteComptableController::class, 'ajouterCompteComptable']);
@@ -311,6 +314,7 @@ Route::controller(ConversationController::class)->group(function(){
     Route::post('supprimerConversation/{id}','supprimerConversation');
     Route::post('modifierConversation/{id}','modifierConversation');
     Route::get('detailConversation/{id}','detailConversation');
+    Route::get('listerConversationsParClient/{clientId}','listerConversationsParClient');
 });
 
 Route::post('creerEtiquette',[EtiquetteController::class, 'creerEtiquette']);
@@ -318,4 +322,5 @@ Route::get('ListerEtiquette',[EtiquetteController::class, 'ListerEtiquette']);
 Route::post('modifierEtiquette/{id}',[EtiquetteController::class, 'modifierEtiquette']);
 Route::post('supprimerEtiquette/{id}',[EtiquetteController::class, 'supprimerEtiquette']);  
   
+Route::post('createEmailModele',[EmailModeleController::class, 'createEmailModele']); 
 

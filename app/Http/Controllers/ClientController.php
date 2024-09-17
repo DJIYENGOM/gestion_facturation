@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Facture;
 use App\Models\Etiquette;
 use Illuminate\Http\Request;
 use Swift_TransportException;
 use App\Exports\ClientsExport;
 use App\Imports\ClientsImport;
 use App\Models\CompteComptable;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Client_Etiquette;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -466,26 +468,30 @@ public function exportClients()
     exit;
 }
 
-public function sendClientEmail(Request $request, Client $client)
+public function sendClientEmail(Request $request, $id_facture)
 {
     // Valider les informations nécessaires
     $validatedData = $request->validate([
         'adresse_destinataire' => 'required|email',
         'objet' => 'required|string|max:255',
         'message' => 'required|string',
-        'facture' => 'required|file|mimes:pdf|max:2048', // Limiter à des fichiers PDF de 2MB max par exemple
     ]);
 
-    // Récupérer le fichier PDF de la requête
-    $pdf = $request->file('facture');
+    // Récupérer la facture
+    $invoice = Facture::findOrFail($id_facture);
 
-    // Générer un nom de fichier unique et stocker le fichier
-    $fileName = 'uploads/' . uniqid() . '_' . time() . '.pdf';
-    $path = $pdf->storeAs('public', $fileName);
+
+    // Charger les articles et autres relations nécessaires pour le PDF
+    $invoice->load(['articles', 'echeances']);
+
+    // Générer le PDF
+    $pdf = Pdf::loadView('invoices.template', compact('invoice'));
+    $pdfPath = storage_path('app/public/invoices/') . 'invoice_' . $invoice->id . '.pdf';
+    $pdf->save($pdfPath);
 
     // Vérifier que le fichier a été stocké avec succès
-    if (!$path) {
-        return response()->json(['error' => 'Erreur lors du téléchargement du fichier'], 500);
+    if (!file_exists($pdfPath)) {
+        return response()->json(['error' => 'Erreur lors de la génération du fichier PDF'], 500);
     }
 
     // Récupérer les informations supplémentaires
@@ -494,13 +500,13 @@ public function sendClientEmail(Request $request, Client $client)
     $messageEmail = $validatedData['message'];
 
     try {
-        // Envoyer l'email au destinataire avec le fichier en pièce jointe
-        Mail::send([], [], function ($message) use ($adresseDestinataire, $objet, $messageEmail, $path) {
-            $message->from('ngomdjiye@gmail.com', 'Votre Nom ou Entreprise'); // Définir le nom ou l'entreprise
+        // Envoyer l'email au destinataire avec le fichier PDF en pièce jointe
+        Mail::send([], [], function ($message) use ($adresseDestinataire, $objet, $messageEmail, $pdfPath) {
+            $message->from('yokoosn@gmail.com');
             $message->to($adresseDestinataire)
                 ->subject($objet)
-                ->html($messageEmail) // Définit le contenu HTML de l'email
-                ->attach(storage_path('app/' . $path), [ // Attache le fichier PDF stocké
+                ->html($messageEmail)
+                ->attach($pdfPath, [
                     'as' => 'Facture.pdf',
                     'mime' => 'application/pdf',
                 ]);
@@ -513,4 +519,5 @@ public function sendClientEmail(Request $request, Client $client)
         return response()->json(['error' => 'Erreur lors de l\'envoi de l\'email : ' . $e->getMessage()], 500);
     }
 }
+
 }

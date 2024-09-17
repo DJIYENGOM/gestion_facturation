@@ -26,6 +26,8 @@ class SupprimerHistorique extends Command
      */
     public function handle()
     {
-        Historique::where('created_at', '<', now()->subDay())->delete();
+      //  Historique::where('created_at', '<', now()->subDay())->delete();
+
+        Historique::all()->delete();
     }
 }

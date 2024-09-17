@@ -90,6 +90,43 @@ public function listerConversations()
     return response()->json($conversations);
 }
 
+public function listerConversationsParClient($clientId)
+{
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
+        $sousUtilisateurId = $sousUtilisateur->id;
+        $userId = $sousUtilisateur->id_user;
+
+        $conversations = Conversation::with('client')
+        ->where('client_id', $clientId)
+        ->where(function ($query) use ($sousUtilisateurId, $userId) {
+            $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                  ->orWhere('user_id', $userId);
+        })
+        ->get();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $conversations = Conversation::with('client')
+        ->where('client_id', $clientId)
+        ->where(function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                  ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                      $query->where('id_user', $userId);
+                  });
+        })
+        ->get();   
+     } else {
+        return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
+    }
+
+
+    return response()->json($conversations);
+}
+
 
 public function modifierConversation(Request $request, $id)
 {

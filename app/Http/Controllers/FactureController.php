@@ -15,6 +15,7 @@ use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use App\Models\ArtcleFacture;
 use App\Models\FactureAccompt;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\facture_Etiquette;
 use App\Models\FactureRecurrente;
 use App\Models\MessageNotification;
@@ -244,13 +245,15 @@ class FactureController extends Controller
                     $stock->sousUtilisateur_id = $sousUtilisateurId;
                     $stock->user_id = $userId;
                     $stock->save();
+
+                    $article->quantite_disponible = $stock->disponible_apres;
+                    $article->save();
                 }
             
 
                 $article = Article::find($article->id_article);
 
-                $article->quantite_disponible = $stock->disponible_apres;
-                $article->save();
+             
         
                 $notificationConfig = Notification::where('user_id', $article->user_id)
                     ->orWhere('sousUtilisateur_id', $sousUtilisateurId)
@@ -269,9 +272,6 @@ class FactureController extends Controller
 
         }
 
-        // if ($request->type_paiement == 'echeance') {
-        //     Echeance::envoyerNotificationSEcheanceImpayer($echeance);
-        // }
         }
             
         
@@ -279,14 +279,14 @@ class FactureController extends Controller
         return response()->json(['message' => 'Facture créée avec succès', 'facture' => $facture], 201);
 
     }
-
-
+    
 
 public function listeArticlesFacture($id_facture)
 {
+
     $facture = Facture::findOrFail($id_facture);
+
     
-    // Vérifie si l'utilisateur a le droit d'accéder à la facture
     if ($facture->sousUtilisateur_id) {
         $userId = auth('apisousUtilisateur')->id();
         if ($facture->sousUtilisateur_id != $userId) {
@@ -299,9 +299,7 @@ public function listeArticlesFacture($id_facture)
         }
     }
 
-    // Récupère les articles de la facture avec leurs détails
     $articles = ArtcleFacture::where('id_facture', $id_facture)->with('article')->get();
-    // Construit la réponse avec les détails des articles
     $response = [];
     foreach ($articles as $article) {
         $response[] = [
@@ -452,7 +450,7 @@ public function listerFacturesPayer()
 
     $factures = Facture::with('client')
          ->where('archiver', 'non')
-        ->where('type_paiement', 'immediat')
+        ->where('statut_paiement', 'payer')
         ->where(function ($query) use ($sousUtilisateurId, $userId) {
             $query->where('sousUtilisateur_id', $sousUtilisateurId)
                 ->orWhere('user_id', $userId);
@@ -463,7 +461,7 @@ public function listerFacturesPayer()
 
         $factures = Facture::with('client')
             ->where('archiver', 'non')
-            ->where('type_paiement', 'immediat')
+            ->where('statut_paiement', 'payer')
             ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
                     ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {

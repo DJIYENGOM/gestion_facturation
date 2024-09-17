@@ -22,6 +22,7 @@ class Info_SupplementaireController extends Controller
                 'tel_entreprise' => 'nullable|string|max:20|min:9',
                 'devise' => 'nullable|string|max:255',
                 'langue' => 'nullable|string|max:255',
+                'signature' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
     
             if ($validator->fails()) {
@@ -31,6 +32,11 @@ class Info_SupplementaireController extends Controller
             $logo = null;
             if ($request->hasFile('logo')) {
                 $logo = $request->file('logo')->store('images', 'public');
+            }
+    
+            $signature = null;
+            if ($request->hasFile('signature')) {
+                $signature = $request->file('signature')->store('images', 'public');
             }
     
             $user = auth()->user();
@@ -43,6 +49,7 @@ class Info_SupplementaireController extends Controller
                 'tel_entreprise' => $request->tel_entreprise,
                 'devise' => $request->devise,
                 'langue' => $request->langue,
+                'signature' => $signature,
             ]);
     
     
@@ -90,6 +97,7 @@ public function afficherInfoEntreprise()
             'tel_entreprise' => $user->tel_entreprise,
             'devise' => $user->devise,
             'langue' => $user->langue,
+            'signature' => $user->signature,
         ]
     ]);
 }
