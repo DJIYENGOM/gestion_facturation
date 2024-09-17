@@ -22,7 +22,6 @@ return new class extends Migration
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
 
             $table->timestamps();
-            $table->unique('type_modele');
         });
     }
 
