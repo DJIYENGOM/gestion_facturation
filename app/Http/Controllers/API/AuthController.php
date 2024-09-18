@@ -203,4 +203,35 @@ public function refresh_sousUtilisateur()
         return response()->json(['user' => $users]);
     }
 
+
+
+public function modifierMotDePasse(Request $request)
+{
+    $validator=Validator::make($request->all(),[
+        'mot_de_passe_actuel' => 'required',
+        'nouveau_mot_de_passe' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/'],
+
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'errors' => $validator->errors(),
+        ],422);
+    }
+
+    // Récupérer l'utilisateur connecté
+    $utilisateur = Auth::user();
+
+    // Vérification du mot de passe actuel
+    if (!Hash::check($request->mot_de_passe_actuel, $utilisateur->password)) {
+        return response()->json(['mot_de_passe_actuel' => 'Le mot de passe actuel est incorrect.']);
+    }
+
+    $utilisateur->password = Hash::make($request->nouveau_mot_de_passe);
+    $utilisateur->save();
+
+    return response()->json(['message' => 'Mot de passe mis à jour avec succes.']);
+}
+
+
 }
