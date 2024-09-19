@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\Sous_Utilisateur;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreSous_UtilisateurRequest;
 use App\Http\Requests\UpdateSous_UtilisateurRequest;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Http\Request;
 
 
 class SousUtilisateurController extends Controller
@@ -70,9 +71,74 @@ class SousUtilisateurController extends Controller
           return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
+    public function modifierSousUtilisateur(Request $request, $id)
+    {
+        if (auth()->check()) {
+            $user = auth()->user();
+    
+            // Valider les données de la requête
+            $validator = Validator::make($request->all(), [
+                'nom' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
+                'prenom' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
+                'email' => ['required', 'string', 'email', 'max:255', Rule::unique('sous__utilisateurs')->ignore($id)],
+                'mot_de_passe_actuel' => 'nullable|string', 
+                'password' => ['nullable', 'string', 'min:8', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/'], 
+                'role'=> 'required|in:administrateur,utilisateur_simple',
+                'visibilite_globale'=> 'nullable|in:1,0',
+                'fonction_admin'=> 'nullable|in:1,0',
+                'acces_rapport'=> 'nullable|in:1,0',
+                'gestion_stock'=> 'nullable|in:1,0',
+                'commande_achat'=> 'nullable|in:1,0',
+                'export_excel'=> 'nullable|in:1,0',
+                'supprimer_donnees'=> 'nullable|in:1,0',
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json([
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+    
+            $utilisateur = Sous_Utilisateur::find($id);
+    
+            if (!$utilisateur) {
+                return response()->json(['error' => 'Sous-utilisateur introuvable'], 404);
+            }
+    
+            if ($request->filled('mot_de_passe_actuel') && $request->filled('password')) {
+                if (!Hash::check($request->input('mot_de_passe_actuel'), $utilisateur->password)) {
+                    return response()->json(['error' => 'Le mot de passe actuel est incorrect.'], 422);
+                }
+    
+                // Si le mot de passe actuel est correct, on modifie le mot de passe
+                $utilisateur->password = Hash::make($request->input('password'));
+            }
+    
+            $utilisateur->nom = $request->input('nom');
+            $utilisateur->prenom = $request->input('prenom');
+            $utilisateur->email = $request->input('email');
+            $utilisateur->role = $request->input('role');
+            $utilisateur->visibilite_globale = $request->input('visibilite_globale');
+            $utilisateur->fonction_admin = $request->input('fonction_admin');
+            $utilisateur->acces_rapport = $request->input('acces_rapport');
+            $utilisateur->gestion_stock = $request->input('gestion_stock');
+            $utilisateur->commande_achat = $request->input('commande_achat');
+            $utilisateur->export_excel = $request->input('export_excel');
+            $utilisateur->supprimer_donnees = $request->input('supprimer_donnees');
+            $utilisateur->id_user = $user->id;
+    
+            $utilisateur->save();
+    
+            return response()->json(['message' => 'Sous-utilisateur mis à jour avec succès', 'utilisateur' => $utilisateur]);
+        }
+    
+        return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
+    }
+    
+    
+    
+    
     public function listeUtilisateurNonArchive()
     {
         if (auth()->check()) {
@@ -109,54 +175,54 @@ class SousUtilisateurController extends Controller
        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
 
     }
-    public function modifierSousUtilisateur(Request $request, $id)
-    {
-        $user = auth()->user();
-        $utilisateur = Sous_Utilisateur::findOrFail($id);
+    // public function modifierSousUtilisateur(Request $request, $id)
+    // {
+    //     $user = auth()->user();
+    //     $utilisateur = Sous_Utilisateur::findOrFail($id);
     
-        // Valider les données de la requête
-        $validator=Validator::make($request->all(),[
-            'nom' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
-            'prenom' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
-            'email' => 'required|string|email|max:255|unique:sous__utilisateurs,email,'.$id,
-            'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/'],
-            'role'=> 'required|in:administrateur,utilisateur_simple',
-            'archiver' => 'required|in:oui,non' ,
-            'visibilite_globale'=> 'nullable|in:1,0',
-            'fonction_admin'=> 'nullable|in:1,0',
-            'acces_rapport'=> 'nullable|in:1,0',
-            'gestion_stock'=> 'nullable|in:1,0',
-            'commande_achat'=> 'nullable|in:1,0',
-            'export_excel'=> 'nullable|in:1,0',
-            'supprimer_donnees'=> 'nullable|in:1,0',
+    //     // Valider les données de la requête
+    //     $validator=Validator::make($request->all(),[
+    //         'nom' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
+    //         'prenom' => ['required', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
+    //         'email' => 'required|string|email|max:255|unique:sous__utilisateurs,email,'.$id,
+    //         'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/'],
+    //         'role'=> 'required|in:administrateur,utilisateur_simple',
+    //         'archiver' => 'required|in:oui,non' ,
+    //         'visibilite_globale'=> 'nullable|in:1,0',
+    //         'fonction_admin'=> 'nullable|in:1,0',
+    //         'acces_rapport'=> 'nullable|in:1,0',
+    //         'gestion_stock'=> 'nullable|in:1,0',
+    //         'commande_achat'=> 'nullable|in:1,0',
+    //         'export_excel'=> 'nullable|in:1,0',
+    //         'supprimer_donnees'=> 'nullable|in:1,0',
 
 
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ],422);
-        }
+    //     ]);
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'errors' => $validator->errors(),
+    //         ],422);
+    //     }
     
-        // Mettre à jour les attributs du sous-utilisateur
-        $utilisateur->nom = $request->input('nom');
-        $utilisateur->prenom = $request->input('prenom');
-        $utilisateur->email = $request->input('email');
-        $utilisateur->password = Hash::make($request->password);
-        $utilisateur->role = $request->input('role'); 
-        $utilisateur->archiver = $request->input('archiver'); 
-        $utilisateur->id_user = $user->id; 
-        $utilisateur->visibilite_globale = $request->input('visibilite_globale');
-        $utilisateur->fonction_admin = $request->input('fonction_admin');
-        $utilisateur->acces_rapport = $request->input('acces_rapport');
-        $utilisateur->gestion_stock = $request->input('gestion_stock');
-        $utilisateur->commande_achat = $request->input('commande_achat');
-        $utilisateur->export_excel = $request->input('export_excel');
-        $utilisateur->supprimer_donnees = $request->input('supprimer_donnees');
-        $utilisateur->save();
+    //     // Mettre à jour les attributs du sous-utilisateur
+    //     $utilisateur->nom = $request->input('nom');
+    //     $utilisateur->prenom = $request->input('prenom');
+    //     $utilisateur->email = $request->input('email');
+    //     $utilisateur->password = Hash::make($request->password);
+    //     $utilisateur->role = $request->input('role'); 
+    //     $utilisateur->archiver = $request->input('archiver'); 
+    //     $utilisateur->id_user = $user->id; 
+    //     $utilisateur->visibilite_globale = $request->input('visibilite_globale');
+    //     $utilisateur->fonction_admin = $request->input('fonction_admin');
+    //     $utilisateur->acces_rapport = $request->input('acces_rapport');
+    //     $utilisateur->gestion_stock = $request->input('gestion_stock');
+    //     $utilisateur->commande_achat = $request->input('commande_achat');
+    //     $utilisateur->export_excel = $request->input('export_excel');
+    //     $utilisateur->supprimer_donnees = $request->input('supprimer_donnees');
+    //     $utilisateur->save();
     
-        return response()->json(['message' => 'Utilisateur modifié avec succès', 'utilisateur' => $utilisateur]);
-    }
+    //     return response()->json(['message' => 'Utilisateur modifié avec succès', 'utilisateur' => $utilisateur]);
+    // }
     
     public function ArchiverSousUtilisateur(Request $request, $id)
     {
