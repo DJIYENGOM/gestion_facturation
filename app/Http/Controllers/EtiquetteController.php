@@ -25,8 +25,8 @@ class EtiquetteController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'nomEtiquette' => 'required|string|max:255',
-            'codeEtiquette' => 'nullable',
+            'nom_etiquette' => 'required|string|max:255',
+            'code_etiquette' => 'nullable',
         ]);
 
         if ($validator->fails()) {
@@ -34,8 +34,8 @@ class EtiquetteController extends Controller
         }
 
         $etiquette = new Etiquette([
-            'nom_etiquette' => $request->nomEtiquette,
-            'code_etiquette' => $request->codeEtiquette,
+            'nom_etiquette' => $request->nom_etiquette,
+            'code_etiquette' => $request->code_etiquette,
             'sousUtilisateur_id' => $sousUtilisateurId,
             'user_id' => $userId,
         ]);
@@ -104,16 +104,16 @@ class EtiquetteController extends Controller
     }
 
     $validator = Validator::make($request->all(), [
-        'nomEtiquette' => 'required|string|max:255',
-        'codeEtiquette' => 'nullable',
+        'nom_etiquette' => 'required|string|max:255',
+        'code_etiquette' => 'nullable',
     ]);
 
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 422);
     }
 
-    $etiquette->nom_etiquette = $request->nomEtiquette;
-    $etiquette->code_etiquette = $request->codeEtiquette;
+    $etiquette->nom_etiquette = $request->nom_etiquette;
+    $etiquette->code_etiquette = $request->code_etiquette;
     $etiquette->save();
 
     return response()->json(['message' => 'Etiquette modifiée avec succès', 'etiquette' => $etiquette]);
