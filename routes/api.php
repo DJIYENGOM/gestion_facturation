@@ -39,6 +39,7 @@ use App\Http\Controllers\FactureRecurrenteController;
 use App\Http\Controllers\NoteJustificativeController;
 use App\Http\Controllers\Info_SupplementaireController;
 use App\Http\Controllers\NumeroConfigurationController;
+use App\Http\Controllers\ConfigurationRelanceAutoController;
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -164,7 +165,6 @@ Route::get('RapportFacture', [FactureController::class, 'RapportFacture']);
 
 Route::get('exportFactures', [FactureController::class, 'exportFactures']);
 
-Route::post('DetailEmailFacture_genererPDF/{id_facture}', [EmailModeleController::class, 'DetailEmailFacture_genererPDF']);
 
 
 Route::post('ajouterCompteComptable', [CompteComptableController::class, 'ajouterCompteComptable']);
@@ -323,5 +323,34 @@ Route::get('ListerEtiquette',[EtiquetteController::class, 'ListerEtiquette']);
 Route::post('modifierEtiquette/{id}',[EtiquetteController::class, 'modifierEtiquette']);
 Route::post('supprimerEtiquette/{id}',[EtiquetteController::class, 'supprimerEtiquette']);  
   
+
 Route::post('createEmailModele',[EmailModeleController::class, 'createEmailModele']); 
 
+Route::post('envoyerEmailFacture/{id_facture}',[EmailModeleController::class, 'envoyerEmailFacture']);
+Route::post('DetailEmailFacture_genererPDF/{id_facture}', [EmailModeleController::class, 'DetailEmailFacture_genererPDF']);
+
+Route::post('DetailEmailDevi_genererPDF/{id_devi}', [EmailModeleController::class, 'DetailEmailDevi_genererPDF']);
+Route::post('envoyerEmailDevi/{id_devi}', [EmailModeleController::class, 'envoyerEmailDevi']);
+
+Route::post('DetailEmailBonCommande_genererPDF/{id_bonCommande}', [EmailModeleController::class, 'DetailEmailBonCommande_genererPDF']);
+Route::post('envoyerEmailBonCommande/{id_bonCommande}', [EmailModeleController::class, 'envoyerEmailBonCommande']);
+
+Route::post('DetailEmailLivraison_genererPDF/{id_livraison}', [EmailModeleController::class, 'DetailEmailLivraison_genererPDF']);
+Route::post('envoyerEmailLivraison/{id_livraison}', [EmailModeleController::class, 'envoyerEmailLivraison']);
+
+Route::post('DetailEmailCommandeAchat_genererPDF/{id_CommandeAchat}', [EmailModeleController::class, 'DetailEmailCommandeAchat_genererPDF']);
+Route::post('envoyerEmailCommandeAchat/{id_CommandeAchat}', [EmailModeleController::class, 'envoyerEmailCommandeAchat']);
+
+Route::post('DetailEmailResumeVente_genererPDF/{id_facture}', [EmailModeleController::class, 'DetailEmailResumeVente_genererPDF']);
+Route::post('envoyerEmailResumeVente/{id_facture}', [EmailModeleController::class, 'envoyerEmailResumeVente']);
+
+Route::post('DetailEmailPaiementRecu_genererPDF/{id_PaiementRecu}', [EmailModeleController::class, 'DetailEmailPaiementRecu_genererPDF']);
+Route::post('envoyerEmailPaiementRecu/{id_PaiementRecu}', [EmailModeleController::class, 'envoyerEmailPaiementRecu']);
+
+Route::post('DetailEmailRelanceAvantEcheance_genererPDF/{id_echeance}', [EmailModeleController::class, 'DetailEmailRelanceAvantEcheance_genererPDF']);
+Route::post('envoyerEmailRelanceAvantEcheance/{id_echeance}', [EmailModeleController::class, 'envoyerEmailRelanceAvantEcheance']);
+
+Route::post('DetailEmailRelanceApresEcheance_genererPDF/{id_echeance}', [EmailModeleController::class, 'DetailEmailRelanceApresEcheance_genererPDF']);
+Route::post('envoyerEmailRelanceApresEcheance/{id_echeance}', [EmailModeleController::class, 'envoyerEmailRelanceApresEcheance']);
+
+Route::post('ConfigurerRelanceAuto', [ConfigurationRelanceAutoController::class, 'ConfigurerRelanceAuto']);

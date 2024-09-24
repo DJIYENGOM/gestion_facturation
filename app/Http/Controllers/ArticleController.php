@@ -51,6 +51,7 @@ class ArticleController extends Controller
         $validator = Validator::make($request->all(), [
             'nom_article' => 'nullable|string',
             'description' => 'nullable|string',
+            'active_article' => 'nullable|in:1,0',
             'prix_unitaire' => 'required|numeric|min:0',
             'tva'=>'nullable|numeric|min:0',
             'type_article' => 'required|in:produit,service',
@@ -114,6 +115,8 @@ class ArticleController extends Controller
         $article = new Article();
         $article->num_article = $request->num_article ?? $numArticle;
         $article->nom_article = $request->nom_article;
+        $article->code_barre = $request->code_barre;
+        $article->active_article = $request->active_article ?? true;
         $article->description = $request->description;
         $article->prix_unitaire = $request->prix_unitaire;
         $article->tva = $request->tva;
@@ -325,7 +328,7 @@ class ArticleController extends Controller
                 return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
             }
             $sousUtilisateur_id = auth('apisousUtilisateur')->id();
-            $user_id = null;
+            $user_id = auth('apisousUtilisateur')->user()->id_user; 
         } elseif (auth()->check()) {
             $user_id = auth()->id();
             $sousUtilisateur_id = null;
@@ -336,6 +339,7 @@ class ArticleController extends Controller
         $validator = Validator::make($request->all(), [
             'nom_article' => 'required|string',
             'description' => 'nullable|string',
+            'active_article'=> 'nullable|in:0,1',
             'prix_unitaire' => 'required|numeric|min:0',
             'tva'=>'nullable|numeric|min:0',
             'type_article' => 'required|in:produit,service',
@@ -413,6 +417,7 @@ class ArticleController extends Controller
     
         $article->num_article = $request->num_article;
         $article->nom_article = $request->nom_article;
+        $article->active_article = $request->active_article ?? true;
         $article->description = $request->description;
         $article->prix_unitaire = $request->prix_unitaire;
         $article->tva = $request->tva;
@@ -730,7 +735,8 @@ public function listerArticles()
         $articleArray['etiquettes'] = $article->Etiquetttes->map(function ($etiquette) {
             return [
                 'id' => optional($etiquette->etiquette)->id,
-                'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
+                'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette,
+                'code_etiquette' => optional($etiquette->etiquette)->code_etiquette
             ];
         })->filter(function ($etiquette) {
             // Filtrer les étiquettes pour s'assurer qu'aucune entrée null ne soit incluse

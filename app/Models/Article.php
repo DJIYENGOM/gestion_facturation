@@ -12,6 +12,7 @@ class Article extends Model
 
     protected $fillable = [
         'nom_article',
+        'active_article',
         'num_article',
         'tva',
         'prix_tva',

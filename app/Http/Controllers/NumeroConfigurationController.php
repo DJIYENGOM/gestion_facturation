@@ -41,7 +41,7 @@ class NumeroConfigurationController extends Controller
             [
                 'type_numerotation' => $request->type_numerotation,
                 'prefixe' => $request->prefixe,
-                'format' => $request->format ?? null,
+                'format' => $request->input->format ?? null,
                 'compteur' => 0, // Réinitialiser le compteur à 0 lors de la configuration
             ]
         );

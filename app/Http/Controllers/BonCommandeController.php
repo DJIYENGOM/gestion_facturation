@@ -171,12 +171,14 @@ class BonCommandeController extends Controller
                     $stock->sousUtilisateur_id = $sousUtilisateurId;
                     $stock->user_id = $userId;
                     $stock->save();
-                }
-                $article = Article::find($article->id_article);
 
-                $article->quantite_disponible = $stock->disponible_apres;
-                $article->save();
-        
+                $articleDB = Article::find($article->id_article);
+                $articleDB->quantite_disponible = $stock->disponible_apres;
+                $articleDB->save();
+                }
+                
+                $articleDB = Article::find($article->id_article);
+
                 $notificationConfig = Notification::where('user_id', $article->user_id)
                     ->orWhere('sousUtilisateur_id', $sousUtilisateurId)
                     ->first();
@@ -186,7 +188,7 @@ class BonCommandeController extends Controller
                 MessageNotification::create([
                     'sousUtilisateur_id' => $sousUtilisateurId,
                     'user_id' => $userId,
-                    'article_id' => $article->id,
+                    'article_id' => $articleDB->id,
                     'message' => 'Poduits ont moins de ' . $notificationConfig->quantite_produit . ' dans leur stock',
                 ]);
                 }

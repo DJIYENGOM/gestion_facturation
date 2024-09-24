@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('num_article')->nullable();
             $table->string('nom_article');
+            $table->boolean('active_article')->default(1);
             $table->text('description')->nullable();
             $table->decimal('prix_unitaire', 10, 2); 
             $table->integer('quantite')->nullable();

@@ -106,7 +106,7 @@ class SousUtilisateurController extends Controller
                 return response()->json(['error' => 'Sous-utilisateur introuvable'], 404);
             }
     
-            if ($request->filled('mot_de_passe_actuel') && $request->filled('password')) {
+            if ($request->input('mot_de_passe_actuel') && $request->input('password')) {
                 if (!Hash::check($request->input('mot_de_passe_actuel'), $utilisateur->password)) {
                     return response()->json(['error' => 'Le mot de passe actuel est incorrect.'], 422);
                 }

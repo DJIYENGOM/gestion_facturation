@@ -144,6 +144,10 @@ class LivraisonController extends Controller
                     $stock->sousUtilisateur_id = $sousUtilisateurId;
                     $stock->user_id = $userId;
                     $stock->save();
+
+                $articleDB = Article::find($article->id_article);
+                $articleDB->quantite_disponible = $stock->disponible_apres;
+                $articleDB->save();
                 }
                 $articleDb = Article::find($article->id_article);
         

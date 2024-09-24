@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\User;
+use App\Models\EmailModele;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\Sous_Utilisateur;
@@ -110,12 +111,65 @@ class AuthController extends Controller
             'recevoir_notifications' => 1,
             'user_id' => $user->id
         ]);
+        $this->createDefaultEmailModels($user);
 
 
         return response()->json([
             'message' => 'User created successfully',
             'user' => $user
         ]);
+    }
+
+    public function createDefaultEmailModels(User $user)
+    {
+        $emailTemplates = [
+            'facture' => [
+                'object' => 'Facture {VENTE_NUMERO} du {VENTE_DATE}',
+                'contenu' => "Bonjour {DESTINATAIRE},\n\n Veuillez trouver ci-joint la Facture N° {VENTE_NUMERO} du {VENTE_DATE} pour un montant de {VENTE_PRIX_TOTAL}.\n\nNous vous remercions de votre confiance.\n\nÀ bientôt !\n\nCordialement,\n\n{ENTREPRISE}"
+            ],
+            'devi' => [
+                'object' => 'Devis {DEVIS_NUMERO} réalisé le {DEVIS_DATE}',
+                'contenu' => "Bonjour {DESTINATAIRE},\n\nVeuillez trouver ci-joint le Devis N° {DEVIS_NUMERO} réalisé le {DEVIS_DATE}.\n\nMontant total du devis : {DEVIS_PRIX_TOTAL}.\n\nSi vous avez besoin d'informations supplémentaires, n'hésitez pas à nous contacter.\n\nÀ bientôt !\n\nCordialement,\n\n{ENTREPRISE}"
+            ],
+            'resumer_vente' => [
+                'object' => 'Résumé de vente du {VENTE_DATE}',
+                'contenu' => "Bonjour {DESTINATAIRE},\n\nVeuillez trouver ci-joint le résumé de la Vente N° {VENTE_NUMERO} du {VENTE_DATE} pour un montant de {VENTE_PRIX_TOTAL}.\n\n Nous vous remercions de votre confiance.\n\nÀ bientôt !\n\nCordialement,\n\n{ENTREPRISE}"
+            ],
+            'recu_paiement' => [
+                'object' => 'Reçu de paiement {PAIEMENT_NUMERO} du {PAIEMENT_DATE}',
+                'contenu' => "Bonjour {DESTINATAIRE},\n\nVeuillez trouver ci-joint votre reçu de paiement N° {PAIEMENT_NUMERO} du {PAIEMENT_DATE}.\n\nMontant payé : {PAIEMENT_MONTANT}.\n\nCordialement,\n\n{ENTREPRISE}"
+            ],
+            'relanceAvant_echeance' => [
+                'object' => 'Relance avant échéance pour la Facture N° {VENTE_NUMERO}',
+                'contenu' => "Bonjour {DESTINATAIRE},\n\nNous vous rappelons que votre facture N° {VENTE_NUMERO} arrivera à échéance le {ECHEANCE_DATE}.\n\nMontant dû : {ECHEANCE_MONTANT}.\n\nMerci de procéder au règlement avant cette date.\n\nCordialement,\n\n{ENTREPRISE}"
+            ],
+            'relanceApres_echeance' => [
+                'object' => 'Relance après échéance pour la Facture N° {VENTE_NUMERO}',
+                'contenu' => "Bonjour {DESTINATAIRE},\n\nNous vous informons que la facture N° {VENTE_NUMERO} est échue depuis le {ECHEANCE_DATE}.\n\nMontant dû : {ECHEANCE_MONTANT}.\n\nMerci de régulariser cette situation au plus vite.\n\nCordialement,\n\n{ENTREPRISE}"
+            ],
+            'commande_vente' => [
+                'object' => 'Confirmation de commande N° {COMMANDE_NUMERO} du {COMMANDE_DATE}',
+                'contenu' => "Bonjour {DESTINATAIRE},\n\nVotre commande N° {COMMANDE_NUMERO} a bien été enregistrée le {COMMANDE_DATE}.\n\nMontant total : {COMMANDE_MONTANT}.\n\nCordialement,\n\n{ENTREPRISE}"
+            ],
+            'livraison' => [
+                'object' => 'Livraison N° {LIVRAISON_NUMERO} effectuée le {LIVRAISON_DATE}',
+                'contenu' => "Bonjour {DESTINATAIRE},\n\n Veuillez trouver ci-joint le Bon de Livraison N° {LIVRAISON_NUMERO}.\n\nLivraison prévue le : {LIVRAISON_DATE}.\n\nMerci de nous avoir fait confiance.\n\nCordialement,\n\n{ENTREPRISE}"
+            ],
+            'fournisseur' => [
+                'object' => 'Bon de commande N° {BON_NUMERO} du {BON_DATE}',
+                'contenu' => "Bonjour {DESTINATAIRE},\n\nVoici le bon de commande N° {BON_NUMERO} daté du {BON_DATE}.\n\nCordialement,\n\n{ENTREPRISE}"
+            ],
+        ];
+    
+        foreach ($emailTemplates as $type => $template) {
+            EmailModele::create([
+                'type_modele' => $type,
+                'object' => $template['object'],
+                'contenu' => $template['contenu'],
+                'user_id' => $user->id,
+                'sousUtilisateur_id' => null,
+            ]);
+        }
     }
 
     public function logout()
@@ -198,7 +252,7 @@ public function refresh_sousUtilisateur()
 
     public function listerUser()
     {
-        $users = User::all();
+        $users = User::where('id', '=', Auth::user()->id)->get();
     
         return response()->json(['user' => $users]);
     }
@@ -208,6 +262,8 @@ public function refresh_sousUtilisateur()
 public function modifierMotDePasse(Request $request)
 {
     $validator=Validator::make($request->all(),[
+        'name' => ['nullable', 'string', 'min:2', 'regex:/^[a-zA-Zà_âçéèêëîïôûùüÿñæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ\s\-]+$/'],
+        'email' => 'nullable|string|email|max:255|unique:users',
         'mot_de_passe_actuel' => 'required',
         'nouveau_mot_de_passe' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/'],
 
@@ -228,9 +284,11 @@ public function modifierMotDePasse(Request $request)
     }
 
     $utilisateur->password = Hash::make($request->nouveau_mot_de_passe);
+    $utilisateur->name = $request->input('name');
+    $utilisateur->email = $request->input('email');
     $utilisateur->save();
 
-    return response()->json(['message' => 'Mot de passe mis à jour avec succes.']);
+    return response()->json(['message' => 'utilisateur mis à jour avec succes.']);
 }
 
 

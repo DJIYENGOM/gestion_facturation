@@ -22,6 +22,11 @@ class Kernel extends ConsoleKernel
 
          $schedule->command('command:supprimer_historique')->daily();
 
+         $schedule->command('command:avant-echeance')->dailyAt('00:00');
+
+         $schedule->command('command:apres-echeance')->dailyAt('00:00');
+
+
     }
 
     /**

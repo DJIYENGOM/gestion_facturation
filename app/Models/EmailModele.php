@@ -15,4 +15,6 @@ class EmailModele extends Model
     {
         return $this->hasMany(EmailAttachment::class, 'email_modele_id');
     }
+
+    
 }
