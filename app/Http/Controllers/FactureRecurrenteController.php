@@ -8,6 +8,7 @@ use App\Models\Historique;
 use Illuminate\Http\Request;
 use App\Models\ArtcleFacture;
 use App\Models\FactureRecurrente;
+use Illuminate\Support\Facades\Artisan;
 use App\Models\ArticleFactureRecurrente;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
@@ -94,6 +95,8 @@ class FactureRecurrenteController extends Controller
             'id_paiement' => null,
             'id_recurrent' => $factureRecurrente->id,
         ]);
+        Artisan::call(command: 'optimize:clear');
+
 
         $echance = Echeance::create([
             'facture_id' => $facture->id,

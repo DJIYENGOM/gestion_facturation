@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\CategorieDepense;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
 
 class CategorieDepenseController extends Controller
@@ -39,7 +41,8 @@ class CategorieDepenseController extends Controller
         ]);
     
         $categorie->save();
-    
+        Artisan::call(command: 'optimize:clear');
+
         return response()->json(['message' => 'Categorie ajoutée avec succès', 'categorie' => $categorie]);
     }
 
@@ -49,7 +52,9 @@ class CategorieDepenseController extends Controller
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
-            $categories = CategorieDepense::where(function($query) use ($sousUtilisateurId, $userId) {
+            $categories = Cache::remember('categories',3600, function () use ($sousUtilisateurId, $userId) {
+          
+                return CategorieDepense::where(function($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
                           ->orWhere('user_id', $userId);
                 })
@@ -58,11 +63,13 @@ class CategorieDepenseController extends Controller
                           ->whereNull('sousUtilisateur_id');
                 })
                 ->get();
-    
+            });
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $categories = CategorieDepense::where(function($query) use ($userId) {
+            $categories = Cache::remember('categories',3600, function () use ($userId) {
+                
+            return CategorieDepense::where(function($query) use ($userId) {
                     $query->where('user_id', $userId)
                           ->orWhereHas('sousUtilisateurs', function($query) use ($userId) {
                               $query->where('id_user', $userId);
@@ -73,6 +80,7 @@ class CategorieDepenseController extends Controller
                           ->whereNull('sousUtilisateur_id');
                 })
                 ->get();
+            });
         } else {
             return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
@@ -115,6 +123,8 @@ class CategorieDepenseController extends Controller
             
             if($CategorieDepense){
                 $CategorieDepense->delete();
+                Artisan::call(command: 'optimize:clear');
+
                 return response()->json(['message' => 'CategorieDepense supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'cet utilisateur ne peut pas modifier ce CategorieDepense'], 401);
@@ -160,6 +170,7 @@ public function modifierCategorieDepense(Request $request, $id)
     $categorie->user_id = $user_id;
 
     $categorie->save();
+    Artisan::call(command: 'optimize:clear');
 
     return response()->json(['message' => 'Catégorie modifiée avec succès', 'categorie' => $categorie]);
 }

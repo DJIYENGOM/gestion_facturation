@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use App\Models\Devi;
 use App\Models\Facture;
 use App\Models\Echeance;
-use App\Models\facture_Etiquette;
 use App\Models\Historique;
 use App\Models\ArticleDevi;
 use App\Models\BonCommande;
@@ -14,7 +13,10 @@ use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use App\Models\ArtcleFacture;
 use App\Models\FactureAccompt;
+use App\Models\facture_Etiquette;
 use App\Models\ArticleBonCommande;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -97,6 +99,8 @@ class DeviController extends Controller
         
             $devi->save();
             NumeroGeneratorService::incrementerCompteur($userId, 'devis');
+
+            Artisan::call('optimize:clear');
 
             Historique::create([
                 'sousUtilisateur_id' => $sousUtilisateurId,
@@ -203,6 +207,8 @@ public function TransformeDeviEnFacture($deviId)
 
     $devi->statut_devi = 'transformer';
     $devi->save();
+    Artisan::call('optimize:clear');
+
 
     Historique::create([
         'sousUtilisateur_id' => $sousUtilisateurId,
@@ -236,6 +242,7 @@ public function TransformeDeviEnBonCommande($deviId)
 
     $devi->statut_devi = 'transformer';
     $devi->save();
+    Artisan::call('optimize:clear');
     
     Historique::create([
         'sousUtilisateur_id' => $sousUtilisateurId,
@@ -271,6 +278,8 @@ public function annulerDevi($deviId)
     // Mettre à jour le statut du devis en "annuler"
     $devi->statut_devi = 'annuler';
     $devi->save();
+    Artisan::call('optimize:clear');
+
 
     Historique::create([
         'sousUtilisateur_id' => $sousUtilisateurId,
@@ -298,6 +307,8 @@ public function supprimerDevi($id)
             if($devi){
                 $devi->archiver = 'oui';
                 $devi->save();
+                Artisan::call('optimize:clear');
+
             return response()->json(['message' => 'devi supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'ce sous utilisateur ne peut pas supprimé cet devi'], 401);
@@ -316,6 +327,8 @@ public function supprimerDevi($id)
                 if($devi){
                     $devi->archiver = 'oui';
                     $devi->save();
+                    Artisan::call('optimize:clear');
+
                 return response()->json(['message' => 'devi supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'cet utilisateur ne peut pas supprimé cet devi'], 401);
@@ -335,64 +348,70 @@ public function listerToutesDevi()
             return response()->json(['error' => 'Accès non autorisé'], 403);
         }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
-        $userId = auth('apisousUtilisateur')->user()->id_user; 
+        $userId = auth('apisousUtilisateur')->user()->id_user;
 
-        $devis = devi::with('client','articles.article','Etiquettes.etiquette')
-            ->where('archiver', 'non')
-            ->where(function ($query) use ($sousUtilisateurId, $userId) {
-                $query->where('sousUtilisateur_id', $sousUtilisateurId)
-                    ->orWhere('user_id', $userId);
-            })
-            ->get();
+        // Utiliser le cache pour stocker les devis
+        $devis = Cache::remember("devis", 3600, function () use ($sousUtilisateurId, $userId) {
+            return Devi::with('client', 'articles.article', 'Etiquettes.etiquette')
+                ->where('archiver', 'non')
+                ->where(function ($query) use ($sousUtilisateurId, $userId) {
+                    $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                        ->orWhere('user_id', $userId);
+                })
+                ->get();
+        });
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $devis = Devi::with('client', 'articles.article','Etiquettes.etiquette')
-            ->where('archiver', 'non')
-            ->where(function ($query) use ($userId) {
-                $query->where('user_id', $userId)
-                    ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
-                        $query->where('id_user', $userId);
-                    });
-            })
-            ->get();
+        // Utiliser le cache pour stocker les devis
+        $devis = Cache::remember("devis", 3600, function () use ($userId) {
+            return Devi::with('client', 'articles.article', 'Etiquettes.etiquette')
+                ->where('archiver', 'non')
+                ->where(function ($query) use ($userId) {
+                    $query->where('user_id', $userId)
+                        ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                            $query->where('id_user', $userId);
+                        });
+                })
+                ->get();
+        });
     } else {
-        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+        return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
     }
-// Construire la réponse avec les détails des devis et les noms des clients
-$response = [];
-foreach ($devis as $devi) {
-    $response = [
-        'id' => $devi->id,
-        'prix_Ht' => $devi->prix_HT,
-        'prix_Ttc' => $devi->prix_TTC,
-        'note_devi' => $devi->note_devi,
-        'prenom_client' => $devi->client->prenom_client,
-        'nom_client' => $devi->client->nom_client,
-        'active_Stock' => $devi->active_Stock,
-        'reduction_devi' => $devi->reduction_devi,
-        'articles' => ($devi->articles ?? collect())->map(function ($articledevi) {
-            return [
-                'id' => optional($articledevi->article)->id,
-                'nom' => optional($articledevi->article)->nom_article,
-                'quantite' => $articledevi->quantite_article,
-                'prix' => $articledevi->prix_total_tva_article,
-            ];
-        })->all(), // Utilisez ->all() pour retourner un tableau
-        'etiquettes' => ($devi->Etiquettes ?? collect())->map(function ($etiquette) {
-            return [
-                'id' => optional($etiquette->etiquette)->id,
-                'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette,
-            ];
-        })->filter(function ($etiquette) {
-            return !is_null($etiquette['id']);
-        })->values()->all(), // Utilisez ->all() pour retourner un tableau
-    ];
-    
-}
-return response()->json(['devis' => $response]);
 
+    $response = [];
+    foreach ($devis as $devi) {
+        $response[] = [
+            'id' => $devi->id,
+            'prix_Ht' => $devi->prix_HT,
+            'prix_Ttc' => $devi->prix_TTC,
+            'note_devi' => $devi->note_devi,
+            'prenom_client' => $devi->client->prenom_client,
+            'nom_client' => $devi->client->nom_client,
+            'active_Stock' => $devi->active_Stock,
+            'reduction_devi' => $devi->reduction_devi,
+            'articles' => ($devi->articles ?? collect())->map(function ($articledevi) {
+                return [
+                    'id' => optional($articledevi->article)->id,
+                    'nom' => optional($articledevi->article)->nom_article,
+                    'quantite' => $articledevi->quantite_article,
+                    'prix' => $articledevi->prix_total_tva_article,
+                ];
+            })->all(), // Utilisez ->all() pour retourner un tableau
+            'etiquettes' => ($devi->Etiquettes ?? collect())->map(function ($etiquette) {
+                return [
+                    'id' => optional($etiquette->etiquette)->id,
+                    'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette,
+                ];
+            })->filter(function ($etiquette) {
+                return !is_null($etiquette['id']);
+            })->values()->all(), // Utilisez ->all() pour retourner un tableau
+        ];
+    }
+
+    return response()->json(['devis' => $response]);
 }
+
 
 
 public function DetailsDevis($id)
@@ -411,12 +430,13 @@ public function DetailsDevis($id)
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
-    // Rechercher la facture par son numéro
-    $devi = Devi::where('id', $id)
+    $devi = Cache::remember("devi", 3600, function () use ($id) {
+        
+    return Devi::where('id', $id)
                 ->with(['client', 'articles.article','Etiquettes.etiquette', 'echeances', 'factureAccompts'])
                 ->first();
 
-    // Vérifier si la devi existe
+    });
     if (!$devi) {
         return response()->json(['error' => 'devi non trouvée'], 404);
     }
@@ -424,7 +444,6 @@ public function DetailsDevis($id)
     // Convertir date_creation en instance de Carbon si ce n'est pas déjà le cas
     $dateCreation = Carbon::parse($devi->date_devi);
 
-    // Préparer la réponse
     $response = [
         'id_devi' => $devi->id,
         'numero_devi' => $devi->num_devi,
@@ -461,7 +480,6 @@ public function DetailsDevis($id)
         
     ];
 
-    // Vérifier si 'articles' est non nul et une collection
     if ($devi->articles && $devi->articles->isNotEmpty()) {
         foreach ($devi->articles as $articledevi) {
             $response['articles'][] = [
@@ -477,7 +495,6 @@ public function DetailsDevis($id)
         }
     }
 
-    // Vérifier si 'echeances' est non nul et une collection
     if ($devi->echeances && $devi->echeances->isNotEmpty()) {
         foreach ($devi->echeances as $echeance) {
             $response['echeances'][] = [
@@ -487,7 +504,6 @@ public function DetailsDevis($id)
         }
     }
 
-    // Vérifier si 'factureAccompts' est non nul et une collection
     if ($devi->factureAccompts && $devi->factureAccompts->isNotEmpty()) {
         foreach ($devi->factureAccompts as $factureAccompt) {
             $response['facture_accomptes'][] = [
@@ -500,7 +516,6 @@ public function DetailsDevis($id)
         }
     }
 
-    // Retourner la réponse JSON
     return response()->json(['devi_details' => $response], 200);
 }
 
@@ -514,7 +529,9 @@ public function listeDeviParClient($clientId)
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
-        $devis = devi::with('articles.article','Etiquettes.etiquette')
+        $devis = Cache::remember("devis", 3600, function () use ($sousUtilisateurId, $userId, $clientId) {
+        
+        return Devi::with('articles.article','Etiquettes.etiquette')
             ->where('client_id', $clientId)
             ->where('archiver', 'non')
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
@@ -522,10 +539,13 @@ public function listeDeviParClient($clientId)
                     ->orWhere('user_id', $userId);
             })
             ->get();
+        });
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $devis = Devi::with('articles.article','Etiquettes.etiquette')
+        $devis = Cache::remember("devis", 3600, function () use ($userId, $clientId) {
+            
+        return Devi::with('articles.article','Etiquettes.etiquette')
             ->where('client_id', $clientId)
             ->where('archiver', 'non')
             ->where(function ($query) use ($userId) {
@@ -535,6 +555,7 @@ public function listeDeviParClient($clientId)
                     });
             })
             ->get();
+        });
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }

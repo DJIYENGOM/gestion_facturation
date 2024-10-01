@@ -8,7 +8,6 @@ use App\Models\Article;
 use App\Models\Entrepot;
 use App\Models\Variante;
 use App\Models\AutrePrix;
-use App\Models\Article_Etiquette;
 use App\Models\Etiquette;
 use App\Models\Historique;
 use App\Models\Notification;
@@ -18,11 +17,14 @@ use App\Imports\ArticlesImport;
 use App\Models\CompteComptable;
 use App\Models\EntrepotArticle;
 use App\Models\CategorieArticle;
+use App\Models\Article_Etiquette;
 use App\Models\NoteJustificative;
-use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
@@ -140,6 +142,8 @@ class ArticleController extends Controller
     
         $article->save();
         NumeroGeneratorService::incrementerCompteur($user_id, $typeDocument);
+
+        Artisan::call('optimize:clear');
 
         if ($request->has('etiquettes')) {
 
@@ -439,6 +443,8 @@ class ArticleController extends Controller
         $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_achat : null;
     
         $article->update();
+        Artisan::call('optimize:clear');
+
 
         if($article->type_article == 'produit'){
             Historique::create([
@@ -544,6 +550,8 @@ class ArticleController extends Controller
                     $stock->user_id = $user_id;
                     $stock->save();
                 }
+                Artisan::call(command: 'optimize:clear');
+
             }
     
             if ($request->has('entrepots')) {
@@ -646,6 +654,7 @@ public function supprimerArticle($id)
         if ($Article)
             {
                 $Article->delete();
+        Artisan::call('optimize:clear');
 
                 $stock = Stock::where('article_id',$id)
                 ->where('sousUtilisateur_id', $sousUtilisateurId)
@@ -654,6 +663,8 @@ public function supprimerArticle($id)
             if ($stock)
             {
                 $stock->delete();
+                Artisan::call(command: 'optimize:clear');
+
             }
 
             Article_Etiquette::where('article_id', $id)->delete();
@@ -677,6 +688,8 @@ public function supprimerArticle($id)
             if ($Article)
             {
                 $Article->delete();
+        Artisan::call('optimize:clear');
+
                 $stock = Stock::where('article_id',$id)
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
@@ -686,6 +699,8 @@ public function supprimerArticle($id)
             if ($stock)
             {
                 $stock->delete();
+                Artisan::call(command: 'optimize:clear');
+
             }
 
             Article_Etiquette::where('article_id', $id)->delete();
@@ -725,33 +740,39 @@ public function listerArticles()
         return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
     }
 
-    $articlesArray = $articles->map(function ($article) {
-        $articleArray = $article->toArray();
-        $articleArray['quantite_disponible'] = optional($article->Stocks->last())->disponible_apres;
-        $articleArray['nom_categorie'] = optional($article->categorieArticle)->nom_categorie_article;
-        $articleArray['nom_comptable'] = optional($article->CompteComptable)->nom_compte_comptable;
+    if ($articles->isEmpty()) {
+        return response()->json(['message' => 'Aucun article trouvé'], 404);
+    }
 
-        // Formatter les étiquettes pour n'inclure que les attributs nécessaires
-        $articleArray['etiquettes'] = $article->Etiquetttes->map(function ($etiquette) {
-            return [
-                'id' => optional($etiquette->etiquette)->id,
-                'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette,
-                'code_etiquette' => optional($etiquette->etiquette)->code_etiquette
-            ];
-        })->filter(function ($etiquette) {
-            // Filtrer les étiquettes pour s'assurer qu'aucune entrée null ne soit incluse
-            return !is_null($etiquette['id']);
-        })->values()->all();
+    // Utiliser le cache pour stocker les résultats
+    $articlesArray = Cache::remember('articlesArray', 3600, function () use ($articles) {
+        return $articles->map(function ($article) {
+            $articleArray = $article->toArray();
+            $articleArray['quantite_disponible'] = optional($article->Stocks->last())->disponible_apres;
+            $articleArray['nom_categorie'] = optional($article->categorieArticle)->nom_categorie_article;
+            $articleArray['nom_comptable'] = optional($article->CompteComptable)->nom_compte_comptable;
 
-        // Supprimer les autres attributs non nécessaires si existants
-        unset($articleArray['etiquetttes']); // Enlever si `etiquetttes` existe comme attribut principal
+            // Formatter les étiquettes pour n'inclure que les attributs nécessaires
+            $articleArray['etiquettes'] = $article->Etiquetttes->map(function ($etiquette) {
+                return [
+                    'id' => optional($etiquette->etiquette)->id,
+                    'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette,
+                    'code_etiquette' => optional($etiquette->etiquette)->code_etiquette
+                ];
+            })->filter(function ($etiquette) {
+                // Filtrer les étiquettes pour s'assurer qu'aucune entrée null ne soit incluse
+                return !is_null($etiquette['id']);
+            })->values()->all();
 
-        return $articleArray;
+            // Supprimer les autres attributs non nécessaires si existants
+            unset($articleArray['etiquetttes']); // Enlever si `etiquetttes` existe comme attribut principal
+
+            return $articleArray;
+        })->all(); // Convertir le résultat en tableau
     });
 
     return response()->json($articlesArray);
 }
-
 
 
 public function affecterPromoArticle(Request $request, $id)

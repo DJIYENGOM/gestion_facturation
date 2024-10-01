@@ -10,6 +10,8 @@ use App\Models\Historique;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\facture_Etiquette;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -128,6 +130,7 @@ class DepenseController extends Controller
             ]);
 
             NumeroGeneratorService::incrementerCompteur($userId, 'depense');
+            Artisan::call(command: 'optimize:clear');
 
         }
         Tva::create([
@@ -173,21 +176,26 @@ class DepenseController extends Controller
             $sousUtilisateurId = $sousUtilisateur->id;
             $userId = $sousUtilisateur->id_user; // ID de l'utilisateur parent
     
-            $depenses = Depense::with(['categorieDepense', 'fournisseur', 'Etiquettes.etiquette'])
+            $depenses = Cache::remember('depenses', 3600, function () use ($sousUtilisateurId, $userId) {
+            return Depense::with(['categorieDepense', 'fournisseur', 'Etiquettes.etiquette'])
                 ->where(function ($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
                           ->orWhere('user_id', $userId);
                 })
                 ->get();
+            });
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $depenses = Depense::with(['categorieDepense', 'fournisseur', 'Etiquettes.etiquette'])
+            $depenses = Cache::remember('depenses', 3600, function () use ($userId) {
+               
+           return Depense::with(['categorieDepense', 'fournisseur', 'Etiquettes.etiquette'])
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
                     $query->where('id_user', $userId);
                 })
                 ->get();
+            });
         } else {
             return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
         }
@@ -297,6 +305,7 @@ class DepenseController extends Controller
 
         // Mettre à jour la dépense
         $depense->update($request->all());
+        Artisan::call(command: 'optimize:clear');
 
         Historique::create([
             'sousUtilisateur_id' => $sousUtilisateurId,
@@ -357,7 +366,7 @@ class DepenseController extends Controller
 
     // Supprimer la dépense
     $depense->delete();
-
+    Artisan::call(command: 'optimize:clear');
     return response()->json(['message' => 'Dépense supprimée avec succès'], 200);
 }
 

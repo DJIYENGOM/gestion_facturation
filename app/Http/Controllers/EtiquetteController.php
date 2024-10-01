@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Etiquette;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
 
 class EtiquetteController extends Controller
@@ -41,6 +43,7 @@ class EtiquetteController extends Controller
         ]);
 
         $etiquette->save();
+        Artisan::call(command: 'optimize:clear');
         return response()->json(['message' => 'Etiquette ajoutée avec succès', 'etiquette' => $etiquette]);
     }
 
@@ -54,21 +57,27 @@ class EtiquetteController extends Controller
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; 
     
-            $etiquette= Etiquette::where(function ($query) use ($sousUtilisateurId, $userId) {
+            $etiquette= Cache::remember('Etiquette', 3600, function () use ($sousUtilisateurId, $userId) {
+             
+           return Etiquette::where(function ($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
                         ->orWhere('user_id', $userId);
                 })
                 ->get();
+            });
         } elseif (auth()->check()) {
             $userId = auth()->id();
           
-            $etiquette = Etiquette::where(function ($query) use ($userId) {
+            $etiquette = Cache::remember('Etiquette', 3600, function () use ($userId) {
+             
+            return Etiquette::where(function ($query) use ($userId) {
                     $query->where('user_id', $userId)
                         ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
                             $query->where('id_user', $userId);
                         });
                 })
                 ->get();
+            });
         } else {
             return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
@@ -115,6 +124,7 @@ class EtiquetteController extends Controller
     $etiquette->nom_etiquette = $request->nom_etiquette;
     $etiquette->code_etiquette = $request->code_etiquette;
     $etiquette->save();
+    Artisan::call(command: 'optimize:clear');
 
     return response()->json(['message' => 'Etiquette modifiée avec succès', 'etiquette' => $etiquette]);
 }
@@ -147,6 +157,7 @@ public function supprimerEtiquette($id)
     }
 
     $etiquette->delete();
+    Artisan::call(command: 'optimize:clear');
 
     return response()->json(['message' => 'Etiquette supprimée avec succès']);
 }

@@ -17,7 +17,6 @@ return new class extends Migration
              'relanceAvant_echeance', 'relanceApres_echeance', 'commande_vente', 'livraison', 'fournisseur'])->unique();
             $table->string('object');
             $table->text('contenu');
-            $table->foreignId('id_variable')->nullable()->constrained('variable_emails')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
 

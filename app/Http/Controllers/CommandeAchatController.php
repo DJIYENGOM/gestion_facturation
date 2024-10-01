@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Article;
 use App\Models\Depense;
-use App\Models\facture_Etiquette;
 use App\Models\Historique;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\CommandeAchat;
+use App\Models\facture_Etiquette;
 use App\Models\ArticleCommandeAchat;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -97,6 +99,8 @@ class CommandeAchatController extends Controller
         $commande = CommandeAchat::create($commandeData);
 
         NumeroGeneratorService::incrementerCompteur($userId, 'commande_achat');
+        Artisan::call('optimize:clear');
+
 
         Historique::create([
             'sousUtilisateur_id' => $sousUtilisateurId,
@@ -164,19 +168,25 @@ class CommandeAchatController extends Controller
               }
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
-            $CommandeAchats = CommandeAchat::with('articles.article','Etiquettes.etiquette', 'fournisseur', 'depense')
+            $CommandeAchats = Cache::remember('commandeAchat', 3600, function () use ($sousUtilisateurId, $userId) {
+            
+            return CommandeAchat::with('articles.article','Etiquettes.etiquette', 'fournisseur', 'depense')
                 ->where('sousUtilisateur_id', $sousUtilisateurId)
                 ->orWhere('user_id', $userId)
                 ->get();
+        });
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $CommandeAchats = CommandeAchat::with('articles.article','Etiquettes.etiquette', 'fournisseur', 'depense')
+            $CommandeAchats = Cache::remember('commandeAchat', 3600, function () use ($userId) {
+             
+             return CommandeAchat::with('articles.article','Etiquettes.etiquette', 'fournisseur', 'depense')
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
                     $query->where('id_user', $userId);
                 })
                 ->get();
+            });
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
@@ -226,14 +236,16 @@ class CommandeAchatController extends Controller
         }
     
         // Rechercher la commande d'achat par son ID
-        $commandeAchat = CommandeAchat::with(['fournisseur', 'articles.article','Etiquettes.etiquette', 'depense'])
+        $commandeAchat = Cache::remember('commandeAchat', 3600, function () use ($sousUtilisateur_id, $user_id, $id) {
+            
+        return CommandeAchat::with(['fournisseur', 'articles.article','Etiquettes.etiquette', 'depense'])
             ->where('id', $id)
             ->where(function ($query) use ($sousUtilisateur_id, $user_id) {
                 $query->where('sousUtilisateur_id', $sousUtilisateur_id)
                     ->orWhere('user_id', $user_id);
             })
             ->first();
-    
+        });
         // Vérifier si la commandeAchat existe
         if (!$commandeAchat) {
             return response()->json(['error' => 'Commande d\'achat non trouvée'], 404);
@@ -258,7 +270,7 @@ class CommandeAchatController extends Controller
                 'telephone' => $commandeAchat->fournisseur->tel_fournisseur,
                 'nom_entreprise' => $commandeAchat->fournisseur->nom_entreprise,
             ] : null,
-            'depense' => $commandeAchat->depense ? [
+            'depense' => $commandeAchat->depense ? [  
                 'id_depense' => $commandeAchat->depense->id,
                 'num_depense' => $commandeAchat->depense->num_depense,
                 'date_paiement' => $commandeAchat->depense->date_paiement,
@@ -350,6 +362,7 @@ public function modifierCommandeAchat(Request $request, $id)
 
     $commandeAchat->update($request->except('articles'));
 
+    Artisan::call('optimize:clear');
     Historique::create([
         'sousUtilisateur_id' => $sousUtilisateurId,
         'user_id' => $userId,
@@ -399,6 +412,7 @@ public function supprimerCommandeAchat($id)
 
     $commandeAchat = CommandeAchat::findOrFail($id);
     $commandeAchat->delete();
+            Artisan::call('optimize:clear');
 
     return response()->json(['message' => 'Commande supprimée avec succès'], 200);
 }
@@ -428,6 +442,7 @@ public function annulerCommandeAchat($id)
     // Mettre à jour le statut du CommandeAchats en "annuler"
     $CommandeAchat->statut_commande = 'annuler';
     $CommandeAchat->save();
+        Artisan::call('optimize:clear');
 
     Historique::create([
         'sousUtilisateur_id' => $sousUtilisateurId,
@@ -464,6 +479,7 @@ public function RecuCommandeAchat($id)
     // Mettre à jour le statut du CommandeAchats en "annuler"
     $CommandeAchat->statut_commande = 'recu';
     $CommandeAchat->save();
+        Artisan::call(command: 'optimize:clear');
 
     Historique::create([
         'sousUtilisateur_id' => $sousUtilisateurId,

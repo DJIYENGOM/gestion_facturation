@@ -21,6 +21,8 @@ return new class extends Migration
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
+            $table->enum('archiver', ['oui', 'non'])->default('non');
+
             $table->timestamps();
         });
     }

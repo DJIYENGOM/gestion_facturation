@@ -9,7 +9,7 @@ class Solde extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['date_paiement','montant','commentaire','id_paiement','client_id','facture_id', 'sousUtilisateur_id','user_id'];
+    protected $fillable = ['date_paiement','montant','commentaire','id_paiement','client_id','facture_id', 'sousUtilisateur_id','user_id','archiver'];
 
     public function sousUtilisateur()
     {

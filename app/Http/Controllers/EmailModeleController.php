@@ -14,6 +14,8 @@ use App\Models\VariableEmail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -60,9 +62,12 @@ class EmailModeleController extends Controller
                 'object' => $request->object,
                 'contenu' => $request->contenu,
             ]);
-    
+            Artisan::call(command: 'optimize:clear');
+
             // Supprimer les anciens fichiers joints
             $emailModele->attachments()->delete();
+            Artisan::call(command: 'optimize:clear');
+
         } else {
             $emailModele = EmailModele::create([
                 'type_modele' => $request->type_modele,
@@ -71,6 +76,8 @@ class EmailModeleController extends Controller
                 'user_id' => $userId,
                 'sousUtilisateur_id' => $sousUtilisateurId,
             ]);
+            Artisan::call(command: 'optimize:clear');
+
         }
     
         // Gérer les fichiers joints
@@ -98,8 +105,6 @@ class EmailModeleController extends Controller
         ], 201);
     }
 
-
-
     public function DetailEmailFacture_genererPDF($id_facture)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
@@ -120,14 +125,17 @@ class EmailModeleController extends Controller
         if (!$invoice) {
             return ['error' => 'Facture introuvable'];
         }
-        $modelEmail = EmailModele::where('type_modele', 'facture')
+        $modelEmail = Cache::remember('modelEmail', 3600, function () use ($sousUtilisateur_id, $user_id) {
+      
+         return EmailModele::where('type_modele', 'facture')
             ->where(function ($query) use ($sousUtilisateur_id, $user_id) {
                 $query->where('sousUtilisateur_id', $sousUtilisateur_id)
                     ->orWhere('user_id', $user_id);
             })
             ->with('attachments')
             ->first();
-    
+
+        });
         if (!$modelEmail) {
             return ['error' => 'Modèle d\'email introuvable'];
         }
@@ -245,14 +253,17 @@ class EmailModeleController extends Controller
         if (!$devi) {
             return ['error' => 'devi introuvable'];
         }
-        $modelEmail = EmailModele::where('type_modele', 'devi')
+        $modelEmail = Cache::remember('model_email',3600, function () use ($sousUtilisateur_id, $user_id) {
+        
+        return EmailModele::where('type_modele', 'devi')
             ->where(function ($query) use ($sousUtilisateur_id, $user_id) {
                 $query->where('sousUtilisateur_id', $sousUtilisateur_id)
                     ->orWhere('user_id', $user_id);
             })
             ->with('attachments')
             ->first();
-    
+
+        });
         if (!$modelEmail) {
             return ['error' => 'Modèle d\'email introuvable'];
         }
@@ -370,14 +381,15 @@ class EmailModeleController extends Controller
         if (!$BonCommande) {
             return ['error' => 'BonCommande introuvable'];
         }
-        $modelEmail = EmailModele::where('type_modele', 'commande_vente')
+        $modelEmail = Cache::remember('model_email', 3600, function () use ($sousUtilisateur_id, $user_id) {
+        return EmailModele::where('type_modele', 'commande_vente')
             ->where(function ($query) use ($sousUtilisateur_id, $user_id) {
                 $query->where('sousUtilisateur_id', $sousUtilisateur_id)
                     ->orWhere('user_id', $user_id);
             })
             ->with('attachments')
             ->first();
-    
+        });
         if (!$modelEmail) {
             return ['error' => 'Modèle d\'email introuvable'];
         }
@@ -495,14 +507,16 @@ class EmailModeleController extends Controller
         if (!$livraison) {
             return ['error' => 'Livraison introuvable'];
         }
-        $modelEmail = EmailModele::where('type_modele', 'Livraison')
+        $modelEmail = Cache::remember('model_email_Livraison', 3600, function () use ($sousUtilisateur_id, $user_id) {
+       
+        return EmailModele::where('type_modele', 'Livraison')
             ->where(function ($query) use ($sousUtilisateur_id, $user_id) {
                 $query->where('sousUtilisateur_id', $sousUtilisateur_id)
                     ->orWhere('user_id', $user_id);
             })
             ->with('attachments')
             ->first();
-    
+        });
         if (!$modelEmail) {
             return ['error' => 'Modèle d\'email introuvable'];
         }
@@ -600,7 +614,7 @@ class EmailModeleController extends Controller
         }
     }
 
-      public function DetailEmailCommandeAchat_genererPDF($id_CommandeAchat)
+    public function DetailEmailCommandeAchat_genererPDF($id_CommandeAchat)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur = auth('apisousUtilisateur')->user();
@@ -620,14 +634,16 @@ class EmailModeleController extends Controller
         if (!$CommandeAchat) {
             return ['error' => 'CommandeAchat introuvable'];
         }
-        $modelEmail = EmailModele::where('type_modele', 'fournisseur')
+        $modelEmail = Cache::remember('model_emailCommandeAchat', 3600, function () use ($sousUtilisateur_id, $user_id) {
+       
+        return EmailModele::where('type_modele', 'fournisseur')
             ->where(function ($query) use ($sousUtilisateur_id, $user_id) {
                 $query->where('sousUtilisateur_id', $sousUtilisateur_id)
                     ->orWhere('user_id', $user_id);
             })
             ->with('attachments')
             ->first();
-    
+        });
         if (!$modelEmail) {
             return ['error' => 'Modèle d\'email introuvable'];
         }
@@ -748,14 +764,15 @@ class EmailModeleController extends Controller
         if (!$invoice) {
             return ['error' => 'Facture introuvable'];
         }
-        $modelEmail = EmailModele::where('type_modele', 'resumer_vente')
+        $modelEmail = Cache::remember('modelEmailResumeVente', 3600, function () use ($sousUtilisateur_id, $user_id) {
+        return EmailModele::where('type_modele', 'resumer_vente')
             ->where(function ($query) use ($sousUtilisateur_id, $user_id) {
                 $query->where('sousUtilisateur_id', $sousUtilisateur_id)
                     ->orWhere('user_id', $user_id);
             })
             ->with('attachments')
             ->first();
-    
+        });
         if (!$modelEmail) {
             return ['error' => 'Modèle d\'email introuvable'];
         }
@@ -873,14 +890,16 @@ class EmailModeleController extends Controller
         if (!$PaiementRecu) {
             return ['error' => 'PaiementRecu introuvable'];
         }
-        $modelEmail = EmailModele::where('type_modele', 'recu_paiement')
+        $modelEmail = Cache::remember('model_email_paiement', 3600, function () use ($sousUtilisateur_id, $user_id) {
+      
+        return EmailModele::where('type_modele', 'recu_paiement')
             ->where(function ($query) use ($sousUtilisateur_id, $user_id) {
                 $query->where('sousUtilisateur_id', $sousUtilisateur_id)
                     ->orWhere('user_id', $user_id);
             })
             ->with('attachments')
             ->first();
-    
+        });
         if (!$modelEmail) {
             return ['error' => 'Modèle d\'email introuvable'];
         }
@@ -997,14 +1016,16 @@ class EmailModeleController extends Controller
         if (!$echeance) {
             return ['error' => 'echeance introuvable'];
         }
-        $modelEmail = EmailModele::where('type_modele', 'relanceAvant_echeance')
+        $modelEmail = Cache::remember('model_email_relanceAvant',3600, function () use ($sousUtilisateur_id, $user_id) {
+      
+        return EmailModele::where('type_modele', 'relanceAvant_echeance')
             ->where(function ($query) use ($sousUtilisateur_id, $user_id) {
                 $query->where('sousUtilisateur_id', $sousUtilisateur_id)
                     ->orWhere('user_id', $user_id);
             })
             ->with('attachments')
             ->first();
-    
+        });
         if (!$modelEmail) {
             return ['error' => 'Modèle d\'email introuvable'];
         }
@@ -1125,14 +1146,16 @@ class EmailModeleController extends Controller
         if (!$echeance) {
             return ['error' => 'echeance introuvable'];
         }
-        $modelEmail = EmailModele::where('type_modele', 'relanceApres_echeance')
+        $modelEmail = Cache::remember('model_email_relanceApres',3600, function () use ($sousUtilisateur_id, $user_id) {
+      
+        return EmailModele::where('type_modele', 'relanceApres_echeance')
             ->where(function ($query) use ($sousUtilisateur_id, $user_id) {
                 $query->where('sousUtilisateur_id', $sousUtilisateur_id)
                     ->orWhere('user_id', $user_id);
             })
             ->with('attachments')
             ->first();
-    
+        });
         if (!$modelEmail) {
             return ['error' => 'Modèle d\'email introuvable'];
         }

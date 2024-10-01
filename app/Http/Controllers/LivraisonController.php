@@ -7,7 +7,6 @@ use App\Models\Stock;
 use App\Models\Article;
 use App\Models\Facture;
 use App\Models\Echeance;
-use App\Models\facture_Etiquette;
 use App\Models\Livraison;
 use App\Models\Notification;
 use App\Models\PaiementRecu;
@@ -15,6 +14,9 @@ use Illuminate\Http\Request;
 use App\Models\ArtcleFacture;
 use App\Models\FactureAccompt;
 use App\Models\ArticleLivraison;
+use App\Models\facture_Etiquette;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -85,6 +87,9 @@ class LivraisonController extends Controller
         ]);
     
         $livraison->save();
+        NumeroGeneratorService::incrementerCompteur($userId, 'livraison');
+        Artisan::call('optimize:clear');
+
     
         // Ajouter les articles à la facture
         foreach ($request->articles as $articleData) {
@@ -144,24 +149,15 @@ class LivraisonController extends Controller
                     $stock->sousUtilisateur_id = $sousUtilisateurId;
                     $stock->user_id = $userId;
                     $stock->save();
+                    Artisan::call(command: 'optimize:clear');
 
                 $articleDB = Article::find($article->id_article);
                 $articleDB->quantite_disponible = $stock->disponible_apres;
                 $articleDB->save();
+                Artisan::call(command: 'optimize:clear');
+
                 }
-                $articleDb = Article::find($article->id_article);
-        
-                if ($articleDb && isset($articleDb->quantite) && isset($articleDb->quantite_alert)) {
-                    // Créer une notification si la quantité atteint ou est inférieure à la quantité d'alerte
-                    if ($articleDb->quantite <= $articleDb->quantite_alert) {
-                        Notification::create([
-                            'sousUtilisateur_id' => $sousUtilisateurId,
-                            'user_id' => $userId,
-                            'id_article' => $articleDb->id,
-                            'message' => 'La quantité des produits (' . $articleDb->nom_article . ') atteint la quantité d\'alerte.',
-                        ]);
-                    }
-                }
+               
             }
         }
         
@@ -179,17 +175,22 @@ class LivraisonController extends Controller
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
-        $livraisons = Livraison::with('client','articles.article', 'Etiquettes.etiquette')
+        $livraisons = Cache::remember('livraisons', 3600, function () use ($sousUtilisateurId, $userId) {
+            
+        return Livraison::with('client','articles.article', 'Etiquettes.etiquette')
             ->where('archiver', 'non')
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
                 $query->where('sousUtilisateur_id', $sousUtilisateurId)
                     ->orWhere('user_id', $userId);
             })
             ->get();
+        });
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $livraisons = Livraison::with('client','articles.article', 'Etiquettes.etiquette')
+        $livraisons = Cache::remember('livraisons', 3600, function () use ($userId) {
+        
+        return Livraison::with('client','articles.article', 'Etiquettes.etiquette')
             ->where('archiver', 'non')
             ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
@@ -198,6 +199,7 @@ class LivraisonController extends Controller
                     });
             })
             ->get();
+        });
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
@@ -250,7 +252,9 @@ public function listerToutesLivraisonsParClient($clientId)
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
-        $livraisons = Livraison::with('articles.article', 'Etiquettes.etiquette')
+        $livraisons = Cache::remember('livraisons', 3600, function () use ($sousUtilisateurId, $userId, $clientId) {
+         
+            return Livraison::with('articles.article', 'Etiquettes.etiquette')
             ->where('client_id', $clientId)
             ->where('archiver', 'non')
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
@@ -258,10 +262,13 @@ public function listerToutesLivraisonsParClient($clientId)
                     ->orWhere('user_id', $userId);
             })
             ->get();
+        });
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $livraisons = Livraison::with('articles.article', 'Etiquettes.etiquette')
+        $livraisons = Cache::remember('livraisons', 3600, function () use ($userId, $clientId) {
+         
+        return Livraison::with('articles.article', 'Etiquettes.etiquette')
             ->where('client_id', $clientId)
             ->where('archiver', 'non')
             ->where(function ($query) use ($userId) {
@@ -271,6 +278,7 @@ public function listerToutesLivraisonsParClient($clientId)
                     });
             })
             ->get();
+        });
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
@@ -346,6 +354,7 @@ public function supprimerLivraison($id)
                 if($livraison){
                     $livraison->archiver = 'oui';
                     $livraison->save();
+                    Artisan::call('optimize:clear');
                 return response()->json(['message' => 'livraison supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'cet utilisateur ne peut pas supprimé cet livraison'], 401);
@@ -374,6 +383,8 @@ public function PlanifierLivraison($id)
             if($livraison){
                 $livraison->statut_livraison = 'planifier';
                 $livraison->save();
+                Artisan::call('optimize:clear');
+
             return response()->json(['message' => 'livraison planifier avec succès']);
             }else {
                 return response()->json(['error' => 'ce sous utilisateur ne peut pas planifier cet livraison'], 401);
@@ -392,6 +403,7 @@ public function PlanifierLivraison($id)
                 if($livraison){
                     $livraison->statut_livraison = 'planifier';
                     $livraison->save();
+                    Artisan::call('optimize:clear');
                 return response()->json(['message' => 'livraison planifier avec succès']);
             }else {
                 return response()->json(['error' => 'cet utilisateur ne peut pas planifier cet livraison'], 401);
@@ -420,6 +432,8 @@ public function RealiserLivraison($id)
             if($livraison){
                 $livraison->statut_livraison = 'livrer';
                 $livraison->save();
+                Artisan::call('optimize:clear');
+
             return response()->json(['message' => 'livraison realiser avec succès']);
             }else {
                 return response()->json(['error' => 'ce sous utilisateur ne peut pas realiser cet livraison'], 401);
@@ -438,6 +452,8 @@ public function RealiserLivraison($id)
                 if($livraison){
                     $livraison->statut_livraison = 'livrer';
                     $livraison->save();
+                    Artisan::call('optimize:clear');
+
                 return response()->json(['message' => 'livraison realiser avec succès']);
             }else {
                 return response()->json(['error' => 'cet utilisateur ne peut pas realiser cet livraison'], 401);
@@ -466,6 +482,8 @@ public function LivraisonPreparer($id)
             if($livraison){
                 $livraison->statut_livraison = 'preparer';
                 $livraison->save();
+                Artisan::call('optimize:clear');
+
             return response()->json(['message' => 'livraison preparer avec succès']);
             }else {
                 return response()->json(['error' => 'ce sous utilisateur ne peut pas preparer cet livraison'], 401);
@@ -484,6 +502,7 @@ public function LivraisonPreparer($id)
                 if($livraison){
                     $livraison->statut_livraison = 'preparer';
                     $livraison->save();
+                    Artisan::call('optimize:clear');
                 return response()->json(['message' => 'livraison preparer avec succès']);
             }else {
                 return response()->json(['error' => 'cet utilisateur ne peut pas preparer cet livraison'], 401);
@@ -518,6 +537,7 @@ public function transformerLivraisonEnFacture(Request $request, $id)
 
     $livraison->statut_livraison = 'livrer';
     $livraison->save();
+    Artisan::call('optimize:clear');
 
 
     return response()->json(['message' => 'livraison transformée en facture avec succès'], 201);
@@ -539,12 +559,12 @@ public function DetailsLivraison($id)
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
-    // Rechercher la facture par son numéro
-    $livraison = Livraison::where('id', $id)
+    $livraison = Cache::remember('livraison', 3600, function () use ($id) {
+        
+        return Livraison::where('id', $id)
                 ->with(['client', 'articles.article', 'Etiquettes.etiquette'])
                 ->first();
-
-    // Vérifier si la livraison existe
+    });
     if (!$livraison) {
         return response()->json(['error' => 'livraison non trouvée'], 404);
     }
@@ -552,7 +572,6 @@ public function DetailsLivraison($id)
     // Convertir date_creation en instance de Carbon si ce n'est pas déjà le cas
     $date_livraison = Carbon::parse($livraison->date_livraison);
 
-    // Préparer la réponse
     $response = [
         'id_livraison' => $livraison->id,
         'numero_livraison' => $livraison->num_livraison,
@@ -600,7 +619,6 @@ public function DetailsLivraison($id)
         }
     }
 
-    // Retourner la réponse JSON
     return response()->json(['bonCommande_details' => $response], 200);
 }
 

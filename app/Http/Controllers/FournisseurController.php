@@ -7,6 +7,8 @@ use App\Models\Fournisseur;
 use Illuminate\Http\Request;
 use App\Models\CompteComptable;
 use App\Models\facture_Etiquette;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -122,7 +124,9 @@ class FournisseurController extends Controller
     
         $fournisseur->save();
         NumeroGeneratorService::incrementerCompteur($user_id, 'fournisseur');
-    
+        Artisan::call('optimize:clear');
+
+
         // Enregistrement dans l'historique
         Historique::create([
             'sousUtilisateur_id' => $sousUtilisateur_id,
@@ -156,19 +160,24 @@ class FournisseurController extends Controller
               }
             $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
     
-            $fournisseurs = Fournisseur::with('Etiquettes.etiquette')
+            $fournisseurs = Cache::remember('fournisseurs', 3600, function () use ($sousUtilisateurId, $userId) {
+                
+            return Fournisseur::with('Etiquettes.etiquette')
              ->where('sousUtilisateur_id', $sousUtilisateurId)
                 ->orWhere('user_id', $userId)
                 ->get();
+            });
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $fournisseurs = Fournisseur::with('Etiquettes.etiquette')
+            $fournisseurs = Cache::remember('fournisseurs', 3600, function () use ($userId) {
+                return Fournisseur::with('Etiquettes.etiquette')
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                     $query->where('id_user', $userId);
                 })
                 ->get();
+            });
         } else {
             return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
@@ -268,6 +277,7 @@ class FournisseurController extends Controller
 
     // Mettre à jour les données du fournisseur
     $fournisseur->update($request->all());
+    Artisan::call('optimize:clear');
 
     Historique::create([
         'sousUtilisateur_id' => $sousUtilisateurId,
@@ -310,6 +320,8 @@ public function supprimerFournisseur($id)
             
             if($fournisseur){
                 $fournisseur->delete();
+                Artisan::call('optimize:clear');
+
             return response()->json(['message' => 'fournisseur supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'ce sous utilisateur ne peut pas supprimer ce fournisseur'], 401);
@@ -326,6 +338,8 @@ public function supprimerFournisseur($id)
             ->first();
             if($fournisseur){
                 $fournisseur->delete();
+                Artisan::call('optimize:clear');
+
                 return response()->json(['message' => 'fournisseur supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'cet utilisateur ne peut pas supprimer ce fournisseur'], 401);

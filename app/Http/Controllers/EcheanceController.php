@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Facture;
 use App\Models\Echeance;
 use App\Models\Historique;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
+use App\Models\ConfigurationRelanceAuto;
 use Illuminate\Support\Facades\Validator;
 
 class EcheanceController extends Controller
@@ -137,7 +139,6 @@ class EcheanceController extends Controller
 
     public function modifierEcheance(Request $request, $echeanceId)
 {
-    // Vérifiez les permissions de l'utilisateur
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateur = auth('apisousUtilisateur')->user();
             if (!$sousUtilisateur->fonction_admin) {
@@ -152,7 +153,6 @@ class EcheanceController extends Controller
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
 
-    // Valider les données entrantes
     $validator = Validator::make($request->all(), [
         'date_pay_echeance' => 'required|date',
         'montant_echeance' => 'required|numeric|min:0',
@@ -163,7 +163,6 @@ class EcheanceController extends Controller
         return response()->json(['errors' => $validator->errors()], 422);
     }
 
-    // Récupérer l'échéance
     $echeance = Echeance::find($echeanceId);
     if (!$echeance) {
         return response()->json(['error' => 'Échéance non trouvée'], 404);
@@ -255,5 +254,263 @@ public function transformerEcheanceEnPaiementRecu(Request $request, $EcheanceId)
         'message' => 'Echeance transformée en payment Recu avec succès',
         'paymentRecu' => $paiementRecu
     ], 201);
+}
+
+
+public function getNombreClientsNotifApresDemain()
+{
+    // Vérification de l'authentification et récupération de la configuration
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+        $config = ConfigurationRelanceAuto::where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId)
+            ->first();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $config = ConfigurationRelanceAuto::where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                $query->where('id_user', $userId);
+            })
+            ->first();
+    } else {
+        return 0; 
+    }
+
+  //  dd($config->nombre_jour_avant);
+    // Vérification de la configuration
+    if ($config && $config->envoyer_rappel_avant == 1) {
+        $dateCible = Carbon::now()->addDays($config->nombre_jour_avant)->toDateString();
+
+        $echeances = Echeance::whereDate('date_pay_echeance', $dateCible)
+            ->whereNotNull('facture_id')
+            ->whereHas('facture', function ($query) {
+                $query->whereNotNull('client_id'); 
+            })
+            ->get();
+
+        $nombreClients = $echeances->count();
+        $details = [];
+
+        foreach ($echeances as $echeance) {
+            // Conversion explicite de date_pay_echeance en Carbon
+            $datePayEcheance = Carbon::parse($echeance->date_pay_echeance);
+
+            $details[] = [
+                'id' => $echeance->id,
+                'produit/service' => $echeance->facture->articles->map(function ($articleLivraison) {
+                    return [
+                        'id' => $articleLivraison->article->id,
+                        'nom' => $articleLivraison->article->nom_article,
+                        'quantite' => $articleLivraison->quantite_article,
+                        'prix' => $articleLivraison->prix_total_tva_article,
+                    ];
+                }),
+                'montant' => $echeance->montant_echeance,
+                'client' => $echeance->facture->client->prenom_client . ' ' . $echeance->facture->client->nom_client,
+                'date_prevue' => $datePayEcheance->toDateString(),
+                'date_relance' => $datePayEcheance->subDays($config->nombre_jour_avant)->toDateString(),
+            ];
+        }
+
+        return response()->json([
+            'nombre_clients' => $nombreClients,
+            'details' => $details,
+        ]);
+    }
+
+    // Si la configuration n'est pas active, retourner 0
+    return 0;
+}
+
+
+public function getNombreClientsNotifDans7Jours()
+{
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; 
+
+        $config = ConfigurationRelanceAuto::where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId)
+            ->first();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $config = ConfigurationRelanceAuto::where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                $query->where('id_user', $userId);
+            })
+            ->first();
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+        }
+
+    if ($config && $config->envoyer_rappel_avant == 1) {
+        $dateCible = Carbon::now()->addDays( 7)->toDateString();
+
+        $echeances = Echeance::whereDate('date_pay_echeance', $dateCible)
+            ->whereNotNull('facture_id') 
+            ->whereHas('facture', function ($query) {
+                $query->whereNotNull('client_id');
+            })
+            ->get();
+
+            $nombreClients = $echeances->count();
+            $details = [];
+    
+            foreach ($echeances as $echeance) {
+                // Conversion explicite de date_pay_echeance en Carbon
+                $datePayEcheance = Carbon::parse($echeance->date_pay_echeance);
+    
+                $details[] = [
+                    'id' => $echeance->id,
+                    'produit/service' => $echeance->facture->articles->map(function ($articleLivraison) {
+                        return [
+                            'id' => $articleLivraison->article->id,
+                            'nom' => $articleLivraison->article->nom_article,
+                            'quantite' => $articleLivraison->quantite_article,
+                            'prix' => $articleLivraison->prix_total_tva_article,
+                        ];
+                    }),
+                    'montant' => $echeance->montant_echeance,
+                    'client' => $echeance->facture->client->prenom_client . ' ' . $echeance->facture->client->nom_client,
+                    'date_prevue' => $datePayEcheance->toDateString(),
+                    'date_relance' => $datePayEcheance->subDays($config->nombre_jour_avant)->toDateString(),
+                ];
+            }
+    
+            return response()->json([
+                'nombre_clients' => $nombreClients,
+                'details' => $details,
+            ]);
+        }
+    return 0;
+}
+
+public function getNombreClientsNotifApresEcheance()
+{
+
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+        $config = ConfigurationRelanceAuto::where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId)
+            ->first();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $config = ConfigurationRelanceAuto::where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
+                $query->where('id_user', $userId);
+            })
+            ->first();
+    }
+ if ($config && $config->envoyer_rappel_apres == 1) {
+    $dateCible = Carbon::now()->addDays($config->nombre_jour_apres)->toDateString();
+
+    $echeances = Echeance::whereDate('date_pay_echeance', $dateCible)
+        ->whereNotNull('facture_id') 
+          ->whereHas('facture', function ($query) {
+                $query->whereNotNull('client_id'); // S'assurer que la facture est liée à un client
+            })
+        ->get();
+
+        $nombreClients = $echeances->count();
+        $details = [];
+
+        foreach ($echeances as $echeance) {
+            // Conversion explicite de date_pay_echeance en Carbon
+            $datePayEcheance = Carbon::parse($echeance->date_pay_echeance);
+
+            $details[] = [
+                'id' => $echeance->id,
+                'produit/service' => $echeance->facture->articles->map(function ($articleLivraison) {
+                    return [
+                        'id' => $articleLivraison->article->id,
+                        'nom' => $articleLivraison->article->nom_article,
+                        'quantite' => $articleLivraison->quantite_article,
+                        'prix' => $articleLivraison->prix_total_tva_article,
+                    ];
+                }),
+                'montant' => $echeance->montant_echeance,
+                'client' => $echeance->facture->client->prenom_client . ' ' . $echeance->facture->client->nom_client,
+                'date_prevue' => $datePayEcheance->toDateString(),
+                'date_relance' => $datePayEcheance->addDays($config->nombre_jour_avant)->toDateString(),
+            ];
+        }
+
+        return response()->json([
+            'nombre_clients' => $nombreClients,
+            'details' => $details,
+        ]);
+    }
+// Si la configuration n'est pas active, retourner 0
+return 0;
+}
+
+public function getNombreClientNotifApresEcheanceDans7Jours()
+{
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+
+        $config = ConfigurationRelanceAuto::where('sousUtilisateur_id', $sousUtilisateurId)
+            ->orWhere('user_id', $userId)
+            ->first();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $config = ConfigurationRelanceAuto::where('user_id', $userId)
+            ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                $query->where('id_user', $userId);
+            })
+            ->first();
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
+
+    if ($config && $config->envoyer_rappel_apres == 1) {
+        $dateCible = Carbon::now()->subDays(7 - $config->nombre_jour_apres)->toDateString();
+
+        $echeances = Echeance::whereDate('date_pay_echeance', $dateCible)
+            ->whereNotNull('facture_id') 
+            ->whereHas('facture', function ($query) {
+                $query->whereNotNull('client_id'); // S'assurer que la facture est liée à un client
+            })
+            ->get();
+
+            $nombreClients = $echeances->count();
+            $details = [];
+    
+            foreach ($echeances as $echeance) {
+                // Conversion explicite de date_pay_echeance en Carbon
+                $datePayEcheance = Carbon::parse($echeance->date_pay_echeance);
+    
+                $details[] = [
+                    'id' => $echeance->id,
+                    'produit/service' => $echeance->facture->articles->map(function ($articleLivraison) {
+                        return [
+                            'id' => $articleLivraison->article->id,
+                            'nom' => $articleLivraison->article->nom_article,
+                            'quantite' => $articleLivraison->quantite_article,
+                            'prix' => $articleLivraison->prix_total_tva_article,
+                        ];
+                    }),
+                    'montant' => $echeance->montant_echeance,
+                    'client' => $echeance->facture->client->prenom_client . ' ' . $echeance->facture->client->nom_client,
+                    'date_prevue' => $datePayEcheance->toDateString(),
+                    'date_relance' => $datePayEcheance->addDays($config->nombre_jour_avant)->toDateString(),
+                ];
+            }
+    
+            return response()->json([
+                'nombre_clients' => $nombreClients,
+                'details' => $details,
+            ]);
+        }
+    return 0;
 }
 }

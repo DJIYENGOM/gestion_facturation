@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Tva;
+use App\Models\Solde;
 use App\Models\Stock;
 use App\Models\Article;
 use App\Models\Facture;
@@ -19,6 +20,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\facture_Etiquette;
 use App\Models\FactureRecurrente;
 use App\Models\MessageNotification;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -42,6 +45,7 @@ class FactureController extends Controller
             'id_recurrent'=> 'nullable|exists:facture_recurrentes,id',
             'type_paiement' => 'required|in:immediat,echeance,facture_Accompt',
             'id_paiement' => 'nullable|required_if:type_paiement,immediat|exists:payements,id',
+            'utiliser_solde' => 'nullable|boolean',
             'echeances' => 'nullable|required_if:type_paiement,echeance|array',
             'echeances.*.date_pay_echeance' => 'required|date',
             'echeances.*.montant_echeance' => 'required|numeric|min:0',
@@ -112,6 +116,8 @@ class FactureController extends Controller
     
         $facture->save();
         NumeroGeneratorService::incrementerCompteur($userId, 'facture');
+
+        Artisan::call('optimize:clear');
 
         Tva::create([
             'sousUtilisateur_id' => $sousUtilisateurId,
@@ -205,18 +211,66 @@ class FactureController extends Controller
             }
         }
 
-        //gestion paiements reçus        
-        if ($request->type_paiement == 'immediat') {
+      // Gestion paiements reçus        
+if ($request->type_paiement == 'immediat') {
+
+    if ($request->utiliser_solde == 1) {
+        $solde = Solde::where('client_id', $request->client_id)->first();
+        
+        if ($solde && $solde->montant > 0) { // Assurer que le solde existe et est supérieur à 0
+            if ($solde->montant >= $request->prix_TTC) {
+                // Si le solde couvre la totalité de la facture
+                $solde->montant -= $request->prix_TTC;
+                $solde->save();
+
                 PaiementRecu::create([
                     'facture_id' => $facture->id,
                     'id_paiement' => $request->id_paiement,
                     'date_recu' => now(),
-                    'montant' => $facture->prix_TTC,
+                    'montant' => $request->prix_TTC,
                     'sousUtilisateur_id' => $sousUtilisateurId,
                     'user_id' => $userId,
                 ]);
-            
+            } else {
+                // Si le solde est inférieur à la facture, payer avec le solde et le reste avec un autre moyen
+                PaiementRecu::create([
+                    'facture_id' => $facture->id,
+                    'id_paiement' => $request->id_paiement,
+                    'date_recu' => now(),
+                    'montant' => $solde->montant,
+                    'sousUtilisateur_id' => $sousUtilisateurId,
+                    'user_id' => $userId,
+                ]);
+
+                PaiementRecu::create([
+                    'facture_id' => $facture->id,
+                    'id_paiement' => $request->id_paiement,
+                    'date_recu' => now(),
+                    'montant' => $request->prix_TTC - $solde->montant,
+                    'sousUtilisateur_id' => $sousUtilisateurId,
+                    'user_id' => $userId,
+                ]);
+
+                // Mettre le solde à zéro
+                $solde->montant = 0;
+                $solde->save();
+            }
+        } else {
+            return response()->json(['error' => 'Solde insuffisant ou inexistant'], 400);
         }
+    } else {
+        // Si le solde n'est pas utilisé, procéder à un paiement normal
+        PaiementRecu::create([
+            'facture_id' => $facture->id,
+            'id_paiement' => $request->id_paiement,
+            'date_recu' => now(),
+            'montant' => $facture->prix_TTC,
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+        ]);
+    }
+}
+
 
 
         if ($facture->active_Stock == 'oui') {
@@ -245,37 +299,43 @@ class FactureController extends Controller
                     $stock->sousUtilisateur_id = $sousUtilisateurId;
                     $stock->user_id = $userId;
                     $stock->save();
+                    Artisan::call(command: 'optimize:clear');
 
+                    $article = Article::find($article->id_article);
                     $article->quantite_disponible = $stock->disponible_apres;
                     $article->save();
+                    Artisan::call(command: 'optimize:clear');
+
                 }
             
 
                 $article = Article::find($article->id_article);
 
-             
-        
-                $notificationConfig = Notification::where('user_id', $article->user_id)
-                    ->orWhere('sousUtilisateur_id', $sousUtilisateurId)
-                    ->first();
-
-             if ( $notificationConfig->produit_rupture && $notificationConfig->quantite_produit > 0) {
-                if ($article->quantite_disponible <= $notificationConfig->quantite_produit) {
-                MessageNotification::create([
-                    'sousUtilisateur_id' => $sousUtilisateurId,
-                    'user_id' => $userId,
-                    'article_id' => $article->id,
-                    'message' => 'Poduits ont moins de ' . $notificationConfig->quantite_produit . ' dans leur stock',
-                ]);
-                }
-          }
+                if ($article) {
+                    $notificationConfig = Notification::where(function($query) use ($article, $sousUtilisateurId) {
+                        $query->where('user_id', $article->user_id)
+                              ->orWhere('sousUtilisateur_id', $sousUtilisateurId);
+                    })->first();
+                
+                    if ($notificationConfig) {
+                        if ($notificationConfig->produit_rupture && $notificationConfig->quantite_produit > 0) {
+                            if ($article->quantite_disponible <= $notificationConfig->quantite_produit) {
+                                MessageNotification::create([
+                                    'sousUtilisateur_id' => $sousUtilisateurId,
+                                    'user_id' => $userId,
+                                    'article_id' => $article->id,
+                                    'message' => 'Produits ont moins de ' . $notificationConfig->quantite_produit . ' en stock',
+                                ]);
+                            }
+                        }
+                    }
+                } 
+                
 
         }
 
         }
-            
-        
-    
+   
         return response()->json(['message' => 'Facture créée avec succès', 'facture' => $facture], 201);
 
     }
@@ -299,7 +359,10 @@ public function listeArticlesFacture($id_facture)
         }
     }
 
-    $articles = ArtcleFacture::where('id_facture', $id_facture)->with('article')->get();
+    $articles = Cache::remember("articles_facture_" . $id_facture, 3600, function () use ($id_facture) {
+        
+        return ArtcleFacture::where('id_facture', $id_facture)->with('article')->get();
+    });
     $response = [];
     foreach ($articles as $article) {
         $response[] = [
@@ -309,6 +372,7 @@ public function listeArticlesFacture($id_facture)
             'Montant_total_avec_TVA' => $article->prix_total_tva_article,
         ];
     }
+    
 
     return response()->json(['articles' => $response]);
 }
@@ -318,17 +382,25 @@ public function listerToutesFactures()
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
-        $factures = Facture::with('client','paiement')
+        $factures = Cache::remember("factures", 3600, function () use ($sousUtilisateurId, $userId) {
+            
+        return Facture::with('client','paiement')
             ->where('archiver', 'non')
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
                 $query->where('sousUtilisateur_id', $sousUtilisateurId)
                     ->orWhere('user_id', $userId);
             })
             ->get();
+
+        });
+
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $factures = Facture::with('client','paiement')
+        $factures = Cache::remember("factures", 3600, function () use ($userId) {
+            
+       
+        return Facture::with('client','paiement')
             ->where('archiver', 'non')
             ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
@@ -337,6 +409,7 @@ public function listerToutesFactures()
                     });
             })
             ->get();
+        });
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
@@ -373,7 +446,9 @@ public function listerFacturesEcheance()
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
-    $factures = Facture::with('echeances','client')
+    $factures = Cache::remember("factures_echeance", 3600, function () use ($sousUtilisateurId, $userId) {
+        
+        return Facture::with('echeances','client')
          ->where('archiver', 'non')
         ->where('type_paiement', 'echeance')
         ->where(function ($query) use ($sousUtilisateurId, $userId) {
@@ -381,10 +456,12 @@ public function listerFacturesEcheance()
                 ->orWhere('user_id', $userId);
         })
         ->get();
+    });
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $factures = Facture::with('echeances','client')
+        $factures = Cache::remember("factures_echeance", 3600, function () use ($userId) {
+        return Facture::with('echeances','client')
             ->where('archiver', 'non')
             ->where('type_paiement', 'echeance')
             ->where(function ($query) use ($userId) {
@@ -394,6 +471,7 @@ public function listerFacturesEcheance()
                     });
             })
             ->get();
+        });
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
@@ -410,7 +488,9 @@ public function listerFacturesAccompt()
     $sousUtilisateurId = auth('apisousUtilisateur')->id();
     $userId = auth('apisousUtilisateur')->user()->id_user; 
 
-$factures = Facture::with('factureAccompts','client')
+$factures = Cache::remember("factures_accompt", 3600, function () use ($sousUtilisateurId, $userId) {
+    
+    return Facture::with('factureAccompts','client')
      ->where('archiver', 'non')
     ->where('type_paiement', 'facture_Accompt')
     ->where(function ($query) use ($sousUtilisateurId, $userId) {
@@ -418,10 +498,13 @@ $factures = Facture::with('factureAccompts','client')
             ->orWhere('user_id', $userId);
     })
     ->get();
+});
 } elseif (auth()->check()) {
     $userId = auth()->id();
 
-    $factures = Facture::with('factureAccompts','client')
+    $factures = Cache::remember("factures_accompt", 3600, function () use ($userId) {
+        
+    return Facture::with('factureAccompts','client')
         ->where('archiver', 'non')
         ->where('type_paiement', 'facture_Accompt')
         ->where(function ($query) use ($userId) {
@@ -431,6 +514,7 @@ $factures = Facture::with('factureAccompts','client')
                 });
         })
         ->get();
+    });
 } else {
     return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
 }
@@ -448,7 +532,9 @@ public function listerFacturesPayer()
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
-    $factures = Facture::with('client')
+    $factures = Cache::remember("factures_payer", 3600, function () use ($sousUtilisateurId, $userId) {
+        
+        return Facture::with('client')
          ->where('archiver', 'non')
         ->where('statut_paiement', 'payer')
         ->where(function ($query) use ($sousUtilisateurId, $userId) {
@@ -456,10 +542,13 @@ public function listerFacturesPayer()
                 ->orWhere('user_id', $userId);
         })
         ->get();
+    });
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $factures = Facture::with('client')
+        $factures = Cache::remember("factures_payer", 3600, function () use ($userId) {
+            
+         Facture::with('client')
             ->where('archiver', 'non')
             ->where('statut_paiement', 'payer')
             ->where(function ($query) use ($userId) {
@@ -469,6 +558,7 @@ public function listerFacturesPayer()
                     });
             })
             ->get();
+        });
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
@@ -502,6 +592,8 @@ public function supprimeArchiveFacture($id)
             if($facture){
                 $facture->archiver = 'oui';
                 $facture->save();
+                Artisan::call('optimize:clear');
+
             return response()->json(['message' => 'facture supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'ce sous utilisateur ne peut pas supprimé cet facture'], 401);
@@ -520,6 +612,7 @@ public function supprimeArchiveFacture($id)
                 if($facture){
                     $facture->archiver = 'oui';
                     $facture->save();
+                    Artisan::call('optimize:clear');
                 return response()->json(['message' => 'facture supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'cet utilisateur ne peut pas supprimé cet facture'], 401);
@@ -545,7 +638,9 @@ public function listeFactureParClient($clientId)
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = $sousUtilisateur->id_user;
 
-        $facturesSimples = Facture::with('articles.article', 'Etiquettes.etiquette')
+        $facturesSimples = Cache::remember("factures", 3600, function () use ($sousUtilisateurId, $userId, $clientId) {
+            
+        return Facture::with('articles.article', 'Etiquettes.etiquette')
             ->where('archiver', 'non')
             ->where('client_id', $clientId)
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
@@ -553,18 +648,24 @@ public function listeFactureParClient($clientId)
                       ->orWhere('user_id', $userId);
             })
             ->get();
+        });
 
-        $facturesAvoirs = FactureAvoir::with('articles.article', 'Etiquettes.etiquette')
+        $facturesAvoirs = Cache::remember("facturesAvoirs", 3600, function () use ($sousUtilisateurId, $userId, $clientId) {
+            
+            return FactureAvoir::with('articles.article', 'Etiquettes.etiquette')
             ->where('client_id', $clientId)
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
                 $query->where('sousUtilisateur_id', $sousUtilisateurId)
                       ->orWhere('user_id', $userId);
             })
             ->get();
+        });
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $facturesSimples = Facture::with('articles.article', 'Etiquettes.etiquette')
+        $facturesSimples = Cache::remember("factures", 3600, function () use ($userId, $clientId) {
+            
+       return Facture::with('articles.article', 'Etiquettes.etiquette')
             ->where('archiver', 'non')
             ->where('client_id', $clientId)
             ->where(function ($query) use ($userId) {
@@ -574,8 +675,10 @@ public function listeFactureParClient($clientId)
                       });
             })
             ->get();
-
-        $facturesAvoirs = FactureAvoir::with('articles.article', 'Etiquettes.etiquette')
+        });
+        $facturesAvoirs = Cache::remenber("facturesAvoirs", 3600, function () use ($userId, $clientId) {
+       
+        return FactureAvoir::with('articles.article', 'Etiquettes.etiquette')
             ->where('client_id', $clientId)
             ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
@@ -584,6 +687,7 @@ public function listeFactureParClient($clientId)
                       });
             })
             ->get();
+        });
     } else {
         return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
     }
@@ -675,15 +779,20 @@ public function listerFacturesRecurrentes()
         $sousUtilisateur_id = auth('apisousUtilisateur')->id();
         $user_id = auth('apisousUtilisateur')->user()->id_user;
 
-        $factures = FactureRecurrente::where(function ($query) use ($sousUtilisateur_id, $user_id) {
+        $factures = Cache::remember("factures_recurrentes", 3600, function () use ($sousUtilisateur_id, $user_id) {
+            
+        return FactureRecurrente::where(function ($query) use ($sousUtilisateur_id, $user_id) {
             $query->where('sousUtilisateur_id', $sousUtilisateur_id)
                 ->orWhere('user_id', $user_id);
         })
         ->get();
+        });
     } elseif (auth()->check()) {
         $user_id = auth()->id();
 
-        $factures = FactureRecurrente::with('client')
+        $factures = Cache::remember("factures_recurrentes", 3600, function () use ($user_id) {
+            
+        return FactureRecurrente::with('client')
         ->where(function ($query) use ($user_id) {
             $query->where('user_id', $user_id)
                 ->orWhereHas('sousUtilisateur', function ($query) use ($user_id) {
@@ -691,6 +800,7 @@ public function listerFacturesRecurrentes()
                 });
             })
                 ->get();
+        });
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
@@ -721,6 +831,8 @@ public function ArreteCreationAutomatiqueFactureRecurrente($id)
     ->first();
     $facture->id_recurrent = null;
     $facture->save();
+    Artisan::call('optimize:clear');
+
     return response()->json(['message' => 'Creation automatique de facture recurrente arreter avec succes.'], 200); 
 }
 
@@ -951,6 +1063,5 @@ public function exportFactures()
     $writer->save('php://output');
     exit;
 }
-
 
 }

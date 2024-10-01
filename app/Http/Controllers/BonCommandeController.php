@@ -17,6 +17,8 @@ use App\Models\FactureAccompt;
 use App\Models\facture_Etiquette;
 use App\Models\ArticleBonCommande;
 use App\Models\MessageNotification;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -92,6 +94,7 @@ class BonCommandeController extends Controller
     
         $commande->save();
         NumeroGeneratorService::incrementerCompteur($userId, 'commande');
+        Artisan::call(command: 'optimize:clear');
 
         Historique::create([
             'sousUtilisateur_id' => $sousUtilisateurId,
@@ -171,6 +174,7 @@ class BonCommandeController extends Controller
                     $stock->sousUtilisateur_id = $sousUtilisateurId;
                     $stock->user_id = $userId;
                     $stock->save();
+                    Artisan::call(command: 'optimize:clear');
 
                 $articleDB = Article::find($article->id_article);
                 $articleDB->quantite_disponible = $stock->disponible_apres;
@@ -224,6 +228,7 @@ class BonCommandeController extends Controller
     }
     $BonCommande->statut_commande = 'transformer';
     $BonCommande->save();
+        Artisan::call(command: 'optimize:clear');
 
     Historique::create([
         'sousUtilisateur_id' => $sousUtilisateurId,
@@ -262,6 +267,7 @@ public function annulerBonCommande($id)
     // Mettre à jour le statut du BonCommandes en "annuler"
     $BonCommande->statut_commande = 'annuler';
     $BonCommande->save();
+        Artisan::call(command: 'optimize:clear');
 
     Historique::create([
         'sousUtilisateur_id' => $sousUtilisateurId,
@@ -283,17 +289,22 @@ public function listerTousBonCommande()
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
-        $BonCommandes = BonCommande::with('client','articles.article', 'Etiquettes.etiquette')
+        $BonCommandes = Cache::remember('BonCommande', 3600, function () use ($sousUtilisateurId, $userId) {
+         
+       return BonCommande::with('client','articles.article', 'Etiquettes.etiquette')
             ->where('archiver', 'non')
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
                 $query->where('sousUtilisateur_id', $sousUtilisateurId)
                     ->orWhere('user_id', $userId);
             })
             ->get();
+        });
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $BonCommandes = BonCommande::with('client','articles.article', 'Etiquettes.etiquette')
+        $BonCommandes = Cache::remember('BonCommande', 3600, function () use ($userId) {
+            
+        return BonCommande::with('client','articles.article', 'Etiquettes.etiquette')
             ->where('archiver', 'non')
             ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
@@ -302,10 +313,10 @@ public function listerTousBonCommande()
                     });
             })
             ->get();
+        });
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
-// Construire la réponse avec les détails des BonCommandes et les noms des clients
 $response = [];
 foreach ($BonCommandes as $BonCommande) {
     $response[] = [
@@ -354,7 +365,8 @@ public function listeBonCommandeParClient($clientId)
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user; 
 
-        $BonCommandes = BonCommande::with('articles.article', 'Etiquettes.etiquette')
+        $BonCommandes = Cache::remember('BonCommande', 3600, function () use ($sousUtilisateurId, $userId, $clientId) {
+            return BonCommande::with('articles.article', 'Etiquettes.etiquette')
             ->where('client_id', $clientId)
             ->where('archiver', 'non')
             ->where(function ($query) use ($sousUtilisateurId, $userId) {
@@ -362,10 +374,13 @@ public function listeBonCommandeParClient($clientId)
                     ->orWhere('user_id', $userId);
             })
             ->get();
+        });
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $BonCommandes = BonCommande::with('articles.article', 'Etiquettes.etiquette')
+        $BonCommandes = Cache::remember('BonCommande', 3600, function () use ($userId, $clientId) {
+         
+            return BonCommande::with('articles.article', 'Etiquettes.etiquette')
             ->where('client_id', $clientId)
             ->where('archiver', 'non')
             ->where(function ($query) use ($userId) {
@@ -375,6 +390,7 @@ public function listeBonCommandeParClient($clientId)
                     });
             })
             ->get();
+        });
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
@@ -431,6 +447,8 @@ public function supprimerBonCommande($id)
             if($BonCommande){
                 $BonCommande->archiver = 'oui';
                 $BonCommande->save();
+                Artisan::call(command: 'optimize:clear');
+
             return response()->json(['message' => 'BonCommande supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'ce sous utilisateur ne peut pas supprimé cet BonCommande'], 401);
@@ -449,6 +467,8 @@ public function supprimerBonCommande($id)
                 if($BonCommande){
                     $BonCommande->archiver = 'oui';
                     $BonCommande->save();
+                    Artisan::call(command: 'optimize:clear');
+
                 return response()->json(['message' => 'BonCommande supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'cet utilisateur ne peut pas supprimé cet BonCommande'], 401);
@@ -476,12 +496,13 @@ public function DetailsBonCommande($id)
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
-    // Rechercher la facture par son numéro
-    $bonCommande = BonCommande::where('id', $id)
+    $bonCommande = Cache::remember('BonCommande',3600, function () use ($sousUtilisateur_id, $user_id, $id) {
+     
+            return BonCommande::where('id', $id)
                 ->with(['client', 'articles.article', 'Etiquettes.etiquette', 'echeances'])
                 ->first();
+              });
 
-    // Vérifier si la bonCommande existe
     if (!$bonCommande) {
         return response()->json(['error' => 'bonCommande non trouvée'], 404);
     }
@@ -489,7 +510,6 @@ public function DetailsBonCommande($id)
     // Convertir date_creation en instance de Carbon si ce n'est pas déjà le cas
     $dateCreation = Carbon::parse($bonCommande->date_commande);
 
-    // Préparer la réponse
     $response = [
         'id_bonCommande' => $bonCommande->id,
         'numero_bonCommande' => $bonCommande->num_commande,

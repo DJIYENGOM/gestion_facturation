@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use App\Services\NumeroGeneratorService;
 use App\Http\Requests\StoreClientRequest;
@@ -133,6 +135,8 @@ class ClientController extends Controller
         $client->save();
         NumeroGeneratorService::incrementerCompteur($userId, 'client');
 
+        Artisan::call('optimize:clear');
+
         if ($request->has('etiquettes')) {
 
         foreach ($request->etiquettes as $etiquette) {
@@ -173,7 +177,9 @@ class ClientController extends Controller
             return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
-        $clientsArray = $clients->map(function ($client) {
+            $clientsArray = Cache::remember('clientsArray', 3600, function () use ($clients) {
+                return $clients->map(function ($client) {
+
             $clientArray = $client->toArray();
             $clientArray['nom_categorie'] = optional($client->categorie)->nom_categorie;
             $clientArray['nom_comptable'] = optional($client->CompteComptable)->nom_compte_comptable;
@@ -192,6 +198,8 @@ class ClientController extends Controller
         // Supprimer les autres attributs non nécessaires si existants
         unset($clientArray['etiquetttes']); // Enlever si `etiquetttes` existe comme attribut principal
             return $clientArray;
+
+        })->all();
         });
     
         return response()->json($clientsArray);
@@ -264,6 +272,8 @@ public function modifierClient(Request $request, $id)
 
     // Mettre à jour les données du client
     $client->update($request->all());
+    Artisan::call('optimize:clear');
+
 
     if ($request->has('etiquettes')) {
         Client_Etiquette::where('client_id', $id)->delete();
@@ -301,6 +311,8 @@ public function supprimerClient($id)
             
             if($client){
                 $client->delete();
+                Artisan::call('optimize:clear');
+
             return response()->json(['message' => 'client supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'Vous ne pouvez pas modifier ce client'], 401);
@@ -317,6 +329,8 @@ public function supprimerClient($id)
             ->first();
             if($client){
                 $client->delete();
+                Artisan::call('optimize:clear');
+
                 return response()->json(['message' => 'client supprimé avec succès']);
             }else {
                 return response()->json(['error' => 'Vous ne peuvez pas modifier ce client'], 401);

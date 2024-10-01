@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Conversation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
 
 class ConversationController extends Controller
@@ -53,7 +55,8 @@ class ConversationController extends Controller
             'sousUtilisateur_id' => $sousUtilisateurId,
             'user_id' => $userId,
         ]);
-    
+        Artisan::call(command: 'optimize:clear');
+
         return response()->json(['message' => 'Conversation ajoutée avec succès.']);
     }
 
@@ -69,19 +72,26 @@ public function listerConversations()
         $sousUtilisateurId = $sousUtilisateur->id;
         $userId = $sousUtilisateur->id_user;
 
-        $conversations = Conversation::with('client')
+        $conversations = Cache::remember('conversation', 3600, function () use ($sousUtilisateurId, $userId) {
+        
+         return Conversation::with('client')
         ->where('sousUtilisateur_id', $sousUtilisateurId)
         ->orWhere('user_id', $userId)
         ->get();
+
+        });
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $conversations = Conversation::with('client')
+        $conversations = Cache::remember('conversation', 3600, function () use ($userId) {
+        return Conversation::with('client')
         ->where('user_id', $userId)
         ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
             $query->where('id_user', $userId);
         })
-        ->get();   
+        ->get();  
+
+        }); 
      } else {
         return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
     }
@@ -100,17 +110,23 @@ public function listerConversationsParClient($clientId)
         $sousUtilisateurId = $sousUtilisateur->id;
         $userId = $sousUtilisateur->id_user;
 
-        $conversations = Conversation::with('client')
+        $conversations = Cache::remember('conversation', 3600, function () use ($sousUtilisateurId, $userId, $clientId) {
+        
+        return Conversation::with('client')
         ->where('client_id', $clientId)
         ->where(function ($query) use ($sousUtilisateurId, $userId) {
             $query->where('sousUtilisateur_id', $sousUtilisateurId)
                   ->orWhere('user_id', $userId);
         })
         ->get();
+
+        });
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
-        $conversations = Conversation::with('client')
+        $conversations = Cache::remember('conversation', 3600, function () use ($userId, $clientId) {
+        
+        return Conversation::with('client')
         ->where('client_id', $clientId)
         ->where(function ($query) use ($userId) {
             $query->where('user_id', $userId)
@@ -119,6 +135,8 @@ public function listerConversationsParClient($clientId)
                   });
         })
         ->get();   
+
+        });
      } else {
         return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
     }
@@ -130,7 +148,6 @@ public function listerConversationsParClient($clientId)
 
 public function modifierConversation(Request $request, $id)
 {
-    // Vérification des autorisations
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateur = auth('apisousUtilisateur')->user();
         if (!$sousUtilisateur->fonction_admin) {
@@ -145,7 +162,6 @@ public function modifierConversation(Request $request, $id)
         return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
     }
 
-    // Validation des données
         $validator = Validator::make($request->all(), [
         'type' => 'required|in:personnelle,email,message,telephone,courier_postal',
         'date_conversation' => 'required|date',
@@ -159,7 +175,6 @@ public function modifierConversation(Request $request, $id)
         return response()->json(['errors' => $validator->errors()], 422);
     }
 
-    // Recherche de la conversation à modifier
     $conversation = Conversation::where('id', $id)
         ->where(function ($query) use ($sousUtilisateurId, $userId) {
             $query->where('sousUtilisateur_id', $sousUtilisateurId)
@@ -167,8 +182,8 @@ public function modifierConversation(Request $request, $id)
         })
         ->firstOrFail();
 
-    // Mise à jour de la conversation
     $conversation->update($request->all());
+    Artisan::call(command: 'optimize:clear');
 
     return response()->json(['message' => 'Conversation modifiée avec succès.']);
 }
@@ -176,7 +191,6 @@ public function modifierConversation(Request $request, $id)
 
 public function supprimerConversation($id)
 {
-    // Vérification des autorisations
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateur = auth('apisousUtilisateur')->user();
         if (!$sousUtilisateur->fonction_admin) {
@@ -191,7 +205,6 @@ public function supprimerConversation($id)
         return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
     }
 
-    // Recherche et suppression de la conversation
     $conversation = Conversation::where('id', $id)
         ->where(function ($query) use ($sousUtilisateurId, $userId) {
             $query->where('sousUtilisateur_id', $sousUtilisateurId)
@@ -200,6 +213,7 @@ public function supprimerConversation($id)
         ->firstOrFail();
 
     $conversation->delete();
+    Artisan::call(command: 'optimize:clear');
 
     return response()->json(['message' => 'Conversation supprimée avec succès.']);
 }
@@ -207,7 +221,6 @@ public function supprimerConversation($id)
 
 public function detailConversation($id)
 {
-    // Vérification des autorisations
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateur = auth('apisousUtilisateur')->user();
         if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
@@ -223,7 +236,9 @@ public function detailConversation($id)
     }
 
     // Récupération des détails de la conversation
-    $conversation = Conversation::with('client')
+    $conversation = Cache::remember('conversation', 3600, function () use ($id, $sousUtilisateurId, $userId) {
+    
+    return Conversation::with('client')
         ->where('id', $id)
         ->where(function ($query) use ($sousUtilisateurId, $userId) {
             $query->where('sousUtilisateur_id', $sousUtilisateurId)
@@ -231,6 +246,7 @@ public function detailConversation($id)
         })
         ->firstOrFail();
 
+    });
     return response()->json($conversation);
 }
 

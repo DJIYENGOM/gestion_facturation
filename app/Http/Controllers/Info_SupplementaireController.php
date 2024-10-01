@@ -51,7 +51,7 @@ class Info_SupplementaireController extends Controller
                 'langue' => $request->langue,
                 'signature' => $signature,
             ]);
-    
+            
     
             return response()->json([
                 'message' => 'Profil mis à jour avec succès',

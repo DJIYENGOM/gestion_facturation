@@ -192,6 +192,11 @@ Route::post('modifierEcheance/{echeanceId}', [EcheanceController::class, 'modifi
 Route::delete('supprimerEcheance/{echeanceId}', [EcheanceController::class, 'supprimerEcheance']);
 Route::post('transformerEcheanceEnPaiementRecu/{echeanceId}', [EcheanceController::class,'transformerEcheanceEnPaiementRecu']);
 
+Route::post('getNombreClientsNotifApresDemain',[EcheanceController::class,'getNombreClientsNotifApresDemain']);
+Route::post('getNombreClientsNotifDans7Jours',[EcheanceController::class,'getNombreClientsNotifDans7Jours']);
+Route::post('getNombreClientsNotifApresEcheance',[EcheanceController::class,'getNombreClientsNotifApresEcheance']);
+Route::post('getNombreClientNotifApresEcheanceDans7Jours',[EcheanceController::class,'getNombreClientNotifApresEcheanceDans7Jours']);
+
 Route::controller(PaiementRecuController::class)->group(function (){
     Route::post('ajouterPaiementRecu','ajouterPaiementRecu');
     Route::post('listPaiementsRecusParFacture/{factureId}', 'listPaiementsRecusParFacture');
@@ -264,9 +269,9 @@ Route::post('creerFactureRecurrente',[FactureRecurrenteController::class, 'creer
 Route::get('listerToutesFacturesRecurrentes',[FactureRecurrenteController::class, 'listerToutesFacturesRecurrentes']);
 Route::post('supprimerFactureRecurrente/{id}',[FactureRecurrenteController::class, 'supprimerFactureRecurrente']);
 
-Route::post('ajouterSolde/{clientId}',[SoldeController::class, 'ajouterSolde']);
 Route::get('listeSoldeParClient/{clientId}',[SoldeController::class, 'listeSoldeParClient']);
-
+Route::post('supprimer_archiverSolde/{id}',[SoldeController::class, 'supprimer_archiverSolde']);
+Route::post('ajouterSolde/{clientId}',[SoldeController::class, 'ajouterSolde']);
 
 Route::post('ajouterCategorieDepense',[CategorieDepenseController::class, 'ajouterCategorieDepense']);
 Route::get('listerCategorieDepense',[CategorieDepenseController::class, 'listerCategorieDepense']);

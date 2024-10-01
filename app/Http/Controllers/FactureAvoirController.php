@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Facture;
-use App\Models\facture_Etiquette;
 use App\Models\Historique;
 use App\Models\FactureAvoir;
 use Illuminate\Http\Request;
+use App\Models\facture_Etiquette;
 use App\Models\FactureRecurrente;
 use App\Models\ArticleFactureAvoir;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 
@@ -93,6 +95,7 @@ class FactureAvoirController extends Controller
     
         $factureAvoir->save();
         NumeroGeneratorService::incrementerCompteur($userId, 'facture');
+        Artisan::call('optimize:clear');
 
     
         // Ajouter les articles à la facture
@@ -150,16 +153,22 @@ class FactureAvoirController extends Controller
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; 
     
-            $factures = FactureAvoir::with('client')
+            $factures = Cache::remenber("facturesAvoirs", 3600, function () use ($sousUtilisateurId, $userId) {
+                
+             return FactureAvoir::with('client')
                 ->where(function ($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
                         ->orWhere('user_id', $userId);
                 })
                 ->get();
+            });
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $factures = FactureAvoir::with('client')
+            $factures = Cache::remenber("facturesAvoirs", 3600, function () use ($userId) {
+                
+        
+             FactureAvoir::with('client')
                 ->where(function ($query) use ($userId) {
                     $query->where('user_id', $userId)
                         ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
@@ -167,6 +176,7 @@ class FactureAvoirController extends Controller
                         });
                 })
                 ->get();
+            });
         } else {
             return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
@@ -208,24 +218,32 @@ class FactureAvoirController extends Controller
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; 
     
-            $facturesSimples = Facture::with('client', 'articles.article', 'Etiquettes.etiquette')
+            $facturesSimples = Cache::remember("facturesSimples", 3600, function () use ($sousUtilisateurId, $userId) {
+                
+            return Facture::with('client', 'articles.article', 'Etiquettes.etiquette')
                 ->where('archiver', 'non')
                 ->where(function ($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
                         ->orWhere('user_id', $userId);
                 })
                 ->get();
+            });
     
-            $facturesAvoirs = FactureAvoir::with('client', 'articles.article', 'Etiquettes.etiquette')
+            $facturesAvoirs = Cache::remember("facturesAvoirs", 3600, function () use ($sousUtilisateurId, $userId) {
+           
+           return FactureAvoir::with('client', 'articles.article', 'Etiquettes.etiquette')
                 ->where(function ($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
                         ->orWhere('user_id', $userId);
                 })
                 ->get();
+            });
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $facturesSimples = Facture::with('client', 'articles.article', 'Etiquettes.etiquette')
+            $facturesSimples = Cache::remember("facturesSimples", 3600, function () use ($userId) {
+                
+            return Facture::with('client', 'articles.article', 'Etiquettes.etiquette')
                 ->where('archiver', 'non')
                 ->where(function ($query) use ($userId) {
                     $query->where('user_id', $userId)
@@ -234,8 +252,10 @@ class FactureAvoirController extends Controller
                         });
                 })
                 ->get();
-    
-            $facturesAvoirs = FactureAvoir::with('client', 'articles.article', 'Etiquettes.etiquette')
+            });
+            $facturesAvoirs = Cache::remember("facturesAvoirs", 3600, function () use ($userId) {
+            
+            return FactureAvoir::with('client', 'articles.article', 'Etiquettes.etiquette')
                 ->where(function ($query) use ($userId) {
                     $query->where('user_id', $userId)
                         ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
@@ -243,6 +263,7 @@ class FactureAvoirController extends Controller
                         });
                 })
                 ->get();
+            });
         } else {
             return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
@@ -347,6 +368,8 @@ class FactureAvoirController extends Controller
     
             if ($facture) {
                     $facture->delete();
+                    Artisan::call('optimize:clear');
+
                     return response()->json(['message' => 'Facture simple supprimée avec succès.']);
                 } 
                 
@@ -358,6 +381,7 @@ class FactureAvoirController extends Controller
                 ->first();
                 if ($factureAvoir) {
                         $factureAvoir->delete();
+                        Artisan::call('optimize:clear');
                         return response()->json(['message' => 'Facture d\'avoir supprimée avec succès.']);
                     }
                 
@@ -374,6 +398,7 @@ class FactureAvoirController extends Controller
     
             if ($facture) {
                     $facture->delete();
+                    Artisan::call('optimize:clear');
                     return response()->json(['message' => 'Facture simple supprimée avec succès.']);
                 } 
 
@@ -386,6 +411,7 @@ class FactureAvoirController extends Controller
 
                 if ($factureAvoir) {
                         $factureAvoir->delete();
+                        Artisan::call('optimize:clear');
                         return response()->json(['message' => 'Facture d\'avoir supprimée avec succès.']);
                     }
                 
@@ -409,42 +435,53 @@ class FactureAvoirController extends Controller
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user;
     
-            $facture = Facture::where('num_facture', $num_facture)
+            $facture = Cache::remember("facture", 3600, function () use ($sousUtilisateurId, $userId, $num_facture) {
+               
+           return Facture::where('num_facture', $num_facture)
                 ->with(['client', 'articles.article', 'Etiquettes.etiquette', 'echeances', 'factureAccompts', 'paiement'])
                 ->where(function($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
                           ->orWhere('user_id', $userId);
                 })
                 ->first();
-    
+            });
             if (!$facture) {
-                $facture = FactureAvoir::where('num_facture', $num_facture)
+                $facture = Cache::remember("facture", 3600, function () use ($sousUtilisateurId, $userId, $num_facture) {
+                    
+                return FactureAvoir::where('num_facture', $num_facture)
                     ->with(['client', 'articles.article', 'Etiquettes.etiquette'])
                     ->where(function($query) use ($sousUtilisateurId, $userId) {
                         $query->where('sousUtilisateur_id', $sousUtilisateurId)
                               ->orWhere('user_id', $userId);
                     })
                     ->first();
+                });
             }
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $facture = Facture::where('num_facture', $num_facture)
+            $facture = Cache::remember("facture", 3600, function () use ($userId, $num_facture) {
+            
+            return Facture::where('num_facture', $num_facture)
                 ->with(['client', 'articles.article', 'Etiquettes.etiquette', 'echeances', 'factureAccompts', 'paiement'])
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                     $query->where('id_user', $userId);
                 })
                 ->first();
+            });
     
             if (!$facture) {
-                $facture = FactureAvoir::where('num_facture', $num_facture)
+                $facture = Cache::remember("facture", 3600, function () use ($userId, $num_facture) {
+                
+               return FactureAvoir::where('num_facture', $num_facture)
                     ->with(['client', 'articles.article', 'Etiquettes.etiquette'])
                     ->where('user_id', $userId)
                     ->orWhereHas('sousUtilisateur', function($query) use ($userId) {
                         $query->where('id_user', $userId);
                     })
                     ->first();
+                });
             }
         } else {
             return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);

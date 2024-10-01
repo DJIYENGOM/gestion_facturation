@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Stock;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
 
 class StockController extends Controller
@@ -19,17 +21,21 @@ class StockController extends Controller
             $sousUtilisateurId = auth('apisousUtilisateur')->id();
             $userId = auth('apisousUtilisateur')->user()->id_user; 
     
-            $stocks = Stock::with('facture','bonCommande','livraison')
+            $stocks = Cache::remember('stocks',3600, function () use ($sousUtilisateurId, $userId) {
+            
+                return Stock::with('facture','bonCommande','livraison')
                 ->where(function ($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
                         ->orWhere('user_id', $userId);
                 })
                 ->orderByDesc('created_at')
                 ->get();
+            });
         } elseif (auth()->check()) {
             $userId = auth()->id();
     
-            $stocks = Stock::with('facture','bonCommande','livraison')
+            $stocks = Cache::remember('stocks',3600, function () use ($userId) {
+            return Stock::with('facture','bonCommande','livraison')
                 ->where(function ($query) use ($userId) {
                     $query->where('user_id', $userId)
                         ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
@@ -38,6 +44,7 @@ class StockController extends Controller
                 })
                 ->orderByDesc('created_at')
                 ->get();
+            });
         } else {
             return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
@@ -80,7 +87,8 @@ class StockController extends Controller
         $userId = $sousUtilisateur->id_user;
         
         // Récupérer les derniers enregistrements de chaque numéro de stock
-        $stocks = Stock::where(function ($query) use ($sousUtilisateurId, $userId) {
+        $stocks = Cache::remember('stocks',3600, function () use ($sousUtilisateurId, $userId) {
+            return  Stock::where(function ($query) use ($sousUtilisateurId, $userId) {
                 $query->where('sousUtilisateur_id', $sousUtilisateurId)
                     ->orWhere('user_id', $userId);
             })
@@ -88,12 +96,14 @@ class StockController extends Controller
             ->orderByDesc('created_at')
             ->get()
             ->unique('num_stock'); // Garder seulement le dernier enregistrement par num_stock
-        
+        });
     } elseif (auth()->check()) {
         $userId = auth()->id();
 
         // Récupérer les derniers enregistrements de chaque numéro de stock
-        $stocks = Stock::where(function ($query) use ($userId) {
+        $stocks = Cache::remember('stocks',3600, function () use ($userId) {
+            
+            return Stock::where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
                     ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
                         $query->where('user_id', $userId);
@@ -103,7 +113,7 @@ class StockController extends Controller
             ->orderByDesc('created_at')
             ->get()
             ->unique('num_stock'); // Garder seulement le dernier enregistrement par num_stock
-        
+        });
     } else {
         return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
     }
@@ -189,6 +199,7 @@ public function modifierStock(Request $request)
                 'statut_stock' => "Modification manuelle",
                 'article_id' => $stock->article_id,
             ]);
+            Artisan::call('optimize:clear');
         }
     }
 

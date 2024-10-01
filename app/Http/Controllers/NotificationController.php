@@ -41,8 +41,7 @@ class NotificationController extends Controller
             if (!$sousUtilisateur->fonction_admin) {
                 return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
             }
-    
-            // Récupérer l'ID du sous-utilisateur et de l'utilisateur parent
+            
             $sousUtilisateurId = $sousUtilisateur->id;
             $userId = $sousUtilisateur->id_user; // ID de l'utilisateur parent
         } elseif (auth()->check()) {
