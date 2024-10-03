@@ -177,7 +177,7 @@ class DepenseController extends Controller
             $userId = $sousUtilisateur->id_user; // ID de l'utilisateur parent
     
             $depenses = Cache::remember('depenses', 3600, function () use ($sousUtilisateurId, $userId) {
-            return Depense::with(['categorieDepense', 'fournisseur', 'Etiquettes.etiquette'])
+            return Depense::with(['categorieDepense', 'fournisseur', 'Etiquetttes.etiquette'])
                 ->where(function ($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
                           ->orWhere('user_id', $userId);
@@ -189,7 +189,7 @@ class DepenseController extends Controller
     
             $depenses = Cache::remember('depenses', 3600, function () use ($userId) {
                
-           return Depense::with(['categorieDepense', 'fournisseur', 'Etiquettes.etiquette'])
+           return Depense::with(['categorieDepense', 'fournisseur', 'Etiquetttes.etiquette'])
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
                     $query->where('id_user', $userId);
@@ -225,7 +225,7 @@ class DepenseController extends Controller
                 'nom_categorie_depense' => optional($depense->categorieDepense)->nom_categorie_depense,
                 'nom_fournisseur' => optional($depense->fournisseur)->nom,
                 'prenom_fournisseur' => optional($depense->fournisseur)->prenom,
-                'etiquettes' => $depense->Etiquettes->map(function ($etiquette) {
+                'etiquettes' => $depense->Etiquetttes->map(function ($etiquette) {
                     return [
                         'id' => optional($etiquette->etiquette)->id,
                         'nom_etiquette' => optional($etiquette->etiquette)->nom_etiquette
