@@ -221,7 +221,7 @@ class DepenseController extends Controller
                 'statut_depense' => $depense->statut_depense,
                 'id_paiement' => $depense->id_paiement,
                 'fournisseur_id' => $depense->fournisseur_id,
-                'categorie_depense_id' => $depense->categorie_depense_id,
+                'categorie_depense_id' => $depense->id_categorie_depense,
                 'nom_categorie_depense' => optional($depense->categorieDepense)->nom_categorie_depense,
                 'nom_fournisseur' => optional($depense->fournisseur)->nom,
                 'prenom_fournisseur' => optional($depense->fournisseur)->prenom,
