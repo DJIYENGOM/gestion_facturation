@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use App\Models\Stock;
 use App\Models\Article;
 use App\Models\Facture;
@@ -23,6 +25,7 @@ use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Models\ModelDocument;
 
 
 class BonCommandeController extends Controller
@@ -674,4 +677,115 @@ public function exporterBonCommandes()
     $writer->save('php://output');
     exit;
 }
+
+public function genererPDFBonCommande($bonCommandeId, $modelDocumentId)
+{
+    // 1. Récupérer le bon de commande et le modèle de document depuis la base de données
+    $bonCommande = BonCommande::with(['user', 'client', 'articles.article', 'echeances'])->find($bonCommandeId);
+    $modelDocument = ModelDocument::where('id', $modelDocumentId)->first();
+
+    if (!$bonCommande || !$modelDocument) {
+        return response()->json(['error' => 'Bon de commande ou modèle introuvable'], 404);
+    }
+
+    // 2. Remplacer les variables dynamiques par les données réelles
+    $content = $modelDocument->content;
+    $content = str_replace('{{num_commande}}', $bonCommande->num_commande, $content);
+    $content = str_replace('{{expediteur_nom}}', $bonCommande->user->name, $content);
+    $content = str_replace('{{expediteur_email}}', $bonCommande->user->email, $content);
+    $content = str_replace('{{expediteur_tel}}', $bonCommande->user->tel_entreprise ?? 'N/A', $content);
+
+    $content = str_replace('{{destinataire_nom}}', $bonCommande->client->prenom_client . ' ' . $bonCommande->client->nom_client, $content);
+    $content = str_replace('{{destinataire_email}}', $bonCommande->client->email_client, $content);
+    $content = str_replace('{{destinataire_tel}}', $bonCommande->client->tel_client, $content);
+
+    $content = str_replace('{{date_commande}}', \Carbon\Carbon::parse($bonCommande->created_at)->format('d/m/Y'), $content);
+
+    // Gérer la liste des articles
+    $articlesHtml = '';
+    foreach ($bonCommande->articles as $article) {
+        $articlesHtml .= "<tr>
+            <td>{$article->article->nom_article}</td>
+            <td>{$article->quantite_article}</td>
+            <td>" . number_format($article->article->prix_unitaire, 2) . " fcfa</td>
+            <td>" . number_format($article->prix_total_article, 2) . " fcfa</td>
+        </tr>";
+    }
+    $content = str_replace('{{articles}}', $articlesHtml, $content);
+
+    // Gérer le montant total
+    $content = str_replace('{{montant_total}}', number_format($bonCommande->prix_TTC, 2) . " fcfa", $content);
+
+    // Gérer les échéances s'il y en a
+    if ($bonCommande->echeances && count($bonCommande->echeances) > 0) {
+        $echeancesHtml = '';
+        foreach ($bonCommande->echeances as $echeance) {
+            $echeancesHtml .= "<tr>
+                <td>" . \Carbon\Carbon::parse($echeance->date_pay_echeance)->format('d/m/Y') . "</td>
+                <td>" . number_format($echeance->montant_echeance, 2) . " fcfa</td>
+            </tr>";
+        }
+        $content = str_replace('{{echeances}}', $echeancesHtml, $content);
+    } else {
+        $content = str_replace('{{echeances}}', '', $content);
+    }
+
+    // Gérer les conditions de paiement si présentes dans le modèle de document
+    if ($modelDocument->conditionsPaiementModel) {
+        $conditionsPaiementHtml = "<h3>Conditions de paiement</h3><p>{$modelDocument->conditionPaiement}</p>";
+        $content = str_replace('{{conditions_paiement}}', $conditionsPaiementHtml, $content);
+    } else {
+        $content = str_replace('{{conditions_paiement}}', '', $content);
+    }
+
+    // Gérer les coordonnées bancaires si présentes dans le modèle de document
+    if ($modelDocument->coordonneesBancairesModel) {
+        $coordonneesBancairesHtml = "<h3>Coordonnées bancaires</h3>
+            <p>Titulaire du compte : {$modelDocument->titulaireCompte}</p>
+            <p>IBAN : {$modelDocument->IBAN}</p>
+            <p>BIC : {$modelDocument->BIC}</p>";
+        $content = str_replace('{{coordonnees_bancaires}}', $coordonneesBancairesHtml, $content);
+    } else {
+        $content = str_replace('{{coordonnees_bancaires}}', '', $content);
+    }
+
+    // Gérer la note de pied de page si présente dans le modèle de document
+    if ($modelDocument->notePiedPageModel) {
+        $content = str_replace('{{note_pied_page}}', "<p>{$modelDocument->peidPage}</p>", $content);
+    } else {
+        $content = str_replace('{{note_pied_page}}', '', $content);
+    }
+
+    // Gérer les signatures si présentes dans le modèle de document
+    if ($modelDocument->signatureExpediteurModel) {
+        $signatureExpediteurHtml = "<img src='/path/to/images/{$modelDocument->image_expediteur}' alt='Signature Expéditeur' />";
+        $content = str_replace('{{signature_expediteur}}', $signatureExpediteurHtml, $content);
+    } else {
+        $content = str_replace('{{signature_expediteur}}', '', $content);
+    }
+
+    if ($modelDocument->signatureDestinataireModel) {
+        $signatureDestinataireHtml = "<img src='/path/to/images/{$modelDocument->image_destinataire}' alt='Signature Destinataire' />";
+        $content = str_replace('{{signature_destinataire}}', $signatureDestinataireHtml, $content);
+    } else {
+        $content = str_replace('{{signature_destinataire}}', '', $content);
+    }
+
+    // 3. Appliquer le CSS du modèle
+    $css = $modelDocument->css;
+    $content = str_replace('{{css}}', $css, $content);
+
+    // 4. Configurer DOMPDF et générer le PDF
+    $options = new Options();
+    $options->set('isRemoteEnabled', true);  // Si vous avez des images distantes
+    $dompdf = new Dompdf($options);
+
+    $dompdf->loadHtml($content);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+
+    // 5. Télécharger le PDF
+    return $dompdf->stream('bon_commande_' . $bonCommande->num_commande . '.pdf');
+}
+
 }

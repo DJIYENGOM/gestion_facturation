@@ -20,9 +20,1268 @@
         }
     },
     "consumes": [
-        "multipart/form-data"
+        "application/json"
     ],
     "paths": {
+        "/api/genererPDFDevis/{devisId}": {
+            "post": {
+                "summary": "genererPDFDevis",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des models Documents"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "devisId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/ModifierModelDocument/6": {
+            "post": {
+                "summary": "ModifierModelDocument",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des models Documents"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "typeDocument": {
+                                        "type": "string"
+                                    },
+                                    "contenu": {
+                                        "type": "string"
+                                    },
+                                    "signatureExpediteurModel": {
+                                        "type": "boolean"
+                                    },
+                                    "mention_expediteur": {
+                                        "type": "string"
+                                    },
+                                    "image_expediteur": {
+                                        "type": "string"
+                                    },
+                                    "signatureDestinataireModel": {
+                                        "type": "boolean"
+                                    },
+                                    "mention_destinataire": {
+                                        "type": "string"
+                                    },
+                                    "image_destinataire": {
+                                        "type": "boolean"
+                                    },
+                                    "image": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "conditionsPaiementModel": {
+                                        "type": "boolean"
+                                    },
+                                    "conditionPaiement": {
+                                        "type": "string"
+                                    },
+                                    "coordonneesBancairesModel": {
+                                        "type": "boolean"
+                                    },
+                                    "titulaireCompte": {
+                                        "type": "string"
+                                    },
+                                    "IBAN": {
+                                        "type": "string"
+                                    },
+                                    "BIC": {
+                                        "type": "string"
+                                    },
+                                    "notePiedPageModel": {
+                                        "type": "boolean"
+                                    },
+                                    "peidPage": {
+                                        "type": "string"
+                                    },
+                                    "css": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "typeDocument": "photo",
+                                "contenu": "<html>gbhzejkzjhhgjrkkdopei</html>",
+                                "signatureExpediteurModel": true,
+                                "mention_expediteur": "Signature expéditeur",
+                                "image_expediteur": "image_path.png",
+                                "signatureDestinataireModel": true,
+                                "mention_destinataire": "Signature destinataire",
+                                "image_destinataire": false,
+                                "image": null,
+                                "conditionsPaiementModel": true,
+                                "conditionPaiement": "Paiement à 30 jours",
+                                "coordonneesBancairesModel": true,
+                                "titulaireCompte": "Nom du titulaire",
+                                "IBAN": "FR76xxxxxxxxxxxxxx",
+                                "BIC": "ABCDEFGHIJK",
+                                "notePiedPageModel": true,
+                                "peidPage": "Mention légale",
+                                "css": ".class { color: black; }"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/CreerModelDocument": {
+            "post": {
+                "summary": "CreerModelDocument",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des models Documents"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/ConfigurerRelanceAuto": {
+            "post": {
+                "summary": "ConfigurerRelanceAuto",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "envoyer_rappel_avant": {
+                                        "type": "integer"
+                                    },
+                                    "nombre_jour_avant": {
+                                        "type": "integer"
+                                    },
+                                    "envoyer_rappel_apres": {
+                                        "type": "integer"
+                                    },
+                                    "nombre_jour_apres": {
+                                        "type": "integer"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "envoyer_rappel_avant": 1,
+                                "nombre_jour_avant": 2,
+                                "envoyer_rappel_apres": 1,
+                                "nombre_jour_apres": 3
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/envoyerEmailRelanceApresEcheance/7": {
+            "post": {
+                "summary": "envoyerEmailRelanceApresEcheance",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/DetailEmailRelanceApresEcheance_genererPDF/7": {
+            "post": {
+                "summary": "DetailEmailRelanceApresEcheance_genererPDF",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/envoyerEmailRelanceAvantEcheance/7": {
+            "post": {
+                "summary": "envoyerEmailRelanceAvantEcheance",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/DetailEmailRelanceAvantEcheance_genererPDF/7": {
+            "post": {
+                "summary": "DetailEmailRelanceAvantEcheance_genererPDF",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/envoyerEmailPaiementRecu/1": {
+            "post": {
+                "summary": "envoyerEmailPaiementRecu",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/DetailEmailPaiementRecu_genererPDF/1": {
+            "post": {
+                "summary": "DetailEmailPaiementRecu_genererPDF",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/envoyerEmailResumeVente/5": {
+            "post": {
+                "summary": "envoyerEmailResumeVente",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/DetailEmailResumeVente_genererPDF/5": {
+            "post": {
+                "summary": "DetailEmailResumeVente_genererPDF",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/envoyerEmailCommandeAchat/1": {
+            "post": {
+                "summary": "envoyerEmailCommandeAchat",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/DetailEmailCommandeAchat_genererPDF/1": {
+            "post": {
+                "summary": "DetailEmailCommandeAchat_genererPDF",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/envoyerEmailLivraison/1": {
+            "post": {
+                "summary": "envoyerEmailLivraison",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/DetailEmailLivraison_genererPDF/1": {
+            "post": {
+                "summary": "DetailEmailLivraison_genererPDF",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/envoyerEmailBonCommande/3": {
+            "post": {
+                "summary": "envoyerEmailBonCommande",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/DetailEmailBonCommande_genererPDF/3": {
+            "post": {
+                "summary": "DetailEmailBonCommande_genererPDF",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/envoyerEmailDevi/1": {
+            "post": {
+                "summary": "envoyer Email Devi",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/DetailEmailDevi_genererPDF/1": {
+            "post": {
+                "summary": "DetailEmailDevi_genererPDF",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/envoyerEmailFacture/4": {
+            "post": {
+                "summary": "envoyer Email Facture",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/DetailEmailFacture_genererPDF/3": {
             "post": {
                 "summary": "DetailEmailFacture_genererPDF",
@@ -147,9 +1406,9 @@
                                 }
                             },
                             "example": {
-                                "type_modele": "facture",
-                                "object": "mon objet de email, du facture n° {num_facture}",
-                                "contenu": "mon contenu $numero email {num_facture} ,vous avez une facture {statut_paiement}"
+                                "type_modele": "relanceApres_echeance",
+                                "object": "Rappel d'échéance du {ECHEANCE_DATE} - Facture {VENTE_NUMERO} ",
+                                "contenu": " Bonjour {DESTINATAIRE}, Sauf erreur de notre part, nous constatons qu'à ce jour vous n'avez pas effectué le paiement de {ECHEANCE_MONTANT} prévu pour le {ECHEANCE_DATE} concernant la Facture N° {VENTE_NUMERO} (ci-joint). Si vous avez déjà effectué le paiement en question, s'il vous plaît ignorez ce message. Cordialement, {ENTREPRISE}  "
                             }
                         }
                     }
@@ -469,13 +1728,13 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "nomEtiquette": {
+                                    "nom_etiquette": {
                                         "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "nomEtiquette": "parfum"
+                                "nom_etiquette": "parfum"
                             }
                         }
                     }
@@ -585,17 +1844,17 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "nomEtiquette": {
+                                    "nom_etiquette": {
                                         "type": "string"
                                     },
-                                    "": {
+                                    "code_etiquette": {
                                         "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "nomEtiquette": "table",
-                                "": ""
+                                "nom_etiquette": "table",
+                                "code_etiquette": ""
                             }
                         }
                     }
@@ -2185,8 +3444,7 @@
                                         "type": "string"
                                     },
                                     "fournisseur_id": {
-                                        "type": "string",
-                                        "format": "binary"
+                                        "type": "integer"
                                     },
                                     "depense_id": {
                                         "type": "string",
@@ -2213,17 +3471,13 @@
                                     "articles": {
                                         "type": "string",
                                         "format": "binary"
-                                    },
-                                    "etiquettes": {
-                                        "type": "string",
-                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
                                 "date_commandeAchat": "2024-07-23",
                                 "date_livraison": "2024-07-23",
-                                "fournisseur_id": null,
+                                "fournisseur_id": 1,
                                 "depense_id": null,
                                 "note_interne": "Some notes about the facture",
                                 "titre": "jgjgkbnf",
@@ -2249,11 +3503,6 @@
                                         "reduction_article": 50,
                                         "prix_total_article": 5000,
                                         "prix_total_tva_article": 8000
-                                    }
-                                ],
-                                "etiquettes": [
-                                    {
-                                        "id_etiquette": 1
                                     }
                                 ]
                             }
@@ -2971,6 +4220,90 @@
                 }
             }
         },
+        "/api/ajouterSolde/1": {
+            "post": {
+                "summary": "creer solde",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des facture d'avoir"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_paiement": {
+                                        "type": "string"
+                                    },
+                                    "montant": {
+                                        "type": "string"
+                                    },
+                                    "commentaire": {
+                                        "type": "string"
+                                    },
+                                    "facture_id": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_paiement": "2024-07-11",
+                                "montant": "10000.00",
+                                "commentaire": "commentaire solde client",
+                                "facture_id": null
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/listeSoldeParClient/1": {
             "get": {
                 "summary": "liste Solde Par Client",
@@ -3059,98 +4392,6 @@
                         "type": "string"
                     }
                 ]
-            }
-        },
-        "/api/ajouterSolde/2": {
-            "post": {
-                "summary": "ajouter Solde",
-                "description": "",
-                "responses": {
-                    "201": {
-                        "description": "Created successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    }
-                },
-                "tags": [
-                    "gestion des facture d'avoir"
-                ],
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "clientId",
-                        "type": "string"
-                    },
-                    {
-                        "in": "header",
-                        "name": "User-Agent",
-                        "type": "string"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "montant": {
-                                        "type": "string"
-                                    },
-                                    "date_paiement": {
-                                        "type": "string"
-                                    },
-                                    "id_paiement": {
-                                        "type": "string"
-                                    },
-                                    "facture_id": {
-                                        "type": "string"
-                                    },
-                                    "commentaire": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "example": {
-                                "montant": "10000",
-                                "date_paiement": "2024-07-11",
-                                "id_paiement": "1",
-                                "facture_id": "",
-                                "commentaire": "commentaire solde client"
-                            }
-                        }
-                    }
-                }
             }
         },
         "/api/listeFactureParClient/{clientId}": {
@@ -3874,7 +5115,7 @@
                 ]
             }
         },
-        "/api/supprimerLivraison/{id}": {
+        "/api/supprimerLivraison/2": {
             "delete": {
                 "summary": "supprimer Livraison",
                 "description": "",
@@ -4133,7 +5374,7 @@
                                 "prix_TTC": 25000,
                                 "articles": [
                                     {
-                                        "id_article": 1,
+                                        "id_article": 2,
                                         "quantite_article": 2,
                                         "prix_unitaire_article": 5000,
                                         "reduction_article": 0,
@@ -4141,7 +5382,7 @@
                                         "prix_total_tva_article": 8000
                                     },
                                     {
-                                        "id_article": 2,
+                                        "id_article": 3,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 1000,
                                         "TVA_article": 10,
@@ -4466,7 +5707,7 @@
                                 "prenom_fournisseur": "fall",
                                 "nom_entreprise": "ngombusiness",
                                 "adress_fournisseur": "dakar",
-                                "email_fournisseur": "ibou@gmail.com",
+                                "email_fournisseur": "ngomdjiye@gmail.com",
                                 "tel_fournisseur": "764538303",
                                 "type_fournisseur": "entreprise",
                                 "num_id_fiscal": "1209",
@@ -5038,7 +6279,7 @@
                                 }
                             },
                             "example": {
-                                "client_id": 1,
+                                "client_id": 3,
                                 "note_commande": "Some notes about the facture",
                                 "reduction_commande": 1000,
                                 "date_commande": "2024-06-29",
@@ -5713,7 +6954,7 @@
                                 }
                             },
                             "example": {
-                                "client_id": 1,
+                                "client_id": 3,
                                 "note_devi": "Some notes about the facture",
                                 "reduction_devi": 2000,
                                 "date_devi": "2024-06-29",
@@ -5868,7 +7109,7 @@
                 ]
             }
         },
-        "/api/listPaiementsRecusParFacture/{factureId}": {
+        "/api/listPaiementsRecusParFacture/5": {
             "post": {
                 "summary": "lister Paiements Recus Par Facture",
                 "description": "",
@@ -6029,7 +7270,223 @@
                 }
             }
         },
-        "/api/transformerEcheanceEnPaiementRecu/{echeanceId}": {
+        "/api/getNombreClientNotifApresEcheanceDans7Jours": {
+            "post": {
+                "summary": "getNombreClientNotifApresEcheanceDans7Jours",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture echeance"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/getNombreClientsNotifApresEcheance": {
+            "post": {
+                "summary": "getNombreClientsNotifApresEcheance",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture echeance"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/getNombreClientsNotifDans7Jours": {
+            "post": {
+                "summary": "getNombreClientsNotifDans7Jours",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture echeance"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/getNombreClientsNotifApresDemain": {
+            "post": {
+                "summary": "getNombreClientsNotifApresDemain",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture echeance"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/transformerEcheanceEnPaiementRecu/6": {
             "post": {
                 "summary": "transformer Echeance En Paiement Recu",
                 "description": "",
@@ -6265,7 +7722,7 @@
                 ]
             }
         },
-        "/api/listEcheanceParFacture/{factureId}": {
+        "/api/listEcheanceParFacture/6": {
             "post": {
                 "summary": "lister echeance par facture",
                 "description": "",
@@ -7696,7 +9153,7 @@
                 ]
             }
         },
-        "/api/supprimeArchiveFacture/{id}": {
+        "/api/supprimeArchiveFacture/7": {
             "delete": {
                 "summary": "supprimer ou archiver facture",
                 "description": "",
@@ -7942,9 +9399,6 @@
                                         "type": "string",
                                         "format": "binary"
                                     },
-                                    "id_paiement": {
-                                        "type": "integer"
-                                    },
                                     "active_Stock": {
                                         "type": "string"
                                     },
@@ -7963,7 +9417,7 @@
                                 }
                             },
                             "example": {
-                                "client_id": 2,
+                                "client_id": 1,
                                 "type": "simple",
                                 "note_fact": "Some notes about the facture",
                                 "reduction_facture": 1000,
@@ -7971,12 +9425,11 @@
                                 "prix_TTC": 25000,
                                 "type_paiement": "echeance",
                                 "id_recurrent": null,
-                                "id_paiement": 1,
                                 "active_Stock": "oui",
                                 "articles": [
                                     {
-                                        "id_article": 1,
-                                        "quantite_article": 10,
+                                        "id_article": 2,
+                                        "quantite_article": 5,
                                         "prix_unitaire_article": 5000,
                                         "TVA_article": 50,
                                         "reduction_article": 5,
@@ -8003,7 +9456,7 @@
                                 ],
                                 "echeances": [
                                     {
-                                        "date_pay_echeance": "2024-09-10",
+                                        "date_pay_echeance": "2024-10-02",
                                         "montant_echeance": "4000.00"
                                     }
                                 ]
@@ -8670,7 +10123,7 @@
                 }
             }
         },
-        "/api/sendClientEmail/4": {
+        "/api/sendClientEmail/5": {
             "post": {
                 "summary": "sendClientEmail",
                 "description": "",
@@ -9117,19 +10570,15 @@
                                     "categorie_id": {
                                         "type": "string",
                                         "format": "binary"
-                                    },
-                                    "etiquettes": {
-                                        "type": "string",
-                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
                                 "nom_client": "ngom",
-                                "prenom_client": "falou",
+                                "prenom_client": "dié",
                                 "nom_entreprise": null,
                                 "adress_client": "parcelle",
-                                "email_client": "LILou@gmail.com",
+                                "email_client": "ngomdjiye@gmail.com",
                                 "tel_client": "768947493",
                                 "type_client": "particulier",
                                 "statut_client": "client",
@@ -9147,19 +10596,14 @@
                                 "infoSupplemnt": null,
                                 "sousUtilisateur_id": null,
                                 "user_id": 3,
-                                "categorie_id": null,
-                                "etiquettes": [
-                                    {
-                                        "id_etiquette": 1
-                                    }
-                                ]
+                                "categorie_id": null
                             }
                         }
                     }
                 }
             }
         },
-        "/api/modifierClient/3": {
+        "/api/modifierClient/1": {
             "post": {
                 "summary": "modifier un Client",
                 "description": "",
@@ -9294,29 +10738,18 @@
                                         "type": "string",
                                         "format": "binary"
                                     },
-                                    "sousUtilisateur_id": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "user_id": {
-                                        "type": "integer"
-                                    },
                                     "categorie_id": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "etiquettes": {
                                         "type": "string",
                                         "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "nom_client": "ngom",
+                                "nom_client": "diop",
                                 "prenom_client": "falou",
                                 "nom_entreprise": null,
                                 "adress_client": "parcelle",
-                                "email_client": "LILou@gmail.com",
+                                "email_client": "diop@gmail.com",
                                 "tel_client": "768947493",
                                 "type_client": "particulier",
                                 "statut_client": "client",
@@ -9332,14 +10765,7 @@
                                 "tel_destinataire": null,
                                 "email_destinataire": null,
                                 "infoSupplemnt": null,
-                                "sousUtilisateur_id": null,
-                                "user_id": 3,
-                                "categorie_id": null,
-                                "etiquettes": [
-                                    {
-                                        "id_etiquette": 2
-                                    }
-                                ]
+                                "categorie_id": null
                             }
                         }
                     }
@@ -10494,7 +11920,7 @@
                 ]
             }
         },
-        "/api/supprimerArticle/3": {
+        "/api/supprimerArticle/1": {
             "delete": {
                 "summary": "supprimer Article",
                 "description": "",
@@ -10553,7 +11979,7 @@
                 ]
             }
         },
-        "/api/modifierArticle/4": {
+        "/api/modifierArticle/1": {
             "post": {
                 "summary": "modifier un article",
                 "description": "",
@@ -10769,6 +12195,9 @@
                                     "description": {
                                         "type": "string"
                                     },
+                                    "code_barre": {
+                                        "type": "string"
+                                    },
                                     "prix_unitaire": {
                                         "type": "integer"
                                     },
@@ -10809,8 +12238,9 @@
                                 }
                             },
                             "example": {
-                                "nom_article": "montre",
+                                "nom_article": "Parfum",
                                 "description": "Some notes about the facture",
+                                "code_barre": "000023567",
                                 "prix_unitaire": 20000,
                                 "prix_achat": 25000,
                                 "promo_id": null,
@@ -11269,7 +12699,7 @@
                 ]
             }
         },
-        "/api/modifierSousUtilisateur/{id}": {
+        "/api/modifierSousUtilisateur/4": {
             "post": {
                 "summary": "modifier un sous_utilisateur",
                 "description": "",
@@ -11341,24 +12771,60 @@
                                     "email": {
                                         "type": "string"
                                     },
-                                    "password": {
+                                    "nouveau_mot_de_passe": {
                                         "type": "string"
                                     },
                                     "archiver": {
                                         "type": "string"
                                     },
-                                    "id_role": {
+                                    "role": {
+                                        "type": "string"
+                                    },
+                                    "visibilite_globale": {
+                                        "type": "string"
+                                    },
+                                    "fonction_admin": {
+                                        "type": "string"
+                                    },
+                                    "acces_rapport": {
+                                        "type": "string"
+                                    },
+                                    "gestion_stock": {
+                                        "type": "string"
+                                    },
+                                    "commande_achat": {
+                                        "type": "string"
+                                    },
+                                    "export_excel": {
+                                        "type": "string"
+                                    },
+                                    "supprimer_donnees": {
+                                        "type": "string"
+                                    },
+                                    "mot_de_passe_actuel": {
+                                        "type": "string"
+                                    },
+                                    "": {
                                         "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "nom": "bint",
+                                "nom": "Ima",
                                 "prenom": "faye",
-                                "email": "bin@gmail.com",
-                                "password": "password@1",
-                                "archiver": "oui",
-                                "id_role": "2"
+                                "email": "diop@gmail.com",
+                                "nouveau_mot_de_passe": "123456p@",
+                                "archiver": "non",
+                                "role": "utilisateur_simple",
+                                "visibilite_globale": "1",
+                                "fonction_admin": "0",
+                                "acces_rapport": "1",
+                                "gestion_stock": "1",
+                                "commande_achat": "1",
+                                "export_excel": "1",
+                                "supprimer_donnees": "1",
+                                "mot_de_passe_actuel": "123456p@12",
+                                "": ""
                             }
                         }
                     }
@@ -11776,6 +13242,81 @@
                 }
             }
         },
+        "/api/modifierMotDePasse": {
+            "post": {
+                "summary": "modifier Mot De Passe",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Authentification"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "mot_de_passe_actuel": {
+                                        "type": "string"
+                                    },
+                                    "nouveau_mot_de_passe": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "mot_de_passe_actuel": "ciss123@",
+                                "nouveau_mot_de_passe": "ciss1234@"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/listerUser": {
             "get": {
                 "summary": "liste User",
@@ -11997,7 +13538,7 @@
                             },
                             "example": {
                                 "email": "diop@gmail.com",
-                                "password": "123456p@"
+                                "password": "123456p@12"
                             }
                         }
                     }
@@ -12179,7 +13720,7 @@
                                 }
                             },
                             "example": {
-                                "email": "ibou@gmail.com",
+                                "email": "awa@gamil.com",
                                 "password": "ciss123@"
                             }
                         }
@@ -12257,8 +13798,8 @@
                                 }
                             },
                             "example": {
-                                "name": "ibou fall",
-                                "email": "ibou@gmail.com",
+                                "name": "awa fall",
+                                "email": "awa@gamil.com",
                                 "password": "ciss123@"
                             }
                         }

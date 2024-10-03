@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Facture;
 use App\Models\Etiquette;
+use App\Models\Historique;
 use Illuminate\Http\Request;
 use Swift_TransportException;
 use App\Exports\ClientsExport;
@@ -148,6 +149,12 @@ class ClientController extends Controller
            ]);
         }
     }
+    Historique::create([
+        'sousUtilisateur_id' => $sousUtilisateur_id,
+        'user_id' => $userId,
+        'message' => 'Nouveaux clients ajoutés',
+
+    ]);
 
         return response()->json(['message' => 'Client ajouté avec succès', 'client' => $client]);
     }
@@ -274,6 +281,12 @@ public function modifierClient(Request $request, $id)
     $client->update($request->all());
     Artisan::call('optimize:clear');
 
+    Historique::create([
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+        'message' => 'Modifications sur des Clients ont été realisees' ,
+
+    ]);
 
     if ($request->has('etiquettes')) {
         Client_Etiquette::where('client_id', $id)->delete();

@@ -21,6 +21,9 @@ use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use App\Models\ModelDocument;
 
 
 class LivraisonController extends Controller
@@ -728,4 +731,60 @@ public function exporterLivraisons()
     exit;
  
 }
+
+public function genererPDFLivraison($livraisonId, $modelDocumentId)
+{
+    // 1. Récupérer la livraison et le modèle de document depuis la base de données
+    $livraison = Livraison::with(['user', 'client', 'articles.article'])->find($livraisonId);
+    $modelDocument = ModelDocument::where('id', $modelDocumentId)->first();
+
+    if (!$livraison || !$modelDocument) {
+        return response()->json(['error' => 'Livraison ou modèle introuvable'], 404);
+    }
+
+    // 2. Remplacer les variables dynamiques par les données réelles
+    $content = $modelDocument->content;
+    $content = str_replace('{{num_livraison}}', $livraison->num_livraison, $content);
+    $content = str_replace('{{expediteur_nom}}', $livraison->user->name, $content);
+    $content = str_replace('{{expediteur_email}}', $livraison->user->email, $content);
+    $content = str_replace('{{expediteur_tel}}', $livraison->user->tel_entreprise ?? 'N/A', $content);
+
+    $content = str_replace('{{destinataire_nom}}', $livraison->client->prenom_client . ' ' . $livraison->client->nom_client, $content);
+    $content = str_replace('{{destinataire_email}}', $livraison->client->email_client, $content);
+    $content = str_replace('{{destinataire_tel}}', $livraison->client->tel_client, $content);
+
+    $content = str_replace('{{date_livraison}}', \Carbon\Carbon::parse($livraison->created_at)->format('d/m/Y'), $content);
+
+    // Gérer la liste des articles
+    $articlesHtml = '';
+    foreach ($livraison->articles as $article) {
+        $articlesHtml .= "<tr>
+            <td>{$article->article->nom_article}</td>
+            <td>{$article->quantite_article}</td>
+            <td>" . number_format($article->article->prix_unitaire, 2) . " fcfa</td>
+            <td>" . number_format($article->prix_total_article, 2) . " fcfa</td>
+        </tr>";
+    }
+    $content = str_replace('{{articles}}', $articlesHtml, $content);
+
+    // Gérer le montant total
+    $content = str_replace('{{montant_total}}', number_format($livraison->prix_TTC, 2) . " fcfa", $content);
+
+    // 3. Appliquer le CSS du modèle
+    $css = $modelDocument->css;
+    $content = str_replace('{{css}}', $css, $content);
+
+    // 4. Configurer DOMPDF et générer le PDF
+    $options = new Options();
+    $options->set('isRemoteEnabled', true);  // Si vous avez des images distantes
+    $dompdf = new Dompdf($options);
+
+    $dompdf->loadHtml($content);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+
+    // 5. Télécharger le PDF
+    return $dompdf->stream('livraison_' . $livraison->num_livraison . '.pdf');
+}
+
 }

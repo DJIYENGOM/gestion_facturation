@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use App\Models\Devi;
 use App\Models\Facture;
 use App\Models\Echeance;
@@ -12,6 +14,7 @@ use App\Models\BonCommande;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use App\Models\ArtcleFacture;
+use App\Models\ModelDocument;
 use App\Models\FactureAccompt;
 use App\Models\facture_Etiquette;
 use App\Models\ArticleBonCommande;
@@ -699,4 +702,102 @@ public function exporterDevis()
  
 }
   
+
+
+public function genererPDFDevis($devisId, $modelDocumentId)
+{
+    // 1. Récupérer le devis et le modèle de document depuis la base de données
+    $devis = Devi::with(['user', 'client', 'articles.article', 'echeances'])->find($devisId);
+    $modelDocument = ModelDocument::where('id', $modelDocumentId)->first();
+
+    if (!$devis || !$modelDocument) {
+        return response()->json(['error' => 'Devis ou modèle introuvable'], 404);
+    }
+
+    // 2. Remplacer les variables dynamiques par les données réelles
+    $content = $modelDocument->content;
+    $content = str_replace('{{num_devi}}', $devis->num_devi, $content);
+    $content = str_replace('{{expediteur_nom}}', $devis->user->name, $content);
+    $content = str_replace('{{expediteur_email}}', $devis->user->email, $content);
+    $content = str_replace('{{expediteur_tel}}', $devis->user->tel_entreprise ?? 'N/A', $content);
+    
+    $content = str_replace('{{destinataire_nom}}', $devis->client->prenom_client . ' ' . $devis->client->nom_client, $content);
+    $content = str_replace('{{destinataire_email}}', $devis->client->email_client, $content);
+    $content = str_replace('{{destinataire_tel}}', $devis->client->tel_client, $content);
+    
+    $content = str_replace('{{date_devis}}', \Carbon\Carbon::parse($devis->created_at)->format('d/m/Y'), $content);
+    
+    // Gérer la liste des articles
+    $articlesHtml = '';
+    foreach ($devis->articles as $article) {
+        $articlesHtml .= "<tr>
+            <td>{$article->article->nom_article}</td>
+            <td>{$article->quantite_article}</td>
+            <td>" . number_format($article->article->prix_unitaire, 2) . " fcfa</td>
+            <td>" . number_format($article->prix_total_article, 2) . " fcfa</td>
+        </tr>";
+    }
+    $content = str_replace('{{articles}}', $articlesHtml, $content);
+
+    // Gérer le montant total
+    $content = str_replace('{{montant_total}}', number_format($devis->prix_TTC, 2) . " fcfa", $content);
+
+    // Gérer les conditions de paiement
+    if ($modelDocument->conditionsPaiementModel) {
+        $conditionsPaiementHtml = "<h3>Conditions de paiement</h3><p>{$modelDocument->conditionPaiement}</p>";
+        $content = str_replace('{{conditions_paiement}}', $conditionsPaiementHtml, $content);
+    } else {
+        $content = str_replace('{{conditions_paiement}}', '', $content);
+    }
+
+    // Gérer les coordonnées bancaires
+    if ($modelDocument->coordonneesBancairesModel) {
+        $coordonneesBancairesHtml = "<h3>Coordonnées bancaires</h3>
+            <p>Titulaire du compte : {$modelDocument->titulaireCompte}</p>
+            <p>IBAN : {$modelDocument->IBAN}</p>
+            <p>BIC : {$modelDocument->BIC}</p>";
+        $content = str_replace('{{coordonnees_bancaires}}', $coordonneesBancairesHtml, $content);
+    } else {
+        $content = str_replace('{{coordonnees_bancaires}}', '', $content);
+    }
+
+    // Gérer la note de pied de page
+    if ($modelDocument->notePiedPageModel) {
+        $content = str_replace('{{note_pied_page}}', "<p>{$modelDocument->peidPage}</p>", $content);
+    } else {
+        $content = str_replace('{{note_pied_page}}', '', $content);
+    }
+
+    // Gérer les signatures
+    if ($modelDocument->signatureExpediteurModel) {
+        $signatureExpediteurHtml = "<img src='/path/to/images/{$modelDocument->image_expediteur}' alt='Signature Expéditeur' />";
+        $content = str_replace('{{signature_expediteur}}', $signatureExpediteurHtml, $content);
+    } else {
+        $content = str_replace('{{signature_expediteur}}', '', $content);
+    }
+
+    if ($modelDocument->signatureDestinataireModel) {
+        $signatureDestinataireHtml = "<img src='/path/to/images/{$modelDocument->image_destinataire}' alt='Signature Destinataire' />";
+        $content = str_replace('{{signature_destinataire}}', $signatureDestinataireHtml, $content);
+    } else {
+        $content = str_replace('{{signature_destinataire}}', '', $content);
+    }
+
+    // 3. Appliquer le CSS du modèle
+    $css = $modelDocument->css;
+    $content = str_replace('{{css}}', $css, $content);
+
+    // 4. Configurer DOMPDF et générer le PDF
+    $options = new Options();
+    $options->set('isRemoteEnabled', true);  // Si vous avez des images distantes
+    $dompdf = new Dompdf($options);
+    
+    $dompdf->loadHtml($content);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+
+    // 5. Télécharger le PDF
+    return $dompdf->stream('devis_' . $devis->num_devi . '.pdf');
+}
+
 }

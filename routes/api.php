@@ -28,6 +28,7 @@ use App\Http\Controllers\FactureAvoirController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaiementRecuController;
 use App\Http\Controllers\CommandeAchatController;
+use App\Http\Controllers\ModelDocumentController;
 use App\Http\Controllers\FactureAccomptController;
 use App\Http\Controllers\CategorieClientController;
 use App\Http\Controllers\CompteComptableController;
@@ -359,3 +360,8 @@ Route::post('DetailEmailRelanceApresEcheance_genererPDF/{id_echeance}', [EmailMo
 Route::post('envoyerEmailRelanceApresEcheance/{id_echeance}', [EmailModeleController::class, 'envoyerEmailRelanceApresEcheance']);
 
 Route::post('ConfigurerRelanceAuto', [ConfigurationRelanceAutoController::class, 'ConfigurerRelanceAuto']);
+
+Route::post('CreerModelDocument', [ModelDocumentController::class, 'CreerModelDocument']);
+Route::post('ModifierModelDocument/{id}', [ModelDocumentController::class, 'ModifierModelDocument']);
+
+Route::post('genererPDFDevis/{devisId}/{modelDocumentId}',[DeviController::class, 'genererPDFDevis']);

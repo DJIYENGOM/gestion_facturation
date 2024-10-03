@@ -112,8 +112,6 @@ class ArticleController extends Controller
         $typeDocument = $request->type_article == 'produit' ? 'produit' : 'service';
         $numArticle = NumeroGeneratorService::genererNumero($user_id, $typeDocument);
 
-        //dd($numArticle);
-
         $article = new Article();
         $article->num_article = $request->num_article ?? $numArticle;
         $article->nom_article = $request->nom_article;
@@ -721,7 +719,7 @@ public function listerArticles()
 {
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
-        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+        $userId = auth('apisousUtilisateur')->user()->id_user; 
 
         $articles = Article::with('categorieArticle', 'CompteComptable', 'Stocks', 'EntrepotArt', 'lot', 'autrePrix', 'variante', 'Etiquetttes.etiquette')
             ->where('sousUtilisateur_id', $sousUtilisateurId)
