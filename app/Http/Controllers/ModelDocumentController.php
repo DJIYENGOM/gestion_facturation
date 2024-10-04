@@ -182,8 +182,10 @@ public function listerModelesDocumentsParType(Request $request, $typeDocument)
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
     $modelesDocuments = ModelDocument::where('typeDocument', $typeDocument)
-    ->where('sousUtilisateur_id', $sousUtilisateur_id)
-    ->orWhere('user_id', $userId)
+    ->where(function ($query) use ($sousUtilisateur_id, $userId) {
+        $query->where('sousUtilisateur_id', $sousUtilisateur_id)
+              ->orWhere('user_id', $userId);
+    })
     ->get();
 
     $nombreTotalModeles = $modelesDocuments->count();
