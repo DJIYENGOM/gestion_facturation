@@ -363,5 +363,6 @@ Route::post('ConfigurerRelanceAuto', [ConfigurationRelanceAutoController::class,
 
 Route::post('CreerModelDocument', [ModelDocumentController::class, 'CreerModelDocument']);
 Route::post('ModifierModelDocument/{id}', [ModelDocumentController::class, 'ModifierModelDocument']);
+Route::get('listerModelesDocumentsParType/{typeDocument}', [ModelDocumentController::class, 'listerModelesDocumentsParType']);
 
 Route::post('genererPDFDevis/{devisId}/{modelDocumentId}',[DeviController::class, 'genererPDFDevis']);
