@@ -60,7 +60,7 @@ class ModelDocumentController extends Controller
 
             
             $autresImage = null;
-            if ($request->hasFile('autresImage')) {
+            if ($request->hasFile('image')) {
                 $autresImage = $request->file('autresImage')->store('images', 'public');
             }
     
@@ -151,7 +151,7 @@ class ModelDocumentController extends Controller
 
     
     $autresImage = null;
-    if ($request->hasFile('autresImage')) {
+    if ($request->hasFile('image')) {
         $autresImage = $request->file('autresImage')->store('images', 'public');
     }
 
