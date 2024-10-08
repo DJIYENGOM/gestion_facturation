@@ -290,6 +290,7 @@ Route::delete('supprimerCategorieDepense/{id}',[CategorieDepenseController::clas
 Route::post('creerDepense',[DepenseController::class, 'creerDepense']);
 Route::get('listerDepenses',[DepenseController::class, 'listerDepenses']);
 Route::post('modifierDepense/{id}',[DepenseController::class, 'modifierDepense']);
+Route::post('PayerDepense/{id}',[DepenseController::class, 'PayerDepense']);
 Route::delete('supprimerDepense/{id}',[DepenseController::class, 'supprimerDepense']);
 Route::get('exporterDepenses',[DepenseController::class, 'exporterDepenses']);
 Route::get('RapportDepense',[DepenseController::class, 'RapportDepense']);

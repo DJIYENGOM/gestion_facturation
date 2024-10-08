@@ -335,6 +335,37 @@ class DepenseController extends Controller
         return response()->json(['message' => 'Dépense modifiée avec succès', 'depense' => $depense], 200);
     }
     
+    public function PayerDepense($id){
+        if (auth()->guard('apisousUtilisateur')->check()) {
+            $sousUtilisateur = auth('apisousUtilisateur')->user();
+            if (!$sousUtilisateur->fonction_admin) {
+                return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+            }
+            $sousUtilisateurId = auth('apisousUtilisateur')->id();
+            $userId = auth('apisousUtilisateur')->user()->id_user;
+        } elseif (auth()->check()) {
+            $userId = auth()->id();
+            $sousUtilisateurId = null;
+        } else {
+            return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+        }
+    
+        $depense = Depense::where('id', $id)
+        ->where(function ($query) use ($userId, $sousUtilisateurId) {
+            $query->where('user_id', $userId)
+                  ->orWhere('sousUtilisateur_id', $sousUtilisateurId);
+        })
+        ->first();
+
+        if (!$depense) {
+        return response()->json(['error' => 'Dépense non trouvée'], 404);
+        }
+
+        $depense->statut_depense = 'payer';
+        $depense->save();
+        return response()->json(['message' => 'Depense payée avec succès']);
+    }
+
     public function supprimerDepense($id)
 {
     // Déterminer l'utilisateur ou le sous-utilisateur connecté

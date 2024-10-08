@@ -237,10 +237,14 @@ public function transformerEcheanceEnPaiementRecu(Request $request, $EcheanceId)
     ]);
 
     $facture=Facture::find($Echeance->facture_id);
+    //verifier s'il ya autres echeances pour cette facture avant de mettre le statut payer
+    $echeances=Echeance::where('facture_id', $facture->id)->get();
+    $nombre_echeances=$echeances->count();
+    if($nombre_echeances < 2) {
     $facture->update([
         'statut_paiement' =>'payer',
     ]);
-    
+    }
     $Echeance->delete();
 
     Historique::create([
