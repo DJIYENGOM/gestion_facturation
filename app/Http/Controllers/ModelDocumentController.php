@@ -61,7 +61,7 @@ class ModelDocumentController extends Controller
             
             $autresImage = null;
             if ($request->hasFile('image')) {
-                $autresImage = $request->file('autresImage')->store('images', 'public');
+                $autresImage = $request->file('image')->store('images', 'public');
             }
     
             $modelDocument = new ModelDocument([
