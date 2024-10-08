@@ -23,7 +23,298 @@
         "application/json"
     ],
     "paths": {
-        "/api/genererPDFDevis/{devisId}": {
+        "/api/genererPDFCommandeAchat/commandeAchatId/modelDocumentId": {
+            "post": {
+                "summary": "genererPDFCommandeAchat",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des models Documents"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/genererPDFBonCommande/bonCommandeId/modelDocumentId": {
+            "post": {
+                "summary": "genererPDFBonCommande",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des models Documents"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "bonCommandeId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/genererPDFLivraison/livraisonId/modelDocumentId": {
+            "post": {
+                "summary": "genererPDFLivraison",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des models Documents"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "livraisonId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/genererPDFFacture/factureId/modelDocumentId": {
+            "post": {
+                "summary": "genererPDFFacture",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des models Documents"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "factureId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/listerModelesDocumentsParType/devi": {
+            "get": {
+                "summary": "listerModelesDocumentsParType",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des models Documents"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/genererPDFDevis/{devisId}/{modelDocumentId}": {
             "post": {
                 "summary": "genererPDFDevis",
                 "description": "",
@@ -72,6 +363,11 @@
                     {
                         "in": "path",
                         "name": "devisId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
                         "type": "string"
                     },
                     {
@@ -278,7 +574,105 @@
                         "name": "User-Agent",
                         "type": "string"
                     }
-                ]
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "typeDocument": {
+                                        "type": "string"
+                                    },
+                                    "reprendre_model_vente": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "typeDesign": {
+                                        "type": "string"
+                                    },
+                                    "contenu": {
+                                        "type": "string"
+                                    },
+                                    "signatureExpediteurModel": {
+                                        "type": "boolean"
+                                    },
+                                    "mention_expediteur": {
+                                        "type": "string"
+                                    },
+                                    "image_expediteur": {
+                                        "type": "string"
+                                    },
+                                    "signatureDestinataireModel": {
+                                        "type": "boolean"
+                                    },
+                                    "mention_destinataire": {
+                                        "type": "string"
+                                    },
+                                    "image_destinataire": {
+                                        "type": "string"
+                                    },
+                                    "conditionsPaiementModel": {
+                                        "type": "boolean"
+                                    },
+                                    "conditionPaiement": {
+                                        "type": "string"
+                                    },
+                                    "autresImagesModel": {
+                                        "type": "boolean"
+                                    },
+                                    "image": {
+                                        "type": "string"
+                                    },
+                                    "coordonneesBancairesModel": {
+                                        "type": "boolean"
+                                    },
+                                    "titulaireCompte": {
+                                        "type": "string"
+                                    },
+                                    "IBAN": {
+                                        "type": "string"
+                                    },
+                                    "BIC": {
+                                        "type": "string"
+                                    },
+                                    "notePiedPageModel": {
+                                        "type": "boolean"
+                                    },
+                                    "peidPage": {
+                                        "type": "string"
+                                    },
+                                    "css": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "typeDocument": "livraison",
+                                "reprendre_model_vente": null,
+                                "typeDesign": "bloc",
+                                "contenu": "<!DOCTYPE html><html lang='fr'><head><meta charset='UTF-8'><title>Devis</title><style></p></div><h3>Détails des Articles</h3><table><thead><tr><th>Nom de l'Article</th><th>Quantité</th><th>Prix Unitaire</th><th>Prix Total</th></tr></thead><tbody></tbody></table><h3 class='total'>Montant Total :</h3></body></html>",
+                                "signatureExpediteurModel": true,
+                                "mention_expediteur": "Signature expéditeur",
+                                "image_expediteur": "signature_expediteur.png",
+                                "signatureDestinataireModel": true,
+                                "mention_destinataire": "Signature destinataire",
+                                "image_destinataire": "signature_destinataire.png",
+                                "conditionsPaiementModel": true,
+                                "conditionPaiement": "Paiement à 30 jours",
+                                "autresImagesModel": true,
+                                "image": "image.png",
+                                "coordonneesBancairesModel": true,
+                                "titulaireCompte": "Nom du titulaire",
+                                "IBAN": "FR76XXXXXXXXXXXXXXX",
+                                "BIC": "ABCDEFGHIJK",
+                                "notePiedPageModel": true,
+                                "peidPage": "Mention légale : ceci est un exemple de devis officiel.",
+                                "css": "body { font-family: Arial, sans-serif; } table { width: 100%; border-collapse: collapse; margin-bottom: 20px; } th, td { border: 1px solid #ddd; padding: 8px; text-align: left; } th { background-color: #3498db; color: white; } h1, h2, h3, p { margin: 0; padding: 0 0 10px; } .total { text-align: right; font-weight: bold; } .header, .footer { width: 100%; } .header .left, .header .right { width: 48%; display: inline-block; vertical-align: top; } .header .left { text-align: left; } .header .right { text-align: right; } .dates { text-align: right; margin-bottom: 20px; } .echeances-table { width: 50%; margin: 0 auto; }"
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/ConfigurerRelanceAuto": {
@@ -2619,6 +3013,402 @@
                 ]
             }
         },
+        "/api/RapportTVA": {
+            "get": {
+                "summary": "RapportTVA",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_debut": {
+                                        "type": "string"
+                                    },
+                                    "date_fin": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_debut": "2024-10-01",
+                                "date_fin": "2024-10-10"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/RapportMoyenPayement": {
+            "get": {
+                "summary": "RapportMoyenPayement",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_debut": {
+                                        "type": "string"
+                                    },
+                                    "date_fin": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_debut": "2024-10-01",
+                                "date_fin": "2024-10-10"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/RapportLivraison": {
+            "get": {
+                "summary": "RapportLivraison",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_debut": {
+                                        "type": "string"
+                                    },
+                                    "date_fin": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_debut": "2024-10-01",
+                                "date_fin": "2024-10-10"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/RapportCommandeVente": {
+            "get": {
+                "summary": "RapportCommandeVente",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_debut": {
+                                        "type": "string"
+                                    },
+                                    "date_fin": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_debut": "2024-10-01",
+                                "date_fin": "2024-10-10"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/RapportPaiementRecu": {
+            "get": {
+                "summary": "RapportPaiementRecu",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_debut": {
+                                        "type": "string"
+                                    },
+                                    "date_fin": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_debut": "2024-10-01",
+                                "date_fin": "2024-10-10"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/RapportDepense": {
+            "get": {
+                "summary": "Rapport Depenses",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_debut": {
+                                        "type": "string"
+                                    },
+                                    "date_fin": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_debut": "2024-10-01",
+                                "date_fin": "2024-10-10"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/exporterDepenses": {
             "get": {
                 "summary": "exporter Depenses",
@@ -3835,23 +4625,16 @@
                                 "type": "object",
                                 "properties": {
                                     "id_categorie_depense": {
-                                        "type": "integer"
-                                    },
-                                    "commentaire": {
                                         "type": "string"
                                     },
                                     "date_paiement": {
                                         "type": "string"
                                     },
-                                    "tva_depense": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
                                     "montant_depense_ht": {
-                                        "type": "integer"
+                                        "type": "string"
                                     },
-                                    "montant_depense_ttc": {
-                                        "type": "integer"
+                                    "statut_depense": {
+                                        "type": "string"
                                     },
                                     "num_facture": {
                                         "type": "string"
@@ -3859,77 +4642,31 @@
                                     "date_facture": {
                                         "type": "string"
                                     },
-                                    "fournisseur_id": {
+                                    "image_facture": {
                                         "type": "string",
                                         "format": "binary"
                                     },
-                                    "statut_depense": {
+                                    "fournisseur_id": {
                                         "type": "string"
                                     },
-                                    "id_paiement": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "doc_externe": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "plusieurs_paiement": {
-                                        "type": "boolean"
-                                    },
-                                    "duree_indeterminee": {
-                                        "type": "boolean"
-                                    },
-                                    "periode_echeance": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "nombre_periode": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "echeances": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "etiquettes": {
-                                        "type": "string",
-                                        "format": "binary"
+                                    "tva_depense": {
+                                        "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "id_categorie_depense": 1,
-                                "commentaire": "gbdhxdbdbbhei",
-                                "date_paiement": "2024-09-10",
-                                "tva_depense": null,
-                                "montant_depense_ht": 30000,
-                                "montant_depense_ttc": 50000,
+                                "id_categorie_depense": "1",
+                                "date_paiement": "2024-10-10",
+                                "montant_depense_ht": "30000",
+                                "statut_depense": "impayer",
                                 "num_facture": "000001",
                                 "date_facture": "2024-06-20",
-                                "fournisseur_id": null,
-                                "statut_depense": "impayer",
-                                "id_paiement": null,
-                                "doc_externe": null,
-                                "plusieurs_paiement": false,
-                                "duree_indeterminee": false,
-                                "periode_echeance": null,
-                                "nombre_periode": null,
-                                "echeances": [
-                                    {
-                                        "date_pay_echeance": "2024-07-25",
-                                        "montant_echeance": 20000
-                                    },
-                                    {
-                                        "date_pay_echeance": "2024-07-27",
-                                        "montant_echeance": 20000
-                                    }
-                                ],
-                                "etiquettes": [
-                                    {
-                                        "id_etiquette": null
-                                    }
-                                ]
+                                "image_facture": {
+                                    "type": "string",
+                                    "format": "binary"
+                                },
+                                "fournisseur_id": "1",
+                                "tva_depense": "100"
                             }
                         }
                     }
@@ -5645,8 +6382,7 @@
                                 "type": "object",
                                 "properties": {
                                     "nom_fournisseur": {
-                                        "type": "string",
-                                        "format": "binary"
+                                        "type": "string"
                                     },
                                     "prenom_fournisseur": {
                                         "type": "string"
@@ -5695,16 +6431,12 @@
                                     },
                                     "iban": {
                                         "type": "string"
-                                    },
-                                    "etiquettes": {
-                                        "type": "string",
-                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "nom_fournisseur": null,
-                                "prenom_fournisseur": "fall",
+                                "nom_fournisseur": "fall",
+                                "prenom_fournisseur": "fallou",
                                 "nom_entreprise": "ngombusiness",
                                 "adress_fournisseur": "dakar",
                                 "email_fournisseur": "ngomdjiye@gmail.com",
@@ -5719,12 +6451,7 @@
                                 "code_guichet": 12345,
                                 "num_compte": 234223212454,
                                 "cle_rib": 34,
-                                "iban": "1234EJFHEJ34324984551234567893ERNS",
-                                "etiquettes": [
-                                    {
-                                        "id_etiquette": 1
-                                    }
-                                ]
+                                "iban": "1234EJFHEJ34324984551234567893ERNS"
                             }
                         }
                     }
@@ -8589,6 +9316,72 @@
                 }
             }
         },
+        "/api/RapportFluxTrésorerie": {
+            "get": {
+                "summary": "RapportFluxTrésorerie",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion facture"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_debut": {
+                                        "type": "string"
+                                    },
+                                    "date_fin": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_debut": "2024-10-01",
+                                "date_fin": "2024-10-04"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/genererPDF/4": {
             "post": {
                 "summary": "generer PDF",
@@ -9395,6 +10188,9 @@
                                     "type_paiement": {
                                         "type": "string"
                                     },
+                                    "id_paiement": {
+                                        "type": "integer"
+                                    },
                                     "id_recurrent": {
                                         "type": "string",
                                         "format": "binary"
@@ -9423,7 +10219,8 @@
                                 "reduction_facture": 1000,
                                 "prix_HT": 20000,
                                 "prix_TTC": 25000,
-                                "type_paiement": "echeance",
+                                "type_paiement": "immediat",
+                                "id_paiement": 1,
                                 "id_recurrent": null,
                                 "active_Stock": "oui",
                                 "articles": [
