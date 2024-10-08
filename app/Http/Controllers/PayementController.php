@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Depense;
+use App\Models\Facture;
 use App\Models\Payement;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StorePayementRequest;
 use App\Http\Requests\UpdatePayementRequest;
-use Illuminate\Http\Request;
 
 class PayementController extends Controller
 {
@@ -166,4 +169,67 @@ public function supprimerPayement($id)
     }
 
 }    
+
+public function RapportMoyenPayement(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'date_debut' => 'required|date',
+        'date_fin' => 'required|date|after_or_equal:date_debut',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
+
+    $dateDebut = $request->input('date_debut');
+    $dateFin = $request->input('date_fin');
+    $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
+    $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
+
+    $factures = Facture::whereBetween('date_paiement', [$dateDebut, $dateFin])
+        ->where(function ($query) use ($userId, $parentUserId) {
+            $query->where('user_id', $userId)
+                ->orWhere('user_id', $parentUserId);
+        })
+        ->with('paiement') 
+        ->get();
+
+    $facturePayements = $factures->map(function ($facture) {
+        if ($facture->paiement) {
+            return [
+                'nom_payement' => $facture->paiement->nom_payement, 
+                'montant' => $facture->prix_TTC, 
+            ];
+        }
+        return null; 
+    })->filter(); // Enlever les résultats nuls
+
+    $depenses = Depense::whereBetween('date_paiement', [$dateDebut, $dateFin])
+        ->where(function ($query) use ($userId, $parentUserId) {
+            $query->where('user_id', $userId)
+                ->orWhere('user_id', $parentUserId);
+        })
+        ->with('paiement') 
+        ->get();
+
+    $depensePayements = $depenses->map(function ($depense) {
+        // Vérifier si la relation 'paiement' existe
+        if ($depense->paiement) {
+            return [
+                'nom_payement' => $depense->paiement->nom_payement,
+                'montant' => $depense->montant_depense_ttc, 
+            ];
+        }
+        return null; 
+    })->filter(); 
+
+    // Fusionner les paiements des factures et des dépenses
+    $payementsUtilises = $facturePayements->merge($depensePayements);
+
+    return response()->json(['payements_utilises' => $payementsUtilises]);
+}
+
+
+
+
 }

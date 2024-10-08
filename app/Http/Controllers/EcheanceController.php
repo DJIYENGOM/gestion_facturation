@@ -513,4 +513,34 @@ public function getNombreClientNotifApresEcheanceDans7Jours()
         }
     return 0;
 }
+
+public function RapportPaiement_enAttents(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'date_debut' => 'required|date',
+        'date_fin' => 'required|date|after_or_equal:date_debut',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
+
+    $dateDebut = $request->input('date_debut');
+    $dateFin = $request->input('date_fin');
+    $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
+    $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
+    $echeances = Echeance::with([ 'facture.client'])
+    ->whereBetween('date_pay_echeance', [$dateDebut, $dateFin])
+    ->where(function ($query) use ($userId, $parentUserId) {
+        $query->where('user_id', $userId)
+            ->orWhere('user_id', $parentUserId)
+            ->orWhereHas('sousUtilisateur', function ($query) use ($parentUserId) {
+                $query->where('id_user', $parentUserId);
+            });
+    })
+    ->get();
+
+    return response()->json($echeances);
+}
+
 }

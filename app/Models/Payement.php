@@ -23,6 +23,11 @@ class Payement extends Model
 
     public function facture()
     {
-        return $this->hasMany(Facture::class);
+        return $this->hasMany(Facture::class,'id_paiement');
     }
-}
+
+    public function depense()
+    {
+        return $this->hasMany(Depense::class,'id_paiement');
+    }
+}   

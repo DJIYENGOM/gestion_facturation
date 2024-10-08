@@ -128,7 +128,7 @@ class ModelDocumentController extends Controller
         'signatureDestinataireModel' => 'required|boolean',
         'mention_destinataire' => 'nullable|string',
         'autresImagesModel' => 'required|boolean',
-        'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'image.*' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
         'conditionsPaiementModel' => 'required|boolean',
         'conditionPaiement' => 'nullable|string',
         'coordonneesBancairesModel' => 'required|boolean',
@@ -146,13 +146,13 @@ class ModelDocumentController extends Controller
    
     $image_expediteur = null;
     if ($request->hasFile('image_expediteur')) {
-        $image_expediteur = $request->file('image_expediteur')->store('images', 'public');
+        $image_expediteur = $request->file('image_expediteur')->store('image_expediteur', 'public');
     }
 
     
     $autresImage = null;
     if ($request->hasFile('image')) {
-        $autresImage = $request->file('autresImage')->store('images', 'public');
+        $autresImage = $request->file('image')->store('AutresImage', 'public');
     }
 
     $modelDocument->typeDesign = $request->typeDesign;

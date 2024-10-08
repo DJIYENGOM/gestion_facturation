@@ -28,7 +28,7 @@ class Depense extends Model
         'num_facture',
         'date_facture',
         'image_facture',
-        'statut_paiement',
+        'statut_depense',
         'id_paiement',
         'id_compte_comptable',
         'sousUtilisateur_id',

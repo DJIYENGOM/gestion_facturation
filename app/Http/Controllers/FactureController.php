@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use Dompdf\Dompdf;
-use Dompdf\Options;
 use App\Models\Tva;
+use Dompdf\Options;
 use App\Models\Solde;
 use App\Models\Stock;
 use App\Models\Article;
+use App\Models\Depense;
 use App\Models\Facture;
 use App\Models\Echeance;
 use App\Models\Historique;
@@ -17,6 +18,7 @@ use App\Models\Notification;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use App\Models\ArtcleFacture;
+use App\Models\ModelDocument;
 use App\Models\FactureAccompt;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\facture_Etiquette;
@@ -28,7 +30,6 @@ use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use App\Models\ModelDocument;
 
 
 
@@ -840,23 +841,20 @@ public function ArreteCreationAutomatiqueFactureRecurrente($id)
 
 public function RapportFacture(Request $request)
 {
-    // Valider les dates d'entrée
     $validator = Validator::make($request->all(), [
         'date_debut' => 'required|date',
         'date_fin' => 'required|date|after_or_equal:date_debut',
-        'selection' => 'nullable|string|in:clients,produits,factures',// Nouveau paramètre pour déterminer la sélection
+        'selection' => 'nullable|string|in:clients,produits,factures',
     ]);
 
     if ($validator->fails()) {
         return response()->json(['error' => $validator->errors()], 400);
     }
 
-    // Récupérer les dates
     $dateDebut = $request->input('date_debut');
     $dateFin = $request->input('date_fin');
     $selection = $request->input('selection') ?? 'factures';
 
-    // Récupérer l'utilisateur connecté
     $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
     $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
 
@@ -927,7 +925,6 @@ public function RapportFacture(Request $request)
         });
     }
 
-    // Retourner le rapport et le nombre de factures
     return response()->json([
         'nombre_factures' => $nombreFactures,
         'rapport' => $rapport,
@@ -1174,6 +1171,50 @@ public function genererPDFFacture($factureId, $modelDocumentId)
 
     // 5. Télécharger le PDF
     return $dompdf->stream('facture_' . $facture->num_facture . '.pdf');
+}
+
+public function RapportFluxTrésorerie(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'date_debut' => 'required|date',
+        'date_fin' => 'required|date|after_or_equal:date_debut',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
+
+    $dateDebut = $request->input('date_debut');
+    $dateFin = $request->input('date_fin');
+    $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
+    $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
+
+    $factures = Facture::with(['client', 'articles.article'])
+        ->where('statut_paiement', 'payer')
+        ->where('archiver', 'non')
+        ->whereBetween('date_creation', [$dateDebut, $dateFin])
+        ->where(function ($query) use ($userId, $parentUserId) {
+            $query->where('user_id', $userId)
+                ->orWhere('user_id', $parentUserId)
+                ->orWhereHas('sousUtilisateur', function ($query) use ($parentUserId) {
+                    $query->where('id_user', $parentUserId);
+                });
+        })
+        ->get();
+
+    $depenses = Depense::with(['categorieDepense', 'fournisseur'])
+        ->where('statut_depense', 'payer')
+        ->whereBetween('created_at', [$dateDebut, $dateFin])
+        ->where(function ($query) use ($userId, $parentUserId) {
+            $query->where('user_id', $userId)
+                ->orWhere('user_id', $parentUserId)
+                ->orWhereHas('sousUtilisateur', function ($query) use ($parentUserId) {
+                    $query->where('id_user', $parentUserId);
+                });
+        })
+        ->get();
+
+        return compact('factures', 'depenses');
 }
 
 }

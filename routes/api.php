@@ -143,6 +143,8 @@ Route::controller(PayementController::class)->group(function () {
     Route::get('listerPayements', 'listerPayements');
     Route::post('modifierPayement/{id}', 'modifierPayement');
     Route::delete('supprimerPayement/{id}', 'supprimerPayement');
+    Route::get('RapportMoyenPayement',  'RapportMoyenPayement');
+
 
 });
 
@@ -163,6 +165,7 @@ Route::post('listerFacturesPayer', [FactureController::class, 'listerFacturesPay
 
 Route::get('listeFactureParClient/{clientId}', [FactureController::class, 'listeFactureParClient']);
 Route::get('RapportFacture', [FactureController::class, 'RapportFacture']);
+Route::get('RapportFluxTrésorerie', [FactureController::class, 'RapportFluxTrésorerie']);
 
 Route::get('exportFactures', [FactureController::class, 'exportFactures']);
 
@@ -198,13 +201,17 @@ Route::post('getNombreClientsNotifDans7Jours',[EcheanceController::class,'getNom
 Route::post('getNombreClientsNotifApresEcheance',[EcheanceController::class,'getNombreClientsNotifApresEcheance']);
 Route::post('getNombreClientNotifApresEcheanceDans7Jours',[EcheanceController::class,'getNombreClientNotifApresEcheanceDans7Jours']);
 
+Route::get('RapportPaiement_enAttents', [EcheanceController::class, 'RapportPaiement_enAttents']);
+
 Route::controller(PaiementRecuController::class)->group(function (){
     Route::post('ajouterPaiementRecu','ajouterPaiementRecu');
     Route::post('listPaiementsRecusParFacture/{factureId}', 'listPaiementsRecusParFacture');
     Route::delete('supprimerPaiementRecu/{paiementRecuId}', 'supprimerPaiementRecu');
     Route::post('transformerPaiementRecuEnEcheance/{paiementRecuId}', 'transformerPaiementRecuEnEcheance');
+    Route::get('RapportPaiementRecu', 'RapportPaiementRecu');
  
 });
+
 
 Route::controller(DeviController::class)->group(function(){
     Route::post('creerDevi','creerDevi');
@@ -227,6 +234,7 @@ Route::controller(BonCommandeController::class)->group(function(){
     Route::post('annulerBonCommande/{id}','annulerBonCommande');
     Route::post('DetailsBonCommande/{id}','DetailsBonCommande');  
     Route::get('exporterBonCommandes','exporterBonCommandes');  
+    Route::get('RapportCommandeVente','RapportCommandeVente');
 });
 
 Route::controller(FournisseurController::class)->group(function(){
@@ -247,6 +255,7 @@ Route::controller(LivraisonController::class)->group(function(){
     Route::post('DetailsLivraison/{id}','DetailsLivraison');
     Route::get('exporterLivraison','exporterLivraisons');
     Route::get('listerToutesLivraisonsParClient/{clientId}','listerToutesLivraisonsParClient');
+    Route::get('RapportLivraison','RapportLivraison');
 });
 
 Route::post('configurerNumeros',[NumeroConfigurationController::class, 'configurerNumeros']);
@@ -283,6 +292,7 @@ Route::get('listerDepenses',[DepenseController::class, 'listerDepenses']);
 Route::post('modifierDepense/{id}',[DepenseController::class, 'modifierDepense']);
 Route::delete('supprimerDepense/{id}',[DepenseController::class, 'supprimerDepense']);
 Route::get('exporterDepenses',[DepenseController::class, 'exporterDepenses']);
+Route::get('RapportDepense',[DepenseController::class, 'RapportDepense']);
 
 Route::post('creerCommandeAchat',[CommandeAchatController::class, 'creerCommandeAchat']);
 Route::get('listerToutesCommandesAchat',[CommandeAchatController::class, 'listerToutesCommandesAchat']);
@@ -314,6 +324,7 @@ Route::controller(StockController::class)->group(function(){
 });
 
 Route::get ('InfoSurTva_Recolte_Deductif_Reverse', [TvaController::class, 'InfoSurTva_Recolte_Deductif_Reverse']);
+Route::get('RapportTVA', [TvaController::class, 'RapportTVA']);
 
 Route::controller(ConversationController::class)->group(function(){
     Route::get('listerConversations','listerConversations');
@@ -366,3 +377,7 @@ Route::post('ModifierModelDocument/{id}', [ModelDocumentController::class, 'Modi
 Route::get('listerModelesDocumentsParType/{typeDocument}', [ModelDocumentController::class, 'listerModelesDocumentsParType']);
 
 Route::post('genererPDFDevis/{devisId}/{modelDocumentId}',[DeviController::class, 'genererPDFDevis']);
+Route::post('genererPDFFacture/{factureId/{modelDocumentId}',[FactureController::class, 'genererPDFFacture']);
+Route::post('genererPDFLivraison/{livraisonId}/{modelDocumentId}',[LivraisonController::class, 'genererPDFLivraison']);
+Route::post('genererPDFBonCommande/{bonCommandeId}/{modelDocumentId}',[BonCommandeController::class, 'genererPDFBonCommande']);
+Route::post('genererPDFCommandeAchat/{commandeAchatId}/{modelDocumentId}',[CommandeAchatController::class, 'genererPDFCommandeAchat']);

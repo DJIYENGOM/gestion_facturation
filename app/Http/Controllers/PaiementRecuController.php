@@ -7,6 +7,7 @@ use App\Models\Echeance;
 use App\Models\Historique;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PaiementRecuController extends Controller
 {
@@ -183,6 +184,35 @@ class PaiementRecuController extends Controller
         'message' => 'Paiement recu transformé en échéance avec succès',
         'echeance' => $echeance
     ], 201);
+}
+
+public function RapportPaiementRecu(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'date_debut' => 'required|date',
+        'date_fin' => 'required|date|after_or_equal:date_debut',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
+
+    $dateDebut = $request->input('date_debut');
+    $dateFin = $request->input('date_fin');
+    $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
+    $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
+    $paiements = PaiementRecu::with(['paiement', 'facture.client'])
+    ->whereBetween('date_recu', [$dateDebut, $dateFin])
+    ->where(function ($query) use ($userId, $parentUserId) {
+        $query->where('user_id', $userId)
+            ->orWhere('user_id', $parentUserId)
+            ->orWhereHas('sousUtilisateur', function ($query) use ($parentUserId) {
+                $query->where('id_user', $parentUserId);
+            });
+    })
+    ->get();
+
+    return response()->json($paiements);
 }
 
 }

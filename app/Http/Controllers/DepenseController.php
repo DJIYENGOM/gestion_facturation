@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\facture_Etiquette;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -174,7 +175,7 @@ class DepenseController extends Controller
                 return response()->json(['error' => 'Accès non autorisé'], 403);
             }
             $sousUtilisateurId = $sousUtilisateur->id;
-            $userId = $sousUtilisateur->id_user; // ID de l'utilisateur parent
+            $userId = $sousUtilisateur->id_user; 
     
             $depenses = Cache::remember('depenses', 3600, function () use ($sousUtilisateurId, $userId) {
             return Depense::with(['categorieDepense', 'fournisseur', 'Etiquetttes.etiquette'])
@@ -199,8 +200,10 @@ class DepenseController extends Controller
         } else {
             return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
         }
-    
-        // Formatter les dépenses
+        
+        // $image_facture = $depenses->image_facture ? asset('storage/' . $depenses->image_facture) : null;
+
+
         $depensesArray = $depenses->map(function ($depense) {
             return [
                 'num_depense' => $depense->num_depense,
@@ -217,7 +220,7 @@ class DepenseController extends Controller
                 'doc_externe' => $depense->doc_externe,
                 'num_facture' => $depense->num_facture,
                 'date_facture' => $depense->date_facture,
-                'image_facture' => $depense->image_facture,
+                'image_facture' => $depense->image_facture = Storage::url($depense->image_facture) ?: null,
                 'statut_depense' => $depense->statut_depense,
                 'id_paiement' => $depense->id_paiement,
                 'fournisseur_id' => $depense->fournisseur_id,
@@ -274,7 +277,6 @@ class DepenseController extends Controller
             $image_facture=$request->file('image_facture')->store('images', 'public',);
              }
 
-        // Déterminer l'utilisateur ou le sous-utilisateur connecté
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur = auth('apisousUtilisateur')->user();
             if (!$sousUtilisateur->fonction_admin) {
@@ -289,7 +291,6 @@ class DepenseController extends Controller
             return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
         }
     
-        // Récupérer la dépense à modifier
         $depense = Depense::where('id', $id)
                     ->where(function ($query) use ($userId, $sousUtilisateurId) {
                         $query->where('user_id', $userId)
@@ -303,7 +304,6 @@ class DepenseController extends Controller
 
         $depense->image_facture = $image_facture;
 
-        // Mettre à jour la dépense
         $depense->update($request->all());
         Artisan::call(command: 'optimize:clear');
 
@@ -468,5 +468,35 @@ public function exporterDepenses()
     $writer->save('php://output');
     exit;
 }
+
+public function RapportDepense(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'date_debut' => 'required|date',
+        'date_fin' => 'required|date|after_or_equal:date_debut',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
+
+    $dateDebut = $request->input('date_debut');
+    $dateFin = $request->input('date_fin');
+    $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
+    $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
+    $depenses = Depense::with(['categorieDepense', 'fournisseur'])
+    ->whereBetween('created_at', [$dateDebut, $dateFin])
+    ->where(function ($query) use ($userId, $parentUserId) {
+        $query->where('user_id', $userId)
+            ->orWhere('user_id', $parentUserId)
+            ->orWhereHas('sousUtilisateur', function ($query) use ($parentUserId) {
+                $query->where('id_user', $parentUserId);
+            });
+    })
+    ->get();
+
+    return response()->json($depenses);
+}
+
 
 }

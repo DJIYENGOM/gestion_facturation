@@ -787,4 +787,33 @@ public function genererPDFLivraison($livraisonId, $modelDocumentId)
     return $dompdf->stream('livraison_' . $livraison->num_livraison . '.pdf');
 }
 
+public function RapportLivraison(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'date_debut' => 'required|date',
+        'date_fin' => 'required|date|after_or_equal:date_debut',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
+
+    $dateDebut = $request->input('date_debut');
+    $dateFin = $request->input('date_fin');
+    $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
+    $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
+    $Livraisons = Livraison::with(['client'])
+    ->whereBetween('created_at', [$dateDebut, $dateFin])
+    ->where(function ($query) use ($userId, $parentUserId) {
+        $query->where('user_id', $userId)
+            ->orWhere('user_id', $parentUserId)
+            ->orWhereHas('sousUtilisateur', function ($query) use ($parentUserId) {
+                $query->where('id_user', $parentUserId);
+            });
+    })
+    ->get();
+
+    return response()->json($Livraisons);
+}
+
 }
