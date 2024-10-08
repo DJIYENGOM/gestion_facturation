@@ -31,11 +31,11 @@ class ModelDocumentController extends Controller
                 'contenu' => 'required',
                 'signatureExpediteurModel' => 'required|boolean',
                 'mention_expediteur' => 'nullable|string',
-                'image_expediteur' => 'nullable|string',
+                'image_expediteur' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'signatureDestinataireModel' => 'required|boolean',
                 'mention_destinataire' => 'nullable|string',
                 'autresImagesModel' => 'required|boolean',
-                'image.*' => 'nullable|string',
+                'image.*' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'conditionsPaiementModel' => 'required|boolean',
                 'conditionPaiement' => 'nullable|string',
                 'coordonneesBancairesModel' => 'required|boolean',
@@ -50,6 +50,18 @@ class ModelDocumentController extends Controller
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 422);
             }
+
+            
+            $image_expediteur = null;
+            if ($request->hasFile('image_expediteur')) {
+                $image_expediteur = $request->file('image_expediteur')->store('images', 'public');
+            }
+
+            
+            $autresImage = null;
+            if ($request->hasFile('autresImage')) {
+                $autresImage = $request->file('autresImage')->store('images', 'public');
+            }
     
             $modelDocument = new ModelDocument([
                 'typeDocument' => $request->typeDocument,
@@ -58,11 +70,11 @@ class ModelDocumentController extends Controller
                 'content' => $request->contenu,
                 'signatureExpediteurModel' => $request->signatureExpediteurModel,
                 'mention_expediteur' => $request->mention_expediteur,
-                'image_expediteur' => $request->image_expediteur,
+                'image_expediteur' => $image_expediteur,
                 'signatureDestinataireModel' => $request->signatureDestinataireModel,
                 'mention_destinataire' => $request->mention_destinataire,
                 'autresImagesModel' => $request->autresImagesModel,
-                'image' => $request->image,
+                'image' => $autresImage,
                 'conditionsPaiementModel' => $request->conditionsPaiementModel,
                 'conditionPaiement' => $request->conditionPaiement,
                 'coordonneesBancairesModel' => $request->coordonneesBancairesModel,
@@ -111,11 +123,11 @@ class ModelDocumentController extends Controller
         'contenu' => 'required',
         'signatureExpediteurModel' => 'required|boolean',
         'mention_expediteur' => 'nullable|string',
-        'image_expediteur' => 'nullable|string',
+        'image_expediteur' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
         'signatureDestinataireModel' => 'required|boolean',
         'mention_destinataire' => 'nullable|string',
         'autresImagesModel' => 'required|boolean',
-        'image' => 'nullable|string',
+        'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
         'conditionsPaiementModel' => 'required|boolean',
         'conditionPaiement' => 'nullable|string',
         'coordonneesBancairesModel' => 'required|boolean',
@@ -131,17 +143,29 @@ class ModelDocumentController extends Controller
         return response()->json(['errors' => $validator->errors()], 422);
     }
 
+   
+    $image_expediteur = null;
+    if ($request->hasFile('image_expediteur')) {
+        $image_expediteur = $request->file('image_expediteur')->store('images', 'public');
+    }
+
+    
+    $autresImage = null;
+    if ($request->hasFile('autresImage')) {
+        $autresImage = $request->file('autresImage')->store('images', 'public');
+    }
+
     $modelDocument->typeDesign = $request->typeDesign;
     $modelDocument->reprendre_model_vente = $request->reprendre_model_vente ; 
     $modelDocument->typeDocument = $request->typeDocument;
     $modelDocument->content = $request->contenu;
     $modelDocument->signatureExpediteurModel = $request->signatureExpediteurModel;
     $modelDocument->mention_expediteur = $request->mention_expediteur;
-    $modelDocument->image_expediteur = $request->image_expediteur;
+    $modelDocument->image_expediteur = $image_expediteur;
     $modelDocument->signatureDestinataireModel = $request->signatureDestinataireModel;
     $modelDocument->mention_destinataire = $request->mention_destinataire;
     $modelDocument->autresImagesModel = $request->autresImagesModel;
-    $modelDocument->image = $request->image;
+    $modelDocument->image = $autresImage;
     $modelDocument->conditionsPaiementModel = $request->conditionsPaiementModel;
     $modelDocument->conditionPaiement = $request->conditionPaiement;
     $modelDocument->coordonneesBancairesModel = $request->coordonneesBancairesModel;
