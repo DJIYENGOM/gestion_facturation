@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ModelDocument;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ModelDocumentController extends Controller
@@ -142,7 +143,6 @@ class ModelDocumentController extends Controller
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 422);
     }
-
    
     $image_expediteur = null;
     if ($request->hasFile('image_expediteur')) {
@@ -192,6 +192,7 @@ public function listerModelesDocumentsParType(Request $request, $typeDocument)
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 422);
     }
+
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateur = auth('apisousUtilisateur')->user();
         if (!$sousUtilisateur->fonction_admin) {
@@ -205,12 +206,27 @@ public function listerModelesDocumentsParType(Request $request, $typeDocument)
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
+
     $modelesDocuments = ModelDocument::where('typeDocument', $typeDocument)
     ->where(function ($query) use ($sousUtilisateur_id, $userId) {
         $query->where('sousUtilisateur_id', $sousUtilisateur_id)
               ->orWhere('user_id', $userId);
     })
     ->get();
+
+    $modelesDocuments = $modelesDocuments->map(function ($model) {
+        // Générer l'URL complète pour l'image de l'expéditeur, si présente
+        if ($model->image_expediteur) {
+            $model->image_expediteur = Storage::url($model->image_expediteur);
+        }
+
+        // Générer l'URL complète pour les autres images, si présentes
+        if ($model->image) {
+            $model->image = Storage::url($model->image);
+        }
+
+        return $model;
+    });
 
     $nombreTotalModeles = $modelesDocuments->count();
 
@@ -220,5 +236,6 @@ public function listerModelesDocumentsParType(Request $request, $typeDocument)
         'modelesDocuments' => $modelesDocuments
     ], 200);
 }
+
 
 }
