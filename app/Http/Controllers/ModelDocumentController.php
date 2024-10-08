@@ -55,13 +55,13 @@ class ModelDocumentController extends Controller
             
             $image_expediteur = null;
             if ($request->hasFile('image_expediteur')) {
-                $image_expediteur = $request->file('image_expediteur')->store('images', 'public');
+                $image_expediteur = $request->file('image_expediteur')->store('image_expediteur', 'public');
             }
 
             
             $autresImage = null;
             if ($request->hasFile('image')) {
-                $autresImage = $request->file('image')->store('images', 'public');
+                $autresImage = $request->file('image')->store('AutresImage', 'public');
             }
     
             $modelDocument = new ModelDocument([
