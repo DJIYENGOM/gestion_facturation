@@ -36,7 +36,6 @@ class ConfigurationRelanceAutoController extends Controller
         return response()->json(['errors' => $validator->errors()], 422);
     }
 
-    // Vérification si une configuration existe déjà pour cet utilisateur/sous-utilisateur
     $config = ConfigurationRelanceAuto::where('user_id', $userId)
         ->when($sousUtilisateur_id, function ($query) use ($sousUtilisateur_id) {
             return $query->orWhere('sousUtilisateur_id', $sousUtilisateur_id);
@@ -65,5 +64,40 @@ class ConfigurationRelanceAutoController extends Controller
     return response()->json($config, 200);
 }
 
+public function listerConfigurationRelance()
+{
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin) {
+          return response()->json(['error' => 'Accès non autorisé'], 403);
+          }
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; 
+
+        $ConfigurationRelanceAuto = ConfigurationRelanceAuto::
+            where(function ($query) use ($sousUtilisateurId, $userId) {
+                $query->where('sousUtilisateur_id', $sousUtilisateurId)
+                    ->orWhere('user_id', $userId);
+            })
+            ->get();
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+
+        $ConfigurationRelanceAuto = ConfigurationRelanceAuto::where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
+                        $query->where('user_id', $userId);
+                    });
+            })
+            ->get();
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
+    // Retourner la configuration trouvée
+    return response()->json([
+        'message' => ' ConfigurationRelanceAutos récupérée avec succès.',
+        'data' => $ConfigurationRelanceAuto,
+    ]);
+}
 
 }

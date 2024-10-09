@@ -373,6 +373,7 @@ Route::post('DetailEmailRelanceApresEcheance_genererPDF/{id_echeance}', [EmailMo
 Route::post('envoyerEmailRelanceApresEcheance/{id_echeance}', [EmailModeleController::class, 'envoyerEmailRelanceApresEcheance']);
 
 Route::post('ConfigurerRelanceAuto', [ConfigurationRelanceAutoController::class, 'ConfigurerRelanceAuto']);
+Route::get('listerConfigurationRelance', [ConfigurationRelanceAutoController::class, 'listerConfigurationRelance']);
 
 Route::post('CreerModelDocument', [ModelDocumentController::class, 'CreerModelDocument']);
 Route::post('ModifierModelDocument/{id}', [ModelDocumentController::class, 'ModifierModelDocument']);
