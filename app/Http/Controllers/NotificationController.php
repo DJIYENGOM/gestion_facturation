@@ -6,6 +6,7 @@ use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\MessageNotification;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class NotificationController extends Controller
@@ -13,7 +14,6 @@ class NotificationController extends Controller
 
     public function configurerNotification(Request $request)
     {
-        // Validation des données de la requête
         $validator = Validator::make($request->all(), [
             'produit_rupture' => 'boolean',
             'depense_impayer' => 'boolean',
@@ -43,7 +43,7 @@ class NotificationController extends Controller
             }
             
             $sousUtilisateurId = $sousUtilisateur->id;
-            $userId = $sousUtilisateur->id_user; // ID de l'utilisateur parent
+            $userId = $sousUtilisateur->id_user; 
         } elseif (auth()->check()) {
             $userId = auth()->id();
             $sousUtilisateurId = null;
@@ -51,13 +51,11 @@ class NotificationController extends Controller
             return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
         }
     
-        // Recherche de la configuration de notification existante
         $notification = Notification::where('user_id', $userId)
             ->orWhere('sousUtilisateur_id', $sousUtilisateurId)
             ->first();
     
         if ($notification) {
-            // Mise à jour de la configuration existante
             $notification->update($validated);
         } else {
             // Création d'une nouvelle configuration avec les données validées
@@ -102,7 +100,6 @@ class NotificationController extends Controller
     } else {
         return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
     }
-    // Retourner la configuration trouvée
     return response()->json([
         'message' => 'Configuration des notifications récupérée avec succès.',
         'data' => $notification,
@@ -111,7 +108,6 @@ class NotificationController extends Controller
 
     public function listerNotifications()
 {
-    // Vérifier si l'utilisateur est un sous-utilisateur ou un utilisateur standard
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user;
@@ -124,10 +120,8 @@ class NotificationController extends Controller
 
    
     $notificationsQuery = MessageNotification::select('message', DB::raw('count(*) as occurrences'))
-        ->groupBy('message')
-        ->orderBy('created_at', 'desc');
+        ->groupBy('message');
 
-    // Filtrer par utilisateur ou sous-utilisateur
     if ($sousUtilisateurId) {
         $notificationsQuery->where('sousUtilisateur_id', $sousUtilisateurId);
         
@@ -142,9 +136,8 @@ class NotificationController extends Controller
 
 public function supprimeNotificationParType(Request $request)
 {
-    $messageType = $request->input('message'); // Type de message à supprimer
+    $messageType = trim($request->input('message'));  // Supprimer les espaces avant et après
 
-    // Vérification de l'utilisateur connecté
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
         $userId = auth('apisousUtilisateur')->user()->id_user;
@@ -152,21 +145,29 @@ public function supprimeNotificationParType(Request $request)
         $userId = auth()->id();
         $sousUtilisateurId = null;
     } else {
-        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+        return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
     }
 
-    // Suppression des messages en fonction du type et de l'utilisateur
-    $notificationsQuery = Notification::where('message', $messageType);
+    $notificationsQuery = MessageNotification::whereRaw('LOWER(message) = ?', [strtolower($messageType)]); //Comparaison insensible à la casse pour les majuscle/minuscle
 
-    if ($sousUtilisateurId) {
-        $notificationsQuery->where('sousUtilisateur_id', $sousUtilisateurId);
-    } else {
-        $notificationsQuery->where('user_id', $userId);
-    }
-
-    $deleted = $notificationsQuery->delete();
-
-    return response()->json(['deleted' => $deleted, 'message' => "Messages de type '{$messageType}' supprimés"], 200);
+if ($sousUtilisateurId) {
+    $notificationsQuery->where('sousUtilisateur_id', $sousUtilisateurId);
+} else {
+    $notificationsQuery->where('user_id', $userId);
 }
+
+$notifications = $notificationsQuery->get();  
+
+if ($notifications->isEmpty()) {
+    return response()->json(['message' => "Aucun message trouvé pour ce type"], 404);
+}
+
+ $notificationsQuery->delete();  // Supprimer si les résultats existent
+
+return response()->json(array('message' => "Message supprimé avec succès"));
+
+}
+
+
 
 }
