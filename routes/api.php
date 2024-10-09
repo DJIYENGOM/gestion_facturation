@@ -315,6 +315,7 @@ Route::controller(HistoriqueController::class)->group(function(){
 Route::controller(NotificationController::class)->group(function(){
     Route::post('configurerNotification','configurerNotification');
     Route::get('listerConfigurationNotification','listerConfigurationNotification');
+    Route::get('listerNotifications','listerNotifications');
     Route::post('supprimeNotificationParType','supprimeNotificationParType');
 });
 
