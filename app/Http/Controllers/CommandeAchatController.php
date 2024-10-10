@@ -11,7 +11,9 @@ use App\Models\Historique;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\CommandeAchat;
+use App\Models\ModelDocument;
 use App\Models\facture_Etiquette;
+use Illuminate\Support\Facades\Log;
 use App\Models\ArticleCommandeAchat;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
@@ -19,7 +21,6 @@ use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use App\Models\ModelDocument;
 
 class CommandeAchatController extends Controller
 {
@@ -337,15 +338,16 @@ class CommandeAchatController extends Controller
     }
     
 
-public function modifierCommandeAchat(Request $request, $id)
+    public function modifierCommandeAchat(Request $request, $id)
 {
+    // Authentification
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateur = auth('apisousUtilisateur')->user();
         if (!$sousUtilisateur->commande_achat && !$sousUtilisateur->fonction_admin) {
-          return response()->json(['error' => 'Accès non autorisé'], 403);
-          }
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
         $sousUtilisateurId = auth('apisousUtilisateur')->id();
-        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+        $userId = auth('apisousUtilisateur')->user()->id_user;
     } elseif (auth()->check()) {
         $userId = auth()->id();
         $sousUtilisateurId = null;
@@ -357,16 +359,16 @@ public function modifierCommandeAchat(Request $request, $id)
 
     $validator = Validator::make($request->all(), [
         'num_commandeAchat' => 'required|string',
-        'date_commandeAchat'=>'required|date',
-        'date_livraison'=>'nullable|date',
-        'total_TTC'=>'nullable|numeric',
-        'titre'=>'nullable|string',
-        'description'=>'nullable|string',
-        'active_Stock'=> false,
-        'statut_commande'=> 'nullable|in:commander,recu,annuler,brouillon',
-        'fournisseur_id'=> 'nullable|exists:fournisseurs,id',
-        'depense_id'=> 'nullable|exists:depenses,id',
-        'commentaire'=> 'nullable|string',
+        'date_commandeAchat' => 'required|date',
+        'date_livraison' => 'nullable|date',
+        'total_TTC' => 'nullable|numeric',
+        'titre' => 'nullable|string',
+        'description' => 'nullable|string',
+        'active_Stock' => 'boolean', 
+        'statut_commande' => 'nullable|in:commander,recu,annuler,brouillon',
+        'fournisseur_id' => 'nullable|exists:fournisseurs,id',
+        'depense_id' => 'nullable|exists:depenses,id',
+        'commentaire' => 'nullable|string',
         'note_interne' => 'nullable|string',
         'doc_interne' => 'nullable|string',
         'articles' => 'nullable|array',
@@ -375,10 +377,11 @@ public function modifierCommandeAchat(Request $request, $id)
         'articles.*.prix_unitaire_article' => 'required|numeric',
         'articles.*.TVA_article' => 'nullable|numeric',
         'articles.*.reduction_article' => 'nullable|numeric',
-        'articles.*.prix_total_article'=>'nullable|numeric',
-        'articles.*.prix_total_tva_article'=>'nullable|numeric'
+        'articles.*.prix_total_article' => 'nullable|numeric',
+        'articles.*.prix_total_tva_article' => 'nullable|numeric'
     ]);
 
+    // Vérifiez si la validation a échoué
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 422);
     }
@@ -391,9 +394,9 @@ public function modifierCommandeAchat(Request $request, $id)
         'user_id' => $userId,
         'message' => 'Des Commandes d\'achats ont été modifiés',
         'id_commandeAchat' => $commandeAchat->id
-
     ]);
 
+    // Gérer les articles
     if ($request->has('articles')) {
         // Supprimer les articles existants
         $commandeAchat->articles()->delete();
@@ -415,6 +418,8 @@ public function modifierCommandeAchat(Request $request, $id)
 
     return response()->json(['message' => 'Commande modifiée avec succès', 'commande' => $commandeAchat], 200);
 }
+
+    
 
 public function supprimerCommandeAchat($id)
 {
