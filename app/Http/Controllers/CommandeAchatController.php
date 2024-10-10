@@ -204,6 +204,7 @@ class CommandeAchatController extends Controller
                 'prix_TTC' => $CommandeAchat->total_TTC,
                 'Prenom_fournisseur' => $CommandeAchat->fournisseur->prenom_fournisseur ?? null, 
                 'Nom_Fournisseur'=>$CommandeAchat->fournisseur->nom_fournisseur  ?? null,
+                'commentaire'=> $CommandeAchat->commentaire,
                 'note_interne' => $CommandeAchat->note_interne,
                 'statut' => $CommandeAchat->statut_commande,
                 'id_fournisseur' => $CommandeAchat->id_fournisseur,
