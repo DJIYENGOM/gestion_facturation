@@ -198,6 +198,8 @@ class CommandeAchatController extends Controller
             $response[] = [
                 'id' => $CommandeAchat->id,
                 'num_CommandeAchat' => $CommandeAchat->num_commandeAchat,
+                'titre' => $CommandeAchat->titre,
+                'description' => $CommandeAchat->description,
                 'date_creation' => $CommandeAchat->date_commandeAchat,
                 'livraison'=> $CommandeAchat->date_livraison,
                 'date_paiement' => $CommandeAchat->date_paiement,
@@ -207,8 +209,10 @@ class CommandeAchatController extends Controller
                 'commentaire'=> $CommandeAchat->commentaire,
                 'note_interne' => $CommandeAchat->note_interne,
                 'statut' => $CommandeAchat->statut_commande,
+                'active_Stock' => $CommandeAchat->active_Stock,
                 'id_fournisseur' => $CommandeAchat->id_fournisseur,
                 'id_depense' => $CommandeAchat->id_depense,
+                'doc_interne' => $CommandeAchat->doc_interne,
                 'articles' => $CommandeAchat->articles->map(function ($article) {
                     return [
                         'id' => $article->id,
