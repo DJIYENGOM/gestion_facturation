@@ -216,9 +216,14 @@ class CommandeAchatController extends Controller
                 'articles' => $CommandeAchat->articles->map(function ($article) {
                     return [
                         'id' => $article->id,
+                        'id_article' => $article->id_article,
                         'nom_article' => $article->article->nom_article,
                         'quantite' => $article->quantite_article,
-                        'prix_unitaire' => $article->prix_unitaire_article
+                        'prix_unitaire' => $article->prix_unitaire_article,
+                        'TVA_article' => $article->TVA_article,
+                        'prix_total_article' => $article->prix_total_article,
+                        'prix_total_tva_article' => $article->prix_total_tva_article
+
                     ];
                 })->all(),
 
