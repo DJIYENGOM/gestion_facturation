@@ -206,6 +206,16 @@ class CommandeAchatController extends Controller
                 'Nom_Fournisseur'=>$CommandeAchat->fournisseur->nom_fournisseur  ?? null,
                 'note_interne' => $CommandeAchat->note_interne,
                 'statut' => $CommandeAchat->statut_commande,
+                'id_fournisseur' => $CommandeAchat->id_fournisseur,
+                'id_depense' => $CommandeAchat->id_depense,
+                'articles' => $CommandeAchat->articles->map(function ($article) {
+                    return [
+                        'id' => $article->id,
+                        'nom_article' => $article->article->nom_article,
+                        'quantite' => $article->quantite_article,
+                        'prix_unitaire' => $article->prix_unitaire_article
+                    ];
+                })->all(),
 
                 'etiquettes' => $CommandeAchat->Etiquettes->map(function ($etiquette) {
                     return [
