@@ -193,12 +193,12 @@ class CommandeAchatController extends Controller
                 'active_Stock' => $CommandeAchat->active_Stock,
                 'id_fournisseur' => $CommandeAchat->id_fournisseur,
                 'id_depense' => $CommandeAchat->depense_id ,
-                'num_depense' => $CommandeAchat->depense->num_depense ,
-                'date_paiement_depense' => $CommandeAchat->depense->date_paiement ,
-                'statut_depense'=> $CommandeAchat->depense->statut_depense ,
-                'montant_depense_ht' => $CommandeAchat->depense->montant_depense_ht ,
-                'montant_depense_ttc' => $CommandeAchat->depense->montant_depense_ttc ,
-                'id_paiement' => $CommandeAchat->depense->id_paiement ,
+                'num_depense' => $CommandeAchat->depense->num_depense ?? null,
+                'date_paiement_depense' => $CommandeAchat->depense->date_paiement ?? null,
+                'statut_depense'=> $CommandeAchat->depense->statut_depense ?? null,
+                'montant_depense_ht' => $CommandeAchat->depense->montant_depense_ht ?? null,
+                'montant_depense_ttc' => $CommandeAchat->depense->montant_depense_ttc ?? null,
+                'id_paiement' => $CommandeAchat->depense->id_paiement ?? null,
                 
                 'doc_interne' => $CommandeAchat->doc_interne,
                 'articles' => $CommandeAchat->articles->map(function ($article) {
