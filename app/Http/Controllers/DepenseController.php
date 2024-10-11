@@ -214,6 +214,8 @@ class DepenseController extends Controller
                 'tva_depense' => $depense->tva_depense,
                 'montant_depense_ht' => $depense->montant_depense_ht,
                 'montant_depense_ttc' => $depense->montant_depense_ttc,
+                'id_user' => $depense->user_id,
+                'id_sous_utilisateur' => $depense->sousUtilisateur_id,
                 'plusieurs_paiement' => $depense->plusieurs_paiement,
                 'duree_indeterminee' => $depense->duree_indeterminee,
                 'periode_echeance' => $depense->periode_echeance,
