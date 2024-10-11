@@ -137,26 +137,6 @@ class CommandeAchatController extends Controller
                 'prix_total_tva_article' => $articleData['prix_total_tva_article'],
             ]);
         }
-
-            if ($commande->active_Stock == 1) {
-                foreach ($commande->articles as $article) {
-                 $articleDb = Article::find($article->id_article);
-                if ($articleDb && isset($articleDb->quantite) && isset($articleDb->quantite_alert)) {
-                    // Créer une notification si la quantité atteint ou est inférieure à la quantité d'alerte
-                    if ($articleDb->quantite <= $articleDb->quantite_alert) {
-                        Notification::create([
-                            'sousUtilisateur_id' => $sousUtilisateurId,
-                            'user_id' => $userId,
-                            'id_article' => $articleDb->id,
-                            'message' => 'La quantité des produits (' . $articleDb->nom_article . ') atteint la quantité d\'alerte.',
-                        ]);
-                    }
-                }
-
-                }
-
-            }
-
         
     
         return response()->json(['message' => 'Commande créée avec succès', 'commande' => $commande], 201);
@@ -212,7 +192,7 @@ class CommandeAchatController extends Controller
                 'statut' => $CommandeAchat->statut_commande,
                 'active_Stock' => $CommandeAchat->active_Stock,
                 'id_fournisseur' => $CommandeAchat->id_fournisseur,
-                'id_depense' => $CommandeAchat->id_depense,
+                'id_depense' => $CommandeAchat->depense_id,
                 'doc_interne' => $CommandeAchat->doc_interne,
                 'articles' => $CommandeAchat->articles->map(function ($article) {
                     return [
@@ -340,7 +320,6 @@ class CommandeAchatController extends Controller
 
     public function modifierCommandeAchat(Request $request, $id)
 {
-    // Authentification
     if (auth()->guard('apisousUtilisateur')->check()) {
         $sousUtilisateur = auth('apisousUtilisateur')->user();
         if (!$sousUtilisateur->commande_achat && !$sousUtilisateur->fonction_admin) {
@@ -381,7 +360,6 @@ class CommandeAchatController extends Controller
         'articles.*.prix_total_tva_article' => 'nullable|numeric'
     ]);
 
-    // Vérifiez si la validation a échoué
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 422);
     }
@@ -396,7 +374,6 @@ class CommandeAchatController extends Controller
         'id_commandeAchat' => $commandeAchat->id
     ]);
 
-    // Gérer les articles
     if ($request->has('articles')) {
         // Supprimer les articles existants
         $commandeAchat->articles()->delete();
