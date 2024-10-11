@@ -210,6 +210,7 @@ class DepenseController extends Controller
                 'id' => $depense->id,
                 'commentaire' => $depense->commentaire,
                 'date_paiement' => $depense->date_paiement,
+                'date_creation' => $depense->created_at,
                 'tva_depense' => $depense->tva_depense,
                 'montant_depense_ht' => $depense->montant_depense_ht,
                 'montant_depense_ttc' => $depense->montant_depense_ttc,
