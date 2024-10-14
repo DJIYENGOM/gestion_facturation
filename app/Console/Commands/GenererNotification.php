@@ -30,7 +30,6 @@ class GenererNotification extends Command
     public function handle()
     {
         $now = Carbon::now();
-
         $configurations = Notification::where('depense_impayer', true)
             ->where('nombre_jourNotif_depense', '>=', 1)
             ->get();

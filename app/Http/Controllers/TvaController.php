@@ -66,7 +66,7 @@ class TvaController extends Controller
         }
     
         $dateDebut = $request->input('date_debut');
-        $dateFin = $request->input('date_fin');
+        $dateFin = $request->input('date_fin'). ' 23:59:59'; //Inclure la fin de la journée
         $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
         $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
     

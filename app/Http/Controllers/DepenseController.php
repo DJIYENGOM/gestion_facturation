@@ -7,8 +7,10 @@ use App\Models\Tva;
 use App\Models\Depense;
 use App\Models\Echeance;
 use App\Models\Historique;
+use App\Models\JournalVente;
 use App\Models\Notification;
 use Illuminate\Http\Request;
+use App\Models\CompteComptable;
 use App\Models\facture_Etiquette;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
@@ -163,6 +165,43 @@ class DepenseController extends Controller
         if ($depense->statut_depense == 'impayer') {
             Depense::envoyerNotificationSiImpayer($depense);
         }
+
+        $compteVentesMarchandises = CompteComptable::where('nom_compte_comptable', 'Ventes de marchandises')->first();
+        $compteFournisseurs = CompteComptable::where('nom_compte_comptable', 'Fournisseurs divers')->first();
+        $compteTVADeductible = CompteComptable::where('nom_compte_comptable', 'TVA déductible')->first();
+
+
+        if ($depense->tva_depense > 0 && $compteTVADeductible) {
+            JournalVente::create([
+                'id_depense' => $depense->id,
+                'id_compte_comptable' => $compteTVADeductible->id,
+                'debit' => 0,
+                'credit' => $depense->montant_depense_ttc - $depense->montant_depense_ht,
+                'sousUtilisateur_id' => $sousUtilisateurId,
+                'user_id' => $userId,
+            ]);
+        }
+        if ( $compteVentesMarchandises) {
+            JournalVente::create([
+                'id_depense' => $depense->id,
+                'id_compte_comptable' => $compteVentesMarchandises->id,
+                'debit' => 0,
+                'credit' => $depense->montant_depense_ht,
+                'sousUtilisateur_id' => $sousUtilisateurId,
+                'user_id' => $userId,
+            ]);
+        }
+        
+        if ($depense->fournisseur_id && $compteFournisseurs) {
+            JournalVente::create([
+                'id_depense' => $depense->id,
+                'id_compte_comptable' => $compteFournisseurs->id,
+                'debit' => $depense->montant_depense_ttc,
+                'credit' => 0,
+                'sousUtilisateur_id' => $sousUtilisateurId,
+                'user_id' => $userId,
+            ]);
+        }
     
         return response()->json(['message' => 'Dépense créée avec succès', 'depense' => $depense], 201);
     }
@@ -178,7 +217,7 @@ class DepenseController extends Controller
             $userId = $sousUtilisateur->id_user; 
     
             $depenses = Cache::remember('depenses', 3600, function () use ($sousUtilisateurId, $userId) {
-            return Depense::with(['categorieDepense', 'fournisseur', 'Etiquetttes.etiquette'])
+            return Depense::with(['categorieDepense', 'fournisseur', 'Etiquetttes.etiquette','CommandeAchat'])
                 ->where(function ($query) use ($sousUtilisateurId, $userId) {
                     $query->where('sousUtilisateur_id', $sousUtilisateurId)
                           ->orWhere('user_id', $userId);
@@ -190,7 +229,7 @@ class DepenseController extends Controller
     
             $depenses = Cache::remember('depenses', 3600, function () use ($userId) {
                
-           return Depense::with(['categorieDepense', 'fournisseur', 'Etiquetttes.etiquette'])
+           return Depense::with(['categorieDepense', 'fournisseur', 'Etiquetttes.etiquette','CommandeAchat'])
                 ->where('user_id', $userId)
                 ->orWhereHas('sousUtilisateur', function ($query) use ($userId) {
                     $query->where('id_user', $userId);
@@ -226,6 +265,8 @@ class DepenseController extends Controller
                 'image_facture' => $depense->image_facture = Storage::url($depense->image_facture) ?: null,
                 'statut_depense' => $depense->statut_depense,
                 'id_paiement' => $depense->id_paiement,
+                'id_commande_achat' => $depense->CommandeAchat->id ?? null,
+                'num_commande_achat' => $depense->CommandeAchat->num_commandeAchat ?? null,
                 'fournisseur_id' => $depense->fournisseur_id,
                 'categorie_depense_id' => $depense->id_categorie_depense,
                 'nom_categorie_depense' => optional($depense->categorieDepense)->nom_categorie_depense,
@@ -515,7 +556,7 @@ public function RapportDepense(Request $request)
     }
 
     $dateDebut = $request->input('date_debut');
-    $dateFin = $request->input('date_fin');
+    $dateFin = $request->input('date_fin'). ' 23:59:59'; //Inclure la fin de la journée
     $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
     $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
     $depenses = Depense::with(['categorieDepense', 'fournisseur'])

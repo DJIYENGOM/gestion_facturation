@@ -23,6 +23,138 @@
         "application/json"
     ],
     "paths": {
+        "/api/getJournalAchatsEntreDates": {
+            "get": {
+                "summary": "get Journal Achats Entre 2 Dates",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des journals"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_debut": {
+                                        "type": "string"
+                                    },
+                                    "date_fin": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_debut": "2024-10-10",
+                                "date_fin": "2024-10-14"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/getJournalVentesEntreDates": {
+            "get": {
+                "summary": "Liste Journal Ventes Entre 2 Dates",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des journals"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_debut": {
+                                        "type": "string"
+                                    },
+                                    "date_fin": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_debut": "2024-10-10",
+                                "date_fin": "2024-10-14"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/genererPDFCommandeAchat/commandeAchatId/modelDocumentId": {
             "post": {
                 "summary": "genererPDFCommandeAchat",
@@ -378,7 +510,7 @@
                 ]
             }
         },
-        "/api/ModifierModelDocument/6": {
+        "/api/ModifierModelDocument/{id}": {
             "post": {
                 "summary": "ModifierModelDocument",
                 "description": "",
@@ -673,6 +805,51 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/listerConfigurationRelance": {
+            "get": {
+                "summary": "listerConfigurationRelance",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des emails"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
             }
         },
         "/api/ConfigurerRelanceAuto": {
@@ -2821,7 +2998,24 @@
                         "name": "User-Agent",
                         "type": "string"
                     }
-                ]
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "message": "Nouvelles dépenses prevues aujourd'hui"
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/listerNotifications": {
@@ -3733,16 +3927,78 @@
                                     },
                                     "date_fin": {
                                         "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date_debut": "2024-10-03",
+                                "date_fin": "2024-10-13"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/RapportFluxTrésorerie": {
+            "get": {
+                "summary": "RapportFluxTrésorerie",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date_debut": {
+                                        "type": "string"
                                     },
-                                    "selection": {
+                                    "date_fin": {
                                         "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "date_debut": "2024-08-09",
-                                "date_fin": "2024-08-13",
-                                "selection": "produits"
+                                "date_debut": "2024-10-01",
+                                "date_fin": "2024-10-04"
                             }
                         }
                     }
@@ -3994,6 +4250,11 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -4005,8 +4266,8 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "activation": {
-                                        "type": "boolean"
+                                    "num_commandeAchat": {
+                                        "type": "string"
                                     },
                                     "date_commandeAchat": {
                                         "type": "string"
@@ -4033,9 +4294,6 @@
                                     "total_TTC": {
                                         "type": "integer"
                                     },
-                                    "type_reccurente": {
-                                        "type": "string"
-                                    },
                                     "articles": {
                                         "type": "string",
                                         "format": "binary"
@@ -4043,7 +4301,7 @@
                                 }
                             },
                             "example": {
-                                "activation": true,
+                                "num_commandeAchat": "000012",
                                 "date_commandeAchat": "2024-07-23",
                                 "date_livraison": "2024-07-23",
                                 "fournisseur_id": null,
@@ -4052,7 +4310,6 @@
                                 "titre": "jgjgkbnf",
                                 "description": "hfrfbrhb",
                                 "total_TTC": 25000,
-                                "type_reccurente": "creer_brouillon",
                                 "articles": [
                                     {
                                         "id_article": 1,
@@ -4234,11 +4491,11 @@
                                         "type": "string"
                                     },
                                     "fournisseur_id": {
-                                        "type": "integer"
-                                    },
-                                    "depense_id": {
                                         "type": "string",
                                         "format": "binary"
+                                    },
+                                    "depense_id": {
+                                        "type": "integer"
                                     },
                                     "note_interne": {
                                         "type": "string"
@@ -4267,8 +4524,8 @@
                             "example": {
                                 "date_commandeAchat": "2024-07-23",
                                 "date_livraison": "2024-07-23",
-                                "fournisseur_id": 1,
-                                "depense_id": null,
+                                "fournisseur_id": null,
+                                "depense_id": 1,
                                 "note_interne": "Some notes about the facture",
                                 "titre": "jgjgkbnf",
                                 "description": "hfrfbrhb",
@@ -4360,7 +4617,7 @@
                 ]
             }
         },
-        "/api/modifierDepense/1": {
+        "/api/modifierDepense/{id}": {
             "post": {
                 "summary": "modifier Depense",
                 "description": "",
@@ -4656,7 +4913,7 @@
                             },
                             "example": {
                                 "id_categorie_depense": "1",
-                                "date_paiement": "2024-10-10",
+                                "date_paiement": "2024-10-09",
                                 "montant_depense_ht": "30000",
                                 "statut_depense": "impayer",
                                 "num_facture": "000001",
@@ -5267,10 +5524,6 @@
                                     "articles": {
                                         "type": "string",
                                         "format": "binary"
-                                    },
-                                    "etiquettes": {
-                                        "type": "string",
-                                        "format": "binary"
                                     }
                                 }
                             },
@@ -5301,11 +5554,6 @@
                                         "reduction_article": 50,
                                         "prix_total_article": 5000,
                                         "prix_total_tva_article": 8000
-                                    }
-                                ],
-                                "etiquettes": [
-                                    {
-                                        "id_etiquette": 1
                                     }
                                 ]
                             }
@@ -8213,7 +8461,7 @@
                 ]
             }
         },
-        "/api/transformerEcheanceEnPaiementRecu/6": {
+        "/api/transformerEcheanceEnPaiementRecu/{echeanceId}": {
             "post": {
                 "summary": "transformer Echeance En Paiement Recu",
                 "description": "",
@@ -8449,7 +8697,7 @@
                 ]
             }
         },
-        "/api/listEcheanceParFacture/6": {
+        "/api/listEcheanceParFacture/5": {
             "post": {
                 "summary": "lister echeance par facture",
                 "description": "",
@@ -9316,72 +9564,6 @@
                 }
             }
         },
-        "/api/RapportFluxTrésorerie": {
-            "get": {
-                "summary": "RapportFluxTrésorerie",
-                "description": "",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    }
-                },
-                "tags": [
-                    "gestion facture"
-                ],
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "User-Agent",
-                        "type": "string"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "date_debut": {
-                                        "type": "string"
-                                    },
-                                    "date_fin": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "example": {
-                                "date_debut": "2024-10-01",
-                                "date_fin": "2024-10-04"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/genererPDF/4": {
             "post": {
                 "summary": "generer PDF",
@@ -10228,7 +10410,7 @@
                                         "id_article": 2,
                                         "quantite_article": 5,
                                         "prix_unitaire_article": 5000,
-                                        "TVA_article": 50,
+                                        "TVA_article": 0,
                                         "reduction_article": 5,
                                         "prix_total_article": 5000,
                                         "prix_total_tva_article": 8000
@@ -10237,7 +10419,7 @@
                                         "id_article": 2,
                                         "quantite_article": 4,
                                         "prix_unitaire_article": 1000,
-                                        "TVA_article": 10,
+                                        "TVA_article": 0,
                                         "reduction_article": 50,
                                         "prix_total_article": 5000,
                                         "prix_total_tva_article": 8000
@@ -10255,6 +10437,10 @@
                                     {
                                         "date_pay_echeance": "2024-10-02",
                                         "montant_echeance": "4000.00"
+                                    },
+                                    {
+                                        "date_pay_echeance": "2024-10-06",
+                                        "montant_echeance": "5000.00"
                                     }
                                 ]
                             }

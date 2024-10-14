@@ -14,12 +14,14 @@ use App\Models\Facture;
 use App\Models\Echeance;
 use App\Models\Historique;
 use App\Models\FactureAvoir;
+use App\Models\JournalVente;
 use App\Models\Notification;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use App\Models\ArtcleFacture;
 use App\Models\ModelDocument;
 use App\Models\FactureAccompt;
+use App\Models\CompteComptable;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\facture_Etiquette;
 use App\Models\FactureRecurrente;
@@ -157,8 +159,6 @@ class FactureController extends Controller
             $prixUnitaire = $articleData['prix_unitaire_article'];
             $TVA = $articleData['TVA_article'] ?? 0;
             $reduction = $articleData['reduction_article'] ?? 0;
-            // $prixTotalArticleTva = $quantite * $prixUnitaire * (1 + $TVA / 100) * (1 - $reduction / 100);
-            // $prixTotalArticle = $quantite * $prixUnitaire * (1 - $reduction / 100);
 
             $prixTotalArticle=$articleData['prix_total_article'];
             $prixTotalArticleTva=$articleData['prix_total_tva_article'];
@@ -339,10 +339,106 @@ if ($request->type_paiement == 'immediat') {
         }
 
         }
-   
-        return response()->json(['message' => 'Facture créée avec succès', 'facture' => $facture], 201);
 
-}  
+$compteVentesMarchandises = CompteComptable::where('nom_compte_comptable', 'Ventes de marchandises')->first();
+$compteVentesServices = CompteComptable::where('nom_compte_comptable', 'Prestations de services')->first();
+$compteClientsDivers = CompteComptable::where('nom_compte_comptable', 'Clients divers')->first();
+$compteTVA = CompteComptable::where('nom_compte_comptable', 'TVA collectée')->first();
+$compteAcomptes = CompteComptable::where('nom_compte_comptable', 'Acomptes recus')->first();
+$compteBanque = CompteComptable::where('nom_compte_comptable', 'Banque')->first();
+
+// Créer l'entrée pour "Clients divers"
+if ($compteClientsDivers) {
+    JournalVente::create([
+        'id_facture' => $facture->id,
+        'id_compte_comptable' => $compteClientsDivers->id,
+        'debit' => $request->prix_TTC,
+        'credit' => 0,
+        'sousUtilisateur_id' => $sousUtilisateurId,
+        'user_id' => $userId,
+    ]);
+}
+
+foreach ($request->articles as $article) {
+
+    $articleDetails = Article::find($article['id_article']); // Récupère les détails de l'article
+
+    if ($articleDetails) {
+        $typeArticle = $articleDetails->type_article;     
+
+    $tva = $article['TVA_article'] ?? 0;
+    $quantite = $article['quantite_article'] ?? 0;
+    $prixUnitaire = $article['prix_unitaire_article'] ?? 0;
+    $montantTVA =  $quantite * $prixUnitaire * (1 + $tva / 100) - $quantite * $prixUnitaire ?? 0;
+    $prixHT = $article['prix_total_article'] ?? 0;
+  
+    // Si TVA présente, créer une entrée pour "TVA collectée"
+    if ($tva > 0 && $compteTVA) {
+        JournalVente::create([
+            'id_facture' => $facture->id,
+            'id_article' => $article['id_article'],
+            'id_compte_comptable' => $compteTVA->id,
+            'debit' => 0,
+            'credit' => $montantTVA, // TVA collectée
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+        ]);
+    }
+
+    // Créer une entrée pour le compte de ventes correspondant
+    if ($typeArticle == 'produit' && $compteVentesMarchandises) {
+        JournalVente::create([
+            'id_facture' => $facture->id,
+            'id_article' => $article['id_article'],
+            'id_compte_comptable' => $compteVentesMarchandises->id,
+            'debit' => 0,
+            'credit' => $prixHT, // Utilise le montant HT ici
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+        ]);
+    } elseif ($typeArticle == 'service' && $compteVentesServices) {
+        JournalVente::create([
+            'id_facture' => $facture->id,
+            'id_article' => $article['id_article'],
+            'id_compte_comptable' => $compteVentesServices->id,
+            'debit' => 0,
+            'credit' => $prixHT, // Utilise le montant HT ici
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+        ]);
+    
+    }
+   
+    }
+    } 
+    if($facture->type_paiement == 'facture_Accompt'){ 
+        if ($compteAcomptes) {
+        JournalVente::create([
+            'id_facture' => $facture->id,
+            'id_article' => $article['id_article'],
+            'id_compte_comptable' => $compteAcomptes->id,
+            'debit' => 0,
+            'credit' => $prixHT, // Utilise le montant HT ici
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+        ]);
+    }
+       if ($compteBanque) {
+         JournalVente::create([
+            'id_facture' => $facture->id,
+            'id_article' => $article['id_article'],
+            'id_compte_comptable' => $compteBanque->id,
+            'debit' => $prixHT, // Utilise le montant HT ici
+            'credit' => 0,
+            'sousUtilisateur_id' => $sousUtilisateurId,
+            'user_id' => $userId,
+        ]);
+    }
+}
+
+    return response()->json(['message' => 'Facture créée avec succès', 'facture' => $facture], 201);
+}
+
 
 public function listeArticlesFacture($id_facture)
 {
@@ -852,7 +948,7 @@ public function RapportFacture(Request $request)
     }
 
     $dateDebut = $request->input('date_debut');
-    $dateFin = $request->input('date_fin');
+    $dateFin = $request->input('date_fin') . ' 23:59:59'; //Inclure la fin de la journée
     $selection = $request->input('selection') ?? 'factures';
 
     $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
@@ -1185,7 +1281,7 @@ public function RapportFluxTrésorerie(Request $request)
     }
 
     $dateDebut = $request->input('date_debut');
-    $dateFin = $request->input('date_fin');
+    $dateFin = $request->input('date_fin') . ' 23:59:59';
     $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
     $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
 

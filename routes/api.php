@@ -25,6 +25,7 @@ use App\Http\Controllers\EmailModeleController;
 use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\FactureAvoirController;
+use App\Http\Controllers\JournalVenteController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaiementRecuController;
 use App\Http\Controllers\CommandeAchatController;
@@ -384,3 +385,6 @@ Route::post('genererPDFFacture/{factureId/{modelDocumentId}',[FactureController:
 Route::post('genererPDFLivraison/{livraisonId}/{modelDocumentId}',[LivraisonController::class, 'genererPDFLivraison']);
 Route::post('genererPDFBonCommande/{bonCommandeId}/{modelDocumentId}',[BonCommandeController::class, 'genererPDFBonCommande']);
 Route::post('genererPDFCommandeAchat/{commandeAchatId}/{modelDocumentId}',[CommandeAchatController::class, 'genererPDFCommandeAchat']);
+
+Route::get('getJournalVentesEntreDates', [JournalVenteController::class, 'getJournalVentesEntreDates']);
+Route::get('getJournalAchatsEntreDates', [JournalVenteController::class, 'getJournalAchatsEntreDates']);

@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\Article;
 use App\Models\Facture;
 use App\Models\Historique;
 use App\Models\FactureAvoir;
+use App\Models\JournalVente;
 use Illuminate\Http\Request;
+use App\Models\CompteComptable;
 use App\Models\facture_Etiquette;
 use App\Models\FactureRecurrente;
 use App\Models\ArticleFactureAvoir;
@@ -139,6 +142,72 @@ class FactureAvoirController extends Controller
                ]);
             }
         }
+        $compteVentesMarchandises = CompteComptable::where('nom_compte_comptable', 'Ventes de marchandises')->first();
+        $compteVentesServices = CompteComptable::where('nom_compte_comptable', 'Prestations de services')->first();
+        $compteClientsDivers = CompteComptable::where('nom_compte_comptable', 'Clients divers')->first();
+        $compteTVA = CompteComptable::where('nom_compte_comptable', 'TVA collectée')->first();
+
+        if ($compteClientsDivers) {
+            JournalVente::create([
+                'id_factureAvoir' => $factureAvoir->id,
+                'id_compte_comptable' => $compteClientsDivers->id,
+                'debit' => $request->prix_TTC,
+                'credit' => 0,
+                'sousUtilisateur_id' => $sousUtilisateurId,
+                'user_id' => $userId,
+            ]);
+        }
+        
+        foreach ($request->articles as $article) {
+        
+            $articleDetails = Article::find($article['id_article']); // Récupère les détails de l'article
+        
+            if ($articleDetails) {
+                $typeArticle = $articleDetails->type_article;     
+        
+            $tva = $article['TVA_article'] ?? 0;
+            $quantite = $article['quantite_article'] ?? 0;
+            $prixUnitaire = $article['prix_unitaire_article'] ?? 0;
+            $montantTVA =  $quantite * $prixUnitaire * (1 + $tva / 100) - $quantite * $prixUnitaire ?? 0;
+            $prixHT = $article['prix_total_article'] ?? 0;
+          
+            if ($tva > 0 && $compteTVA) {
+                JournalVente::create([
+                    'id_factureAvoir' => $factureAvoir->id,
+                    'id_article' => $article['id_article'],
+                    'id_compte_comptable' => $compteTVA->id,
+                    'debit' => 0,
+                    'credit' => $montantTVA, // TVA collectée
+                    'sousUtilisateur_id' => $sousUtilisateurId,
+                    'user_id' => $userId,
+                ]);
+            }
+        
+            if ($typeArticle == 'produit' && $compteVentesMarchandises) {
+                JournalVente::create([
+                    'id_factureAvoir' => $factureAvoir->id,
+                    'id_article' => $article['id_article'],
+                    'id_compte_comptable' => $compteVentesMarchandises->id,
+                    'debit' => 0,
+                    'credit' => $prixHT, // Utilise le montant HT ici
+                    'sousUtilisateur_id' => $sousUtilisateurId,
+                    'user_id' => $userId,
+                ]);
+            } elseif ($typeArticle == 'service' && $compteVentesServices) {
+                JournalVente::create([
+                    'id_factureAvoir' => $factureAvoir->id,
+                    'id_article' => $article['id_article'],
+                    'id_compte_comptable' => $compteVentesServices->id,
+                    'debit' => 0,
+                    'credit' => $prixHT, // Utilise le montant HT ici
+                    'sousUtilisateur_id' => $sousUtilisateurId,
+                    'user_id' => $userId,
+                ]);
+            
+            }
+           
+            }
+            } 
         return response()->json(['message' => 'factureAvoir créée avec succès', 'factureAvoir' => $factureAvoir], 201);
 
     }

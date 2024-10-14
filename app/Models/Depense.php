@@ -28,7 +28,6 @@ class Depense extends Model
         'num_facture',
         'date_facture',
         'image_facture',
-        'statut_depense',
         'id_paiement',
         'id_compte_comptable',
         'sousUtilisateur_id',
@@ -55,6 +54,10 @@ class Depense extends Model
         return $this->belongsTo(CompteComptable::class, 'id_compte_comptable');
     }
 
+    public function CommandeAchat()
+    {
+        return $this->belongsTo(CommandeAchat::class, 'depense_id');
+    }
 
     public function sousUtilisateur()
     {

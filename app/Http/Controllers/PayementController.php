@@ -182,7 +182,7 @@ public function RapportMoyenPayement(Request $request)
     }
 
     $dateDebut = $request->input('date_debut');
-    $dateFin = $request->input('date_fin');
+    $dateFin = $request->input('date_fin'). ' 23:59:59'; //Inclure la fin de la journée
     $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
     $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
 
@@ -197,6 +197,7 @@ public function RapportMoyenPayement(Request $request)
     $facturePayements = $factures->map(function ($facture) {
         if ($facture->paiement) {
             return [
+                'id_facture' => $facture->id,
                 'nom_payement' => $facture->paiement->nom_payement, 
                 'montant' => $facture->prix_TTC, 
             ];
@@ -216,6 +217,7 @@ public function RapportMoyenPayement(Request $request)
         // Vérifier si la relation 'paiement' existe
         if ($depense->paiement) {
             return [
+                'id_depense' => $depense->id,
                 'nom_payement' => $depense->paiement->nom_payement,
                 'montant' => $depense->montant_depense_ttc, 
             ];

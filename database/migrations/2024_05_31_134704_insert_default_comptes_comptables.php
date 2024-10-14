@@ -21,6 +21,8 @@ class InsertDefaultComptesComptables extends Migration
             ['nom_compte_comptable' => 'Achats non stockés de matière et fournitures', 'code_compte_comptable' => '606000'],
             ['nom_compte_comptable' => 'TVA collectée', 'code_compte_comptable' => '445700'],
             ['nom_compte_comptable' => 'TVA déductible', 'code_compte_comptable' => '445660'],
+            ['nom_compte_comptable' => 'Acomptes recus', 'code_compte_comptable' => '4191'],
+            ['nom_compte_comptable' => 'Banque', 'code_compte_comptable' => '512'],
         ];
 
         foreach ($defaultComptes as $compte) {
@@ -36,7 +38,7 @@ class InsertDefaultComptesComptables extends Migration
     public function down()
     {
         CompteComptable::whereIn('code_compte_comptable', [
-            '411000', '707000', '706000', '401000', '606000', '445700', '445660'
+            '411000', '707000', '706000', '401000', '606000', '445700', '445660', '4191', '512'
         ])->delete(); 
     }
 }
