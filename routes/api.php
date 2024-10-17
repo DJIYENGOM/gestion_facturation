@@ -144,7 +144,7 @@ Route::controller(PayementController::class)->group(function () {
     Route::get('listerPayements', 'listerPayements');
     Route::post('modifierPayement/{id}', 'modifierPayement');
     Route::delete('supprimerPayement/{id}', 'supprimerPayement');
-    Route::get('RapportMoyenPayement',  'RapportMoyenPayement');
+    Route::post('RapportMoyenPayement',  'RapportMoyenPayement');
 
 
 });
@@ -165,8 +165,8 @@ Route::post('listerFacturesAccompt', [FactureController::class, 'listerFacturesA
 Route::post('listerFacturesPayer', [FactureController::class, 'listerFacturesPayer']);
 
 Route::get('listeFactureParClient/{clientId}', [FactureController::class, 'listeFactureParClient']);
-Route::get('RapportFacture', [FactureController::class, 'RapportFacture']);
-Route::get('RapportFluxTrésorerie', [FactureController::class, 'RapportFluxTrésorerie']);
+Route::post('RapportFacture', [FactureController::class, 'RapportFacture']);
+Route::post('RapportFluxTrésorerie', [FactureController::class, 'RapportFluxTrésorerie']);
 
 Route::get('exportFactures', [FactureController::class, 'exportFactures']);
 
@@ -202,14 +202,14 @@ Route::post('getNombreClientsNotifDans7Jours',[EcheanceController::class,'getNom
 Route::post('getNombreClientsNotifApresEcheance',[EcheanceController::class,'getNombreClientsNotifApresEcheance']);
 Route::post('getNombreClientNotifApresEcheanceDans7Jours',[EcheanceController::class,'getNombreClientNotifApresEcheanceDans7Jours']);
 
-Route::get('RapportPaiement_enAttents', [EcheanceController::class, 'RapportPaiement_enAttents']);
+Route::post('RapportPaiement_enAttents', [EcheanceController::class, 'RapportPaiement_enAttents']);
 
 Route::controller(PaiementRecuController::class)->group(function (){
     Route::post('ajouterPaiementRecu','ajouterPaiementRecu');
     Route::post('listPaiementsRecusParFacture/{factureId}', 'listPaiementsRecusParFacture');
     Route::delete('supprimerPaiementRecu/{paiementRecuId}', 'supprimerPaiementRecu');
     Route::post('transformerPaiementRecuEnEcheance/{paiementRecuId}', 'transformerPaiementRecuEnEcheance');
-    Route::get('RapportPaiementRecu', 'RapportPaiementRecu');
+    Route::post('RapportPaiementRecu', 'RapportPaiementRecu');
  
 });
 
@@ -235,7 +235,7 @@ Route::controller(BonCommandeController::class)->group(function(){
     Route::post('annulerBonCommande/{id}','annulerBonCommande');
     Route::post('DetailsBonCommande/{id}','DetailsBonCommande');  
     Route::get('exporterBonCommandes','exporterBonCommandes');  
-    Route::get('RapportCommandeVente','RapportCommandeVente');
+    Route::post('RapportCommandeVente','RapportCommandeVente');
 });
 
 Route::controller(FournisseurController::class)->group(function(){
@@ -256,7 +256,7 @@ Route::controller(LivraisonController::class)->group(function(){
     Route::post('DetailsLivraison/{id}','DetailsLivraison');
     Route::get('exporterLivraison','exporterLivraisons');
     Route::get('listerToutesLivraisonsParClient/{clientId}','listerToutesLivraisonsParClient');
-    Route::get('RapportLivraison','RapportLivraison');
+    Route::post('RapportLivraison','RapportLivraison');
 });
 
 Route::post('configurerNumeros',[NumeroConfigurationController::class, 'configurerNumeros']);
@@ -280,7 +280,7 @@ Route::post('creerFactureRecurrente',[FactureRecurrenteController::class, 'creer
 Route::get('listerToutesFacturesRecurrentes',[FactureRecurrenteController::class, 'listerToutesFacturesRecurrentes']);
 Route::post('supprimerFactureRecurrente/{id}',[FactureRecurrenteController::class, 'supprimerFactureRecurrente']);
 
-Route::get('listeSoldeParClient/{clientId}',[SoldeController::class, 'listeSoldeParClient']);
+Route::post('listeSoldeParClient/{clientId}',[SoldeController::class, 'listeSoldeParClient']);
 Route::post('supprimer_archiverSolde/{id}',[SoldeController::class, 'supprimer_archiverSolde']);
 Route::post('ajouterSolde/{clientId}',[SoldeController::class, 'ajouterSolde']);
 
@@ -294,7 +294,7 @@ Route::post('modifierDepense/{id}',[DepenseController::class, 'modifierDepense']
 Route::post('PayerDepense/{id}',[DepenseController::class, 'PayerDepense']);
 Route::delete('supprimerDepense/{id}',[DepenseController::class, 'supprimerDepense']);
 Route::get('exporterDepenses',[DepenseController::class, 'exporterDepenses']);
-Route::get('RapportDepense',[DepenseController::class, 'RapportDepense']);
+Route::post('RapportDepense',[DepenseController::class, 'RapportDepense']);
 
 Route::post('creerCommandeAchat',[CommandeAchatController::class, 'creerCommandeAchat']);
 Route::get('listerToutesCommandesAchat',[CommandeAchatController::class, 'listerToutesCommandesAchat']);
@@ -327,7 +327,7 @@ Route::controller(StockController::class)->group(function(){
 });
 
 Route::get ('InfoSurTva_Recolte_Deductif_Reverse', [TvaController::class, 'InfoSurTva_Recolte_Deductif_Reverse']);
-Route::get('RapportTVA', [TvaController::class, 'RapportTVA']);
+Route::post('RapportTVA', [TvaController::class, 'RapportTVA']);
 
 Route::controller(ConversationController::class)->group(function(){
     Route::get('listerConversations','listerConversations');
