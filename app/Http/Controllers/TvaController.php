@@ -85,6 +85,7 @@ class TvaController extends Controller
                     'num_facture' => $FactureTVA->facture->num_facture ?? 'N/A', 
                     'Prenom_Nom_client' => ($FactureTVA->facture->client->prenom_client ?? 'N/A') . ' ' . ($FactureTVA->facture->client->nom_client ?? 'N/A'), 
                     'tva' => $FactureTVA->TVA_article, 
+                    'montant_TVA' => $FactureTVA->prix_total_tva_article - $FactureTVA->prix_total_article,
                 ];
             }
             return null; 
@@ -104,6 +105,8 @@ class TvaController extends Controller
                     'num_depense' => $depense->num_depense ?? 'N/A', 
                     'categorie' => $depense->categorieDepense->nom_categorie_depense ?? 'N/A', 
                     'tva' => $depense->tva_depense,
+                    'montant_TVA' => $depense->montant_depense_ttc - $depense->montant_depense_ht,
+                    'fournisseur' => ($depense->fournisseur->prenom_fournisseur ?? 'N/A').' '.($depense->fournisseur->nom_fournisseur ?? 'N/A'),
                 ];
             }
             return null; 
