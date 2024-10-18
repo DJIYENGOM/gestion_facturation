@@ -1361,8 +1361,8 @@ public function RapportResultat(Request $request)
         'factures' => $factures->map(function ($facture) {
             return [
                 'id' => $facture->id,
-                'montant_ht' => $facture->montant_ht,
-                'montant_ttc' => $facture->montant_ttc,
+                'montant_ht' => $facture->prix_HT,
+                'montant_ttc' => $facture->prix_TTC,
                 'date_creation' => $facture->date_creation,
                 'statut_paiement' => $facture->statut_paiement,
                 'articles' => $facture->articles->map(function ($articleFacture) {
