@@ -19,6 +19,7 @@ use App\Models\Notification;
 use App\Models\PaiementRecu;
 use Illuminate\Http\Request;
 use App\Models\ArtcleFacture;
+use App\Models\CommandeAchat;
 use App\Models\ModelDocument;
 use App\Models\FactureAccompt;
 use App\Models\CompteComptable;
@@ -1311,6 +1312,79 @@ public function RapportFluxTrésorerie(Request $request)
         ->get();
 
         return compact('factures', 'depenses');
+}
+
+public function RapportResultat(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'date_debut' => 'required|date',
+        'date_fin' => 'required|date|after_or_equal:date_debut',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
+
+    $dateDebut = $request->input('date_debut');
+    $dateFin = $request->input('date_fin') . ' 23:59:59';
+    $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
+    $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
+
+    $factures = Facture::with(['articles.article' => function ($query) {
+            $query->select('articles.id', 'articles.prix_achat');  
+        }])
+        ->select('id', 'prix_HT', 'prix_TTC', 'date_creation', 'statut_paiement')
+        ->where('archiver', 'non')
+        ->whereBetween('date_creation', [$dateDebut, $dateFin])
+        ->where(function ($query) use ($userId, $parentUserId) {
+            $query->where('user_id', $userId)
+                ->orWhere('user_id', $parentUserId)
+                ->orWhereHas('sousUtilisateur', function ($query) use ($parentUserId) {
+                    $query->where('id_user', $parentUserId);
+                });
+        })
+        ->get();
+
+    // Récupérer les dépenses avec leurs montants HT et TTC
+    $depenses = Depense::select('id', 'montant_depense_ht', 'montant_depense_ttc', 'statut_depense', 'created_at')
+        ->whereBetween('created_at', [$dateDebut, $dateFin])
+        ->where(function ($query) use ($userId, $parentUserId) {
+            $query->where('user_id', $userId)
+                ->orWhere('user_id', $parentUserId)
+                ->orWhereHas('sousUtilisateur', function ($query) use ($parentUserId) {
+                    $query->where('id_user', $parentUserId);
+                });
+        })
+        ->get();
+
+    $result = [
+        'factures' => $factures->map(function ($facture) {
+            return [
+                'id' => $facture->id,
+                'montant_ht' => $facture->montant_ht,
+                'montant_ttc' => $facture->montant_ttc,
+                'date_creation' => $facture->date_creation,
+                'statut_paiement' => $facture->statut_paiement,
+                'articles' => $facture->articles->map(function ($articleFacture) {
+                    return [
+                        'article_id' => $articleFacture->article->id,
+                        'prix_achat' => $articleFacture->article->prix_achat,
+                    ];
+                })
+            ];
+        }),
+        'depenses' => $depenses->map(function ($depense) {
+            return [
+                'id' => $depense->id,
+                'montant_ht' => $depense->montant_depense_ht,
+                'montant_ttc' => $depense->montant_depense_ttc,
+                'date_creation' => $depense->created_at,
+                'statut_paiement' => $depense->statut_depense
+            ];
+        })
+    ];
+
+    return response()->json($result);
 }
 
 }

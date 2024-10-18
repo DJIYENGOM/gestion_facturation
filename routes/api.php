@@ -168,6 +168,8 @@ Route::get('listeFactureParClient/{clientId}', [FactureController::class, 'liste
 Route::post('RapportFacture', [FactureController::class, 'RapportFacture']);
 Route::post('RapportFluxTrésorerie', [FactureController::class, 'RapportFluxTrésorerie']);
 
+Route::post('RapportResultat', [FactureController::class, 'RapportResultat']);
+
 Route::get('exportFactures', [FactureController::class, 'exportFactures']);
 
 
@@ -386,5 +388,5 @@ Route::post('genererPDFLivraison/{livraisonId}/{modelDocumentId}',[LivraisonCont
 Route::post('genererPDFBonCommande/{bonCommandeId}/{modelDocumentId}',[BonCommandeController::class, 'genererPDFBonCommande']);
 Route::post('genererPDFCommandeAchat/{commandeAchatId}/{modelDocumentId}',[CommandeAchatController::class, 'genererPDFCommandeAchat']);
 
-Route::get('getJournalVentesEntreDates', [JournalVenteController::class, 'getJournalVentesEntreDates']);
-Route::get('getJournalAchatsEntreDates', [JournalVenteController::class, 'getJournalAchatsEntreDates']);
+Route::post('getJournalVentesEntreDates', [JournalVenteController::class, 'getJournalVentesEntreDates']);
+Route::post('getJournalAchatsEntreDates', [JournalVenteController::class, 'getJournalAchatsEntreDates']);
