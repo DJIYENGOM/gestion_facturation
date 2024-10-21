@@ -270,8 +270,8 @@ class DepenseController extends Controller
                 'fournisseur_id' => $depense->fournisseur_id,
                 'categorie_depense_id' => $depense->id_categorie_depense,
                 'nom_categorie_depense' => optional($depense->categorieDepense)->nom_categorie_depense,
-                'nom_fournisseur' => optional($depense->fournisseur)->nom,
-                'prenom_fournisseur' => optional($depense->fournisseur)->prenom,
+                'nom_fournisseur' => optional($depense->fournisseur)->nom_fournisseur,
+                'prenom_fournisseur' => optional($depense->fournisseur)->prenom_fournisseur,
                 'etiquettes' => $depense->Etiquetttes->map(function ($etiquette) {
                     return [
                         'id' => optional($etiquette->etiquette)->id,
