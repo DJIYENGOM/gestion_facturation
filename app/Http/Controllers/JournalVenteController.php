@@ -56,7 +56,7 @@ class JournalVenteController extends Controller
         $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
         $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
     
-        $journalAchat = JournalVente::with(['depense','depense.fournisseur','compteComptable','user','sousUtilisateur'])
+        $journalAchat = JournalVente::with(['depense','depense.fournisseur','depense.categorieDepense','compteComptable','user','sousUtilisateur'])
             ->where('id_facture',null) 
             ->where('id_factureAvoir',null)
             ->whereBetween('created_at', [$dateDebut, $dateFin])
