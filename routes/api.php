@@ -383,7 +383,7 @@ Route::post('ModifierModelDocument/{id}', [ModelDocumentController::class, 'Modi
 Route::get('listerModelesDocumentsParType/{typeDocument}', [ModelDocumentController::class, 'listerModelesDocumentsParType']);
 
 Route::post('genererPDFDevis/{devisId}/{modelDocumentId}',[DeviController::class, 'genererPDFDevis']);
-Route::post('genererPDFFacture/{factureId/{modelDocumentId}',[FactureController::class, 'genererPDFFacture']);
+Route::post('genererPDFFacture/{factureId}/{modelDocumentId}',[FactureController::class, 'genererPDFFacture']);
 Route::post('genererPDFLivraison/{livraisonId}/{modelDocumentId}',[LivraisonController::class, 'genererPDFLivraison']);
 Route::post('genererPDFBonCommande/{bonCommandeId}/{modelDocumentId}',[BonCommandeController::class, 'genererPDFBonCommande']);
 Route::post('genererPDFCommandeAchat/{commandeAchatId}/{modelDocumentId}',[CommandeAchatController::class, 'genererPDFCommandeAchat']);

@@ -173,7 +173,7 @@
                 }
             }
         },
-        "/api/genererPDFCommandeAchat/commandeAchatId/modelDocumentId": {
+        "/api/genererPDFCommandeAchat/{commandeAchatId}/{modelDocumentId}": {
             "post": {
                 "summary": "genererPDFCommandeAchat",
                 "description": "",
@@ -227,7 +227,7 @@
                 ]
             }
         },
-        "/api/genererPDFBonCommande/bonCommandeId/modelDocumentId": {
+        "/api/genererPDFBonCommande/{bonCommandeId}/{modelDocumentId}": {
             "post": {
                 "summary": "genererPDFBonCommande",
                 "description": "",
@@ -355,7 +355,7 @@
                 ]
             }
         },
-        "/api/genererPDFFacture/factureId/modelDocumentId": {
+        "/api/genererPDFFacture/{factureId}/{modelDocumentId}": {
             "post": {
                 "summary": "genererPDFFacture",
                 "description": "",
@@ -419,7 +419,7 @@
                 ]
             }
         },
-        "/api/listerModelesDocumentsParType/devi": {
+        "/api/listerModelesDocumentsParType/{devi}": {
             "get": {
                 "summary": "listerModelesDocumentsParType",
                 "description": "",

@@ -25,7 +25,7 @@ class JournalVenteController extends Controller
         $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
         $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
     
-        $journalVentes = JournalVente::with(['facture','articles.article','compteComptable','factureAvoir','user','sousUtilisateur'])
+        $journalVentes = JournalVente::with(['facture','facture.client','articles.article','compteComptable','factureAvoir','factureAvoir.client','user','sousUtilisateur'])
             ->whereBetween('created_at', [$dateDebut, $dateFin])
             ->where('id_depense',null)
             ->where(function ($query) use ($userId, $parentUserId) {
@@ -56,7 +56,7 @@ class JournalVenteController extends Controller
         $userId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->id() : auth()->id();
         $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
     
-        $journalAchat = JournalVente::with(['depense','compteComptable','user','sousUtilisateur'])
+        $journalAchat = JournalVente::with(['depense','depense.fournisseur','compteComptable','user','sousUtilisateur'])
             ->where('id_facture',null) 
             ->where('id_factureAvoir',null)
             ->whereBetween('created_at', [$dateDebut, $dateFin])
