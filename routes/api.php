@@ -305,6 +305,7 @@ Route::post('modifierCommandeAchat/{id}',[CommandeAchatController::class, 'modif
 Route::delete('supprimerCommandeAchat/{id}',[CommandeAchatController::class, 'supprimerCommandeAchat']);
 Route::post('annulerCommandeAchat/{id}',[CommandeAchatController::class, 'annulerCommandeAchat']);
 Route::get('exporterCommandesAchats',[CommandeAchatController::class, 'exporterCommandesAchats']);
+Route::post('RecuCommandeAchat/{id}',[CommandeAchatController::class, 'RecuCommandeAchat']);
 
 
 Route::post('ArreteCreationAutomatiqueFactureRecurrente',[FactureController::class, 'ArreteCreationAutomatiqueFactureRecurrente']);
@@ -326,6 +327,8 @@ Route::controller(StockController::class)->group(function(){
     Route::get('listerStocks','listerStocks');
     Route::get('ListeStock_a_modifier','ListeStock_a_modifier');
     Route::post('modifierStock','modifierStock');
+    Route::post('Rapport_Valeur_Stock/{date}', 'Rapport_Valeur_Stock');
+    Route::post('calculerValeurStock', 'calculerValeurStock');
 });
 
 Route::get ('InfoSurTva_Recolte_Deductif_Reverse', [TvaController::class, 'InfoSurTva_Recolte_Deductif_Reverse']);

@@ -20,6 +20,7 @@ use App\Models\facture_Etiquette;
 use App\Models\ArticleBonCommande;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -720,12 +721,14 @@ public function genererPDFDevis($devisId, $modelDocumentId)
     $content = str_replace('{{expediteur_nom}}', $devis->user->name, $content);
     $content = str_replace('{{expediteur_email}}', $devis->user->email, $content);
     $content = str_replace('{{expediteur_tel}}', $devis->user->tel_entreprise ?? 'N/A', $content);
+    $logoUrl = $devis->user->logo ? Storage::url($devis->user->logo) : asset('public/storage/images/1hzmoM4fb2BZN5EMU4ZT4ddI1aWYhMJTo7Zr6pn3.jpg');
+    $content = str_replace('{{logo}}', "<img src='{$logoUrl}' alt='Logo' style='width:150px;height:auto;' />", $content);
     
     $content = str_replace('{{destinataire_nom}}', $devis->client->prenom_client . ' ' . $devis->client->nom_client, $content);
     $content = str_replace('{{destinataire_email}}', $devis->client->email_client, $content);
     $content = str_replace('{{destinataire_tel}}', $devis->client->tel_client, $content);
     
-    $content = str_replace('{{date_devis}}', \Carbon\Carbon::parse($devis->created_at)->format('d/m/Y'), $content);
+    $content = str_replace('{{date_devi}}', \Carbon\Carbon::parse($devis->created_at)->format('d/m/Y'), $content);
     
     // Gérer la liste des articles
     $articlesHtml = '';

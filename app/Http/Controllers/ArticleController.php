@@ -61,7 +61,9 @@ class ArticleController extends Controller
             'id_categorie_article' => 'nullable|exists:categorie_articles,id',
             'id_comptable' => 'nullable|exists:compte_comptables,id',
             'promo_id' => 'nullable|exists:promos,id',
-            'prix_achat' => 'nullable|numeric|min:0',
+            'tva_achat' => 'nullable|numeric|min:0|max:100',
+            'prix_ht_achat' => 'nullable|numeric|min:0',
+            'prix_ttc_achat' => 'nullable|numeric|min:0',            
             'quantite' => 'nullable|numeric|min:0',
             'quantite_alert' => 'nullable|numeric|min:0',
             'doc_externe' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
@@ -130,13 +132,15 @@ class ArticleController extends Controller
         $article->id_comptable = $id_comptable;
         $article->unité = $request->unité;
         $article->doc_externe = $doc_externe;
-        $article->prix_achat = $request->prix_achat;
+        $article->tva_achat = $request->tva_achat;
+        $article->prix_ht_achat = $request->prix_ht_achat;
+        $article->prix_ttc_achat = $request->prix_ttc_achat;
         $article->quantite = $request->quantite;
         $article->quantite_alert = $request->quantite_alert;
         $article->active_Stock = $request->active_Stock ?? 'non';
         $article->quantite_disponible = $request->quantite ?? null;
-        $article->benefice = $request->prix_unitaire - $request->prix_achat;
-        $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_achat : null;
+        $article->benefice = $request->prix_unitaire - $request->prix_ttc_achat;
+        $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_ttc_achat : null;
     
         $article->save();
         NumeroGeneratorService::incrementerCompteur($user_id, $typeDocument);
@@ -291,7 +295,7 @@ class ArticleController extends Controller
                 $stock->type_stock = 'entree';
                 $stock->date_stock = now()->format('Y-m-d');
                 $stock->num_stock = $numStock; 
-                $stock->libelle = $article->nom_article. ' - original';
+                $stock->libelle = $article->nom_article;
                 $stock->disponible_avant = 0;
                 $stock->modif = $article->quantite ?? 0;
                 $stock->disponible_apres = $article->quantite ?? 0;
@@ -349,7 +353,9 @@ class ArticleController extends Controller
             'categorie_article_id' => 'nullable|exists:categorie_articles,id',
             'id_comptable' => 'nullable|exists:compte_comptables,id',
             'promo_id' => 'nullable|exists:promos,id',
-            'prix_achat' => 'nullable|numeric|min:0',
+            'tva_achat' => 'nullable|numeric|min:0|max:100',
+            'prix_ht_achat' => 'nullable|numeric|min:0',
+            'prix_ttc_achat' => 'nullable|numeric|min:0',             
             'quantite' => 'nullable|numeric|min:0',
             'quantite_alert' => 'nullable|numeric|min:0',
             'doc_externe' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
@@ -433,12 +439,14 @@ class ArticleController extends Controller
         $article->unité = $request->unité;
         $article->doc_externe = $doc_externe;
         $article->code_barre = $request->code_barre;
-        $article->prix_achat = $request->prix_achat;
+        $article->tva_achat = $request->tva_achat;
+        $article->prix_ht_achat = $request->prix_ht_achat;
+        $article->prix_ttc_achat = $request->prix_ttc_achat;
         $article->quantite = $request->quantite;
         $article->quantite_disponible = $request->quantite ?? null;
         $article->quantite_alert = $request->quantite_alert;
-        $article->benefice = $request->prix_unitaire - $request->prix_achat;
-        $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_achat : null;
+        $article->benefice = $request->prix_unitaire - $request->prix_ht_achat;
+        $article->benefice_promo = $prixPromo ? $prixPromo - $request->prix_ht_achat : null;
     
         $article->update();
         Artisan::call('optimize:clear');
@@ -601,7 +609,7 @@ class ArticleController extends Controller
                 $stock->type_stock = 'entree';
                 $stock->date_stock = now()->format('Y-m-d');
                 $stock->num_stock = $numStock; 
-                $stock->libelle = $article->nom_article. ' - original';
+                $stock->libelle = $article->nom_article;
                 $stock->disponible_avant = 0;
                 $stock->modif = $article->quantite ?? 0;
                 $stock->disponible_apres = $article->quantite ?? 0;
@@ -803,7 +811,7 @@ public function affecterPromoArticle(Request $request, $id)
         $promo = Promo::find($article->promo_id);
         if ($promo) {
             $article->prix_promo = $article->prix_unitaire * $promo->pourcentage_promo;
-            $article->benefice_promo = $article->prix_promo - $article->prix_achat;
+            $article->benefice_promo = $article->prix_promo - $article->prix_ttc_achat;
             $article->save();
         }
     } else {
@@ -1117,7 +1125,7 @@ public function exportArticles()
     $sheet->setCellValue('A1', 'num_article');
     $sheet->setCellValue('B1', 'nom_article');
     $sheet->setCellValue('C1', 'quantite');
-    $sheet->setCellValue('D1', 'prix_achat');
+    $sheet->setCellValue('D1', 'prix_ttc_achat');
     $sheet->setCellValue('E1', 'unité');
     $sheet->setCellValue('F1', 'prix_unitaire');
     $sheet->setCellValue('G1', 'tva');
@@ -1179,7 +1187,7 @@ public function exportArticles()
         $sheet->setCellValue('A' . $row, $article->num_article);
         $sheet->setCellValue('B' . $row, $nomArticle);
         $sheet->setCellValue('C' . $row, $article->quantite);
-        $sheet->setCellValue('D' . $row, $article->prix_achat);
+        $sheet->setCellValue('D' . $row, $article->prix_ttc_achat);
         $sheet->setCellValue('E' . $row, $article->unité);
         $sheet->setCellValue('F' . $row, $article->prix_unitaire);
         $sheet->setCellValue('G' . $row, $article->tva);

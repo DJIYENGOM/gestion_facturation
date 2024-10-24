@@ -20,7 +20,6 @@ return new class extends Migration
             $table->decimal('prix_unitaire', 10, 2); 
             $table->integer('quantite')->nullable();
             $table->decimal('benefice')->nullable();
-            $table->decimal('prix_achat', 10, 2)->nullable();
             $table->decimal('prix_promo',10, 2)->nullable();
             $table->decimal('prix_tva', 10, 2)->nullable();
             $table->string('doc_externe')->nullable();
@@ -32,6 +31,9 @@ return new class extends Migration
             $table->enum('type_article', ['produit', 'service']);
             $table->string('code_barre')->nullable();
             $table->enum('unité', ['unite', 'kg', 'g', 'tonne', 'cm', 'l', 'm', 'm2','m3','h','jour','semaine','mois'])->nullable();
+            $table->decimal('tva_achat', 5, 2)->nullable();
+            $table->decimal('prix_ht_achat', 10, 2)->nullable();
+            $table->decimal('prix_ttc_achat', 10, 2)->nullable();
             $table->foreignId('promo_id')->nullable()->constrained('promos')->onDelete('set null')->nullable();
             $table->foreignId('id_comptable')->nullable()->constrained('compte_comptables')->onDelete('set null');
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');        //de lui affecter la valeu NULL si l'utilisateur est supprimer  

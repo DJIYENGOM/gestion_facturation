@@ -22,6 +22,8 @@ return new class extends Migration
             $table->integer('quantite_ajoutee')->nullable()->default(0);
             $table->foreignId('article_id')->constrained('articles')->onDelete('cascade');
             $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('set null');
+            $table->foreignId('factureAvoir_id')->nullable()->constrained('facture_avoirs')->onDelete('set null');
+            $table->foreignId('commandeAchat_id')->nullable()->constrained('commande_achats')->onDelete('set null');
             $table->foreignId('bonCommande_id')->nullable()->constrained('bon_commandes')->onDelete('set null');
             $table->foreignId('livraison_id')->nullable()->constrained('livraisons')->onDelete('set null');
             $table->string('statut_stock')->nullable();

@@ -207,4 +207,151 @@ public function modifierStock(Request $request)
 }
 
 
+
+function Rapport_Valeur_Stock($date)
+{
+    $stocks = Stock::where('date_stock', '<=', $date)->get();
+
+    $rapport = [];
+    
+    foreach ($stocks as $stock) {
+        $article = $stock->article; 
+        $code = $article->num_article; 
+        $produit = $stock->libelle; 
+        $quantite_totale = $stock->modif; 
+        $quantite_facture = 0;
+        if($stock->facture){
+            $quantite_facture += $stock->modif;
+        }
+        $prix_achat_ht = $article->prix_ht_achat; 
+        $tva_achat = $article->tva_achat; 
+        $prix_ttc_achat = $article->prix_ttc_achat; 
+        
+        // Calcul de la valeur totale en HT et TTC
+        $valeur_totale_ht = $quantite_totale * $prix_achat_ht;
+        $valeur_totale_ttc = $quantite_totale * $prix_ttc_achat;
+        
+        // Vérification pour éviter les doublons par article
+        if (!isset($rapport[$code])) {
+            $rapport[$code] = [
+                'code' => $code,
+                'produit' => $produit,
+                'quantite' => $quantite_totale,
+                'prix_achat_ht' => $prix_achat_ht,
+                'prix_ttc_achat' => $prix_ttc_achat,
+                'tva_achat' => $tva_achat,
+                'valeur_totale_ht' => $valeur_totale_ht,
+                'valeur_totale_ttc' => $valeur_totale_ttc
+            ];
+        } else {
+            // Si l'article existe déjà, on additionne les quantités et on recalcule les valeurs
+            $rapport[$code]['quantite'] += $quantite_totale - (2* $quantite_facture);
+            $rapport[$code]['valeur_totale_ht'] += $valeur_totale_ht;
+            $rapport[$code]['valeur_totale_ttc'] += $valeur_totale_ttc;
+        }
+    }
+
+    return $rapport;
+}
+
+ 
+public function calculerValeurStock(Request $request)
+{
+    // Vérification des accès utilisateur
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+
+        if (!$sousUtilisateur->visibilite_globale && !$sousUtilisateur->fonction_admin && !$sousUtilisateur->gestion_stock) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
+        $sousUtilisateurId = auth('apisousUtilisateur')->id();
+        $userId = $sousUtilisateur->id_user;
+
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+        $sousUtilisateurId = null;
+    } else {
+        return response()->json(['error' => 'Vous n\'êtes pas connecté'], 401);
+    }
+
+    // Validation des données de la requête
+    $validator = Validator::make($request->all(), [
+        'date' => 'required|date',
+        'FIFO' => 'nullable|boolean',
+        'prix_achat_moyen' => 'nullable|boolean',
+        'prix_achat_actuel' => 'nullable|boolean',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
+
+    // Récupération des stocks en fonction de la date spécifiée
+    $stocks = Stock::where('date_stock', '<=', $request->date)->get();
+
+    // Vérification des méthodes fournies
+    $useFIFO = $request->get('FIFO', false);
+    $useCUMP = $request->get('prix_achat_moyen', false);
+    $useLIFO = $request->get('prix_achat_actuel', false);
+    
+    // Grouping stocks by product number
+    $groupedStocks = $stocks->groupBy('num_stock'); // Regroupement des stocks par produit
+    
+    // Initialisation des résultats par produit
+    $results = [];
+    
+    foreach ($groupedStocks as $numeroProduit => $stocksForProduct) {
+        // Initialisation des variables pour les calculs par produit
+        $quantite_totale = 0;
+        $valeur_totale = 0;
+        $valeur_facture = 0;
+        $valeur_commandeAchat = 0;
+    
+        if ($useFIFO) {
+            // Méthode FIFO (First In First Out)
+            foreach ($stocksForProduct as $stock) {
+                $lastStock = $stocks->last();
+                $quantite_totale = $lastStock->disponible_apres; 
+                $valeur_totale += $stock->modif * $stock->article->prix_achat_ht;
+    
+                if ($stock->facture_id != null) {
+                    $valeur_facture += $stock->modif * $stock->article->prix_achat_ht;
+                    $valeur_totale -= $valeur_facture;
+                }
+    
+                if ($stock->commandeAchat_id != null) {
+                    $valeur_commandeAchat += $stock->modif * $stock->commandeAchat->prix_achat_ht;
+                    $valeur_totale += $valeur_commandeAchat;
+                }
+            }
+        }
+    
+        if ($useCUMP) {
+            // Méthode CUMP (Coût Unitaire Moyen Pondéré)
+            $quantite_totale = $stocksForProduct->sum('modif');
+            $valeur_totale = $stocksForProduct->sum(function ($stock) {
+                return $stock->modif * $stock->article->prix_achat_ht;
+            });
+    
+            $prix_achat_moyen = $quantite_totale > 0 ? $valeur_totale / $quantite_totale : 0;
+        }
+    
+        if ($useLIFO) {
+            // Méthode LIFO (Last In First Out)
+            $lastStock = $stocksForProduct->last(); // Dernier stock ajouté
+            $quantite_totale = $stocksForProduct->sum('modif');
+            $valeur_totale = $quantite_totale * $lastStock->article->prix_achat_ht;
+        }
+    
+        // Stocker les résultats pour chaque produit
+        $results[$numeroProduit] = [
+            'quantite_totale' => $quantite_totale,
+            'valeur_totale' => $valeur_totale,
+        ];
+    }
+    
+    // Retourner les résultats sous forme de réponse JSON
+    return response()->json($results);
+}
+
 }

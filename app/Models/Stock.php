@@ -19,6 +19,8 @@ class Stock extends Model
         'quantite_ajoutee',
         'article_id',
         'facture_id',
+        'factureAvoir_id',
+        'commandeAchat_id',
         'bonCommande_id',
         'livraison_id',
         'statut_stock',
@@ -34,12 +36,22 @@ class Stock extends Model
 
     public function facture()
     {
-        return $this->belongsTo(Facture::class);
+        return $this->belongsTo(Facture::class, 'facture_id');
     }   
+
+    public function factureAvoir()
+    {
+        return $this->belongsTo(FactureAvoir::class, 'factureAvoir_id');
+    }
+
+    public function commandeAchat()
+    {
+        return $this->belongsTo(CommandeAchat::class, 'commandeAchat_id');
+    }
 
     public function bonCommande()
     {
-        return $this->belongsTo(BonCommande::class);
+        return $this->belongsTo(BonCommande::class, 'bonCommande_id');
     }
 
     public function livraison()

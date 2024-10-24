@@ -29,6 +29,7 @@ use App\Models\FactureRecurrente;
 use App\Models\MessageNotification;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 use App\Services\NumeroGeneratorService;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -289,7 +290,7 @@ if ($request->type_paiement == 'immediat') {
         
                     // Créer une nouvelle entrée de stock
                     $stock = new Stock();
-                    $stock->type_stock = 'Sortie';
+                    $stock->type_stock = 'sortie';
                     $stock->date_stock = now()->format('Y-m-d');
                     $stock->num_stock = $numStock; 
                     $stock->libelle = $lastStock->libelle;
@@ -381,8 +382,8 @@ foreach ($request->articles as $article) {
             'id_compte_comptable' => $compteTVA->id,
             'debit' => 0,
             'credit' => $montantTVA, // TVA collectée
-            'sousUtilisateur_id' => $sousUtilisateurId,
-            'user_id' => $userId,
+            'sousUtilisateur_id' => $sousUtilisateurId ?? null,
+            'user_id' => $userId ?? null,
         ]);
     }
 
@@ -394,8 +395,8 @@ foreach ($request->articles as $article) {
             'id_compte_comptable' => $compteVentesMarchandises->id,
             'debit' => 0,
             'credit' => $prixHT, // Utilise le montant HT ici
-            'sousUtilisateur_id' => $sousUtilisateurId,
-            'user_id' => $userId,
+            'sousUtilisateur_id' => $sousUtilisateurId ?? null,
+            'user_id' => $userId ?? null,
         ]);
     } elseif ($typeArticle == 'service' && $compteVentesServices) {
         JournalVente::create([
@@ -404,8 +405,8 @@ foreach ($request->articles as $article) {
             'id_compte_comptable' => $compteVentesServices->id,
             'debit' => 0,
             'credit' => $prixHT, // Utilise le montant HT ici
-            'sousUtilisateur_id' => $sousUtilisateurId,
-            'user_id' => $userId,
+            'sousUtilisateur_id' => $sousUtilisateurId ?? null,
+            'user_id' => $userId ?? null,
         ]);
     
     }
@@ -420,8 +421,8 @@ foreach ($request->articles as $article) {
             'id_compte_comptable' => $compteAcomptes->id,
             'debit' => 0,
             'credit' => $prixHT, // Utilise le montant HT ici
-            'sousUtilisateur_id' => $sousUtilisateurId,
-            'user_id' => $userId,
+            'sousUtilisateur_id' => $sousUtilisateurId ?? null,
+            'user_id' => $userId ?? null,
         ]);
     }
        if ($compteBanque) {
@@ -431,8 +432,8 @@ foreach ($request->articles as $article) {
             'id_compte_comptable' => $compteBanque->id,
             'debit' => $prixHT, // Utilise le montant HT ici
             'credit' => 0,
-            'sousUtilisateur_id' => $sousUtilisateurId,
-            'user_id' => $userId,
+            'sousUtilisateur_id' => $sousUtilisateurId ?? null,
+            'user_id' => $userId ?? null,
         ]);
     }
 }
@@ -1172,16 +1173,17 @@ public function genererPDFFacture($factureId, $modelDocumentId)
 
     // 2. Remplacer les variables dynamiques par les données réelles
     $content = $modelDocument->content;
-    $content = str_replace('{{num_facture}}', $facture->num_facture, $content);
-    $content = str_replace('{{expediteur_nom}}', $facture->user->name, $content);
-    $content = str_replace('{{expediteur_email}}', $facture->user->email, $content);
-    $content = str_replace('{{expediteur_tel}}', $facture->user->tel_entreprise ?? 'N/A', $content);
+    $content = str_replace('numero', $facture->num_facture, $content);
+    $content = str_replace('expediteur_nom', $facture->user->name, $content);
+    $content = str_replace('expediteur_email', $facture->user->email, $content);
+    $content = str_replace('expediteur_tel', $facture->user->tel_entreprise ?? 'N/A', $content);
+    $content = str_replace('logo',  Storage::url($facture->user->logo) ?? 'N/A', $content);
 
-    $content = str_replace('{{destinataire_nom}}', $facture->client->prenom_client . ' ' . $facture->client->nom_client, $content);
-    $content = str_replace('{{destinataire_email}}', $facture->client->email_client, $content);
-    $content = str_replace('{{destinataire_tel}}', $facture->client->tel_client, $content);
+    $content = str_replace('destinataire_nom', $facture->client->prenom_client . ' ' . $facture->client->nom_client, $content);
+    $content = str_replace('destinataire_email', $facture->client->email_client, $content);
+    $content = str_replace('destinataire_tel', $facture->client->tel_client, $content);
 
-    $content = str_replace('{{date_facture}}', \Carbon\Carbon::parse($facture->created_at)->format('d/m/Y'), $content);
+    $content = str_replace('date_facture', \Carbon\Carbon::parse($facture->created_at)->format('d/m/Y'), $content);
 
     // Gérer la liste des articles
     $articlesHtml = '';
@@ -1193,10 +1195,10 @@ public function genererPDFFacture($factureId, $modelDocumentId)
             <td>" . number_format($article->prix_total_article, 2) . " fcfa</td>
         </tr>";
     }
-    $content = str_replace('{{articles}}', $articlesHtml, $content);
+    $content = str_replace('articles', $articlesHtml, $content);
 
     // Gérer le montant total
-    $content = str_replace('{{montant_total}}', number_format($facture->prix_TTC, 2) . " fcfa", $content);
+    $content = str_replace('montant_total', number_format($facture->prix_TTC, 2) . " fcfa", $content);
 
     // Gérer les échéances
     if ($facture->type_paiement == 'echeance') {
@@ -1207,17 +1209,17 @@ public function genererPDFFacture($factureId, $modelDocumentId)
                 <td>" . number_format($echeance->montant_echeance, 2) . " fcfa</td>
             </tr>";
         }
-        $content = str_replace('{{echeances}}', $echeancesHtml, $content);
+        $content = str_replace('echeances', $echeancesHtml, $content);
     } else {
-        $content = str_replace('{{echeances}}', '', $content);
+        $content = str_replace('echeances', '', $content);
     }
 
     // Gérer les conditions de paiement
     if ($modelDocument->conditionsPaiementModel) {
         $conditionsPaiementHtml = "<h3>Conditions de paiement</h3><p>{$modelDocument->conditionPaiement}</p>";
-        $content = str_replace('{{conditions_paiement}}', $conditionsPaiementHtml, $content);
+        $content = str_replace('conditions_paiement', $conditionsPaiementHtml, $content);
     } else {
-        $content = str_replace('{{conditions_paiement}}', '', $content);
+        $content = str_replace('conditions_paiement', '', $content);
     }
 
     // Gérer les coordonnées bancaires
@@ -1226,36 +1228,36 @@ public function genererPDFFacture($factureId, $modelDocumentId)
             <p>Titulaire du compte : {$modelDocument->titulaireCompte}</p>
             <p>IBAN : {$modelDocument->IBAN}</p>
             <p>BIC : {$modelDocument->BIC}</p>";
-        $content = str_replace('{{coordonnees_bancaires}}', $coordonneesBancairesHtml, $content);
+        $content = str_replace('coordonnees_bancaires', $coordonneesBancairesHtml, $content);
     } else {
-        $content = str_replace('{{coordonnees_bancaires}}', '', $content);
+        $content = str_replace('coordonnees_bancaires', '', $content);
     }
 
     // Gérer la note de pied de page
     if ($modelDocument->notePiedPageModel) {
-        $content = str_replace('{{note_pied_page}}', "<p>{$modelDocument->peidPage}</p>", $content);
+        $content = str_replace('note_pied_page', "<p>{$modelDocument->peidPage}</p>", $content);
     } else {
-        $content = str_replace('{{note_pied_page}}', '', $content);
+        $content = str_replace('note_pied_page', '', $content);
     }
 
     // Gérer les signatures
     if ($modelDocument->signatureExpediteurModel) {
         $signatureExpediteurHtml = "<img src='/path/to/images/{$modelDocument->image_expediteur}' alt='Signature Expéditeur' />";
-        $content = str_replace('{{signature_expediteur}}', $signatureExpediteurHtml, $content);
+        $content = str_replace('signature_expediteur', $signatureExpediteurHtml, $content);
     } else {
-        $content = str_replace('{{signature_expediteur}}', '', $content);
+        $content = str_replace('signature_expediteur', '', $content);
     }
 
     if ($modelDocument->signatureDestinataireModel) {
         $signatureDestinataireHtml = "<img src='/path/to/images/{$modelDocument->image_destinataire}' alt='Signature Destinataire' />";
-        $content = str_replace('{{signature_destinataire}}', $signatureDestinataireHtml, $content);
+        $content = str_replace('signature_destinataire', $signatureDestinataireHtml, $content);
     } else {
-        $content = str_replace('{{signature_destinataire}}', '', $content);
+        $content = str_replace('signature_destinataire', '', $content);
     }
 
     // 3. Appliquer le CSS du modèle
     $css = $modelDocument->css;
-    $content = str_replace('{{css}}', $css, $content);
+    $content = str_replace('css', $css, $content);
 
     // 4. Configurer DOMPDF et générer le PDF
     $options = new Options();
@@ -1301,7 +1303,7 @@ public function RapportFluxTrésorerie(Request $request)
 
     $depenses = Depense::with(['categorieDepense', 'fournisseur'])
         ->where('statut_depense', 'payer')
-        ->whereBetween('created_at', [$dateDebut, $dateFin])
+        ->whereBetween('date_paiement', [$dateDebut, $dateFin])
         ->where(function ($query) use ($userId, $parentUserId) {
             $query->where('user_id', $userId)
                 ->orWhere('user_id', $parentUserId)
@@ -1331,7 +1333,7 @@ public function RapportResultat(Request $request)
     $parentUserId = auth()->guard('apisousUtilisateur')->check() ? auth('apisousUtilisateur')->user()->id_user : $userId;
 
     $factures = Facture::with(['articles.article' => function ($query) {
-            $query->select('articles.id', 'articles.prix_achat');  
+            $query->select('articles.id', 'articles.prix_ttc_achat');  
         }])
         ->select('id', 'prix_HT', 'prix_TTC', 'date_creation', 'statut_paiement')
         ->where('archiver', 'non')
@@ -1347,7 +1349,7 @@ public function RapportResultat(Request $request)
 
     // Récupérer les dépenses avec leurs montants HT et TTC
     $depenses = Depense::select('id', 'montant_depense_ht', 'montant_depense_ttc', 'statut_depense', 'created_at')
-        ->whereBetween('created_at', [$dateDebut, $dateFin])
+        ->whereBetween('date_paiement', [$dateDebut, $dateFin])
         ->where(function ($query) use ($userId, $parentUserId) {
             $query->where('user_id', $userId)
                 ->orWhere('user_id', $parentUserId)
@@ -1368,7 +1370,8 @@ public function RapportResultat(Request $request)
                 'articles' => $facture->articles->map(function ($articleFacture) {
                     return [
                         'article_id' => $articleFacture->article->id,
-                        'prix_achat' => $articleFacture->article->prix_achat,
+                        'prix_ht_achat' => $articleFacture->article->prix_ht_achat,
+                        'prix_ttc_achat' => $articleFacture->article->prix_ttc_achat
                     ];
                 })
             ];
@@ -1378,7 +1381,7 @@ public function RapportResultat(Request $request)
                 'id' => $depense->id,
                 'montant_ht' => $depense->montant_depense_ht,
                 'montant_ttc' => $depense->montant_depense_ttc,
-                'date_creation' => $depense->created_at,
+                'date_creation' => $depense->date_paiement,
                 'statut_paiement' => $depense->statut_depense
             ];
         })

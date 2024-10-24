@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use App\Models\Stock;
 use App\Models\Article;
 use App\Models\Depense;
 use App\Models\Historique;
@@ -466,7 +467,7 @@ public function annulerCommandeAchat($id)
     return response()->json(['message' => 'CommandeAchat annulé avec succès', 'CommandeAchat' => $CommandeAchat], 200);
 }
 
-public function RecuCommandeAchat($id)
+public function RecuCommandeAchat(Request $request, $id)
 {
     $CommandeAchat = CommandeAchat::find($id);
 
@@ -488,6 +489,54 @@ public function RecuCommandeAchat($id)
         return response()->json(['error' => 'Unauthorized'], 401);
     }
 
+    $validator = Validator::make($request->all(), [
+    'modifier_stock' => 'nullable|boolean',
+]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+$modifier_stock = $request->input('modifier_stock') ?? false;
+
+if ($modifier_stock==true) {
+    foreach ($CommandeAchat->articles as $article) {
+        if (Stock::where('article_id', $article->id_article)->exists()) {
+
+            // Récupérer le dernier stock pour cet article
+            $lastStock = Stock::where('article_id', $article->id_article)->orderBy('created_at', 'desc')->first();
+
+            $numStock = $lastStock->num_stock;
+
+            // Créer une nouvelle entrée de stock
+            $stock = new Stock();
+            $stock->type_stock = 'entree';
+            $stock->date_stock = now()->format('Y-m-d');
+            $stock->num_stock = $numStock; 
+            $stock->libelle = $lastStock->libelle;
+            $stock->disponible_avant = $lastStock->disponible_apres;
+            $stock->modif = $article->quantite_article;
+            $stock->disponible_apres = $lastStock->disponible_apres + $article->quantite_article;
+            $stock->article_id = $article->id_article;
+            $stock->facture_id = null;
+            $stock->factureAvoir_id = null;
+            $stock->commandeAchat_id = $CommandeAchat->id;
+            $stock->bonCommande_id = null;
+            $stock->livraison_id = null;
+            $stock->statut_stock = 'Achat N°' . $CommandeAchat->num_commandeAchat;
+            $stock->sousUtilisateur_id = $sousUtilisateurId;
+            $stock->user_id = $userId;
+            $stock->save();
+            Artisan::call(command: 'optimize:clear');
+
+            $article = Article::find($article->id_article);
+            $article->quantite_disponible = $stock->disponible_apres;
+            $article->save();
+            Artisan::call(command: 'optimize:clear');
+
+        } 
+    }
+}
     // Mettre à jour le statut du CommandeAchats en "annuler"
     $CommandeAchat->statut_commande = 'recu';
     $CommandeAchat->save();
