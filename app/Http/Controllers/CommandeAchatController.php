@@ -44,7 +44,8 @@ class CommandeAchatController extends Controller
             'articles' => 'required|array',
             'articles.*.id_article' => 'required|exists:articles,id',
             'articles.*.quantite_article' => 'required|integer',
-            'articles.*.prix_unitaire_article' => 'required|numeric',
+            'articles.*.prix_unitaire_article_ht' => 'nullable|numeric',
+            'articles.*.prix_unitaire_article_ttc' => 'nullable|numeric',
             'articles.*.TVA_article' => 'nullable|numeric',
             'articles.*.reduction_article' => 'nullable|numeric',
             'articles.*.prix_total_article'=>'nullable|numeric',
@@ -125,13 +126,13 @@ class CommandeAchatController extends Controller
                ]);
             }
         }
-        // Ajouter les articles à la commande
         foreach ($request->articles as $articleData) {
             ArticleCommandeAchat::create([
                 'id_CommandeAchat' => $commande->id,
                 'id_article' => $articleData['id_article'],
                 'quantite_article' => $articleData['quantite_article'],
-                'prix_unitaire_article' => $articleData['prix_unitaire_article'],
+                'prix_unitaire_article_ht' => $articleData['prix_unitaire_article_ht'],
+                'prix_unitaire_article_ttc' => $articleData['prix_unitaire_article_ttc'],
                 'TVA_article' => $articleData['TVA_article'] ?? 0,
                 'reduction_article' => $articleData['reduction_article'] ?? 0,
                 'prix_total_article' => $articleData['prix_total_article'],
@@ -208,7 +209,8 @@ class CommandeAchatController extends Controller
                         'id_article' => $article->id_article,
                         'nom_article' => $article->article->nom_article,
                         'quantite' => $article->quantite_article,
-                        'prix_unitaire' => $article->prix_unitaire_article,
+                        'prix_unitaire_ht' => $article->prix_unitaire_article_ht,
+                        'prix_unitaire_ttc' => $article->prix_unitaire_article_ttc,
                         'TVA_article' => $article->TVA_article,
                         'prix_total_article' => $article->prix_total_article,
                         'prix_total_tva_article' => $article->prix_total_tva_article
@@ -314,7 +316,8 @@ class CommandeAchatController extends Controller
                     'nom_article' => optional($articlecommandeAchat->article)->nom_article,
                     'TVA' => $articlecommandeAchat->TVA_article,
                     'quantite_article' => $articlecommandeAchat->quantite_article,
-                    'prix_unitaire_article' => $articlecommandeAchat->prix_unitaire_article,
+                    'prix_unitaire_article_ht' => $articlecommandeAchat->prix_unitaire_article_ht,
+                    'prix_unitaire_article_ttc' => $articlecommandeAchat->prix_unitaire_article_ttc,
                     'prix_total_tva_article' => $articlecommandeAchat->prix_total_tva_article,
                     'prix_total_article' => $articlecommandeAchat->prix_total_article,
                     'reduction_article' => $articlecommandeAchat->reduction_article,
@@ -361,7 +364,8 @@ class CommandeAchatController extends Controller
         'articles' => 'nullable|array',
         'articles.*.id_article' => 'required|exists:articles,id',
         'articles.*.quantite_article' => 'required|integer',
-        'articles.*.prix_unitaire_article' => 'required|numeric',
+        'articles.*.prix_unitaire_article_ht' => 'nullable|numeric',
+        'articles.*.prix_unitaire_article_ttc' => 'nullable|numeric',
         'articles.*.TVA_article' => 'nullable|numeric',
         'articles.*.reduction_article' => 'nullable|numeric',
         'articles.*.prix_total_article' => 'nullable|numeric',
@@ -392,7 +396,8 @@ class CommandeAchatController extends Controller
                 'id_CommandeAchat' => $commandeAchat->id,
                 'id_article' => $articleData['id_article'],
                 'quantite_article' => $articleData['quantite_article'],
-                'prix_unitaire_article' => $articleData['prix_unitaire_article'],
+                'prix_unitaire_article_ht' => $articleData['prix_unitaire_article_ht'] ?? 0,
+                'prix_unitaire_article_ttc' => $articleData['prix_unitaire_article_ttc'] ?? 0,
                 'TVA_article' => $articleData['TVA_article'] ?? 0,
                 'reduction_article' => $articleData['reduction_article'] ?? 0,
                 'prix_total_article' => $articleData['prix_total_article'],

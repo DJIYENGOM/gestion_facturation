@@ -14,9 +14,9 @@ return new class extends Migration
         $table->id();
         $table->foreignId('article_id')->constrained('articles')->onDelete('cascade')->nullable();
         $table->string('titrePrix')->nullable();
-        $table->decimal('montant', 10, 2)->nullable();
-        $table->decimal('tva', 5, 2)->nullable();
-        $table->decimal('montantTva', 10, 2)->nullable();
+        $table->decimal('montant', 10, 2)->nullable()->default(0);
+        $table->decimal('tva', 5, 2)->nullable()->default(0);
+        $table->decimal('montantTva', 10, 2)->nullable()->default(0);
         $table->timestamps();
     });
 }

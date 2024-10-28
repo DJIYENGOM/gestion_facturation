@@ -17,10 +17,10 @@ return new class extends Migration
             $table->date('date_livraison');
             $table->string('titre')->nullable();
             $table->string('description')->nullable();
-            $table->decimal('prix_HT', 10, 2)->nullable();
-            $table->decimal('prix_TTC', 10, 2)->nullable();
+            $table->decimal('prix_HT', 10, 2)->nullable()->default(0);
+            $table->decimal('prix_TTC', 10, 2)->nullable()->default(0);
             $table->string('note_livraison')->nullable();
-            $table->decimal('reduction_livraison')->nullable();
+            $table->decimal('reduction_livraison', 10, 2)->nullable()->default(0);
             $table->enum('active_Stock', ['non', 'oui'])->default('oui');
             $table->enum('statut_livraison', ['brouillon', 'preparer', 'planifier','livrer','annuler'])->default('brouillon');
             $table->enum('archiver', ['oui', 'non'])->default('non');

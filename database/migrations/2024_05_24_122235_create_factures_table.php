@@ -18,8 +18,8 @@ return new class extends Migration
             $table->date('date_creation');
             $table->string('type_facture')->nullable()->default('simple');
             $table->decimal('reduction_facture')->nullable();
-            $table->decimal('prix_HT', 10, 2)->nullable();
-            $table->decimal('prix_TTC', 10, 2)->nullable();
+            $table->decimal('prix_HT', 10, 2)->nullable()->default(0);
+            $table->decimal('prix_TTC', 10, 2)->nullable()->default(0);
             $table->text('note_fact')->nullable();
             $table->date('date_paiement')->nullable();
             $table->enum('active_Stock', ['non', 'oui'])->default('non');

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('titreAccomp')->nullable();
             $table->date('dateAccompt')->nullable(); 
             $table->date('dateEcheance')->nullable(); 
-            $table->decimal('montant', 10, 2)->nullable(); 
+            $table->decimal('montant', 10, 2)->nullable()->default(0); 
             $table->text('commentaire')->nullable();
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');

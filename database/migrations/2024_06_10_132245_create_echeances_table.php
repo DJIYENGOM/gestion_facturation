@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('bonCommande_id')->nullable()->constrained('bon_commandes')->onDelete('cascade'); 
             $table->foreignId('id_depense')->nullable()->constrained('depenses')->onDelete('set null');
             $table->date('date_pay_echeance')->nullable();
-            $table->decimal('montant_echeance', 8, 2)->nullable();
+            $table->decimal('montant_echeance', 8, 2)->nullable()->default(0);
             $table->text('commentaire')->nullable();
             $table->enum('statut_paiement', ['payer', 'nonpayer'])->default('nonpayer');
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');

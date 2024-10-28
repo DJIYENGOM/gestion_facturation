@@ -1177,12 +1177,11 @@ public function genererPDFFacture($factureId, $modelDocumentId)
     $content = str_replace('expediteur_nom', $facture->user->name, $content);
     $content = str_replace('expediteur_email', $facture->user->email, $content);
     $content = str_replace('expediteur_tel', $facture->user->tel_entreprise ?? 'N/A', $content);
-    $content = str_replace('logo',  Storage::url($facture->user->logo) ?? 'N/A', $content);
+    $content = str_replace('logo', Storage::url($facture->user->logo) ?? 'N/A', $content);
 
     $content = str_replace('destinataire_nom', $facture->client->prenom_client . ' ' . $facture->client->nom_client, $content);
     $content = str_replace('destinataire_email', $facture->client->email_client, $content);
     $content = str_replace('destinataire_tel', $facture->client->tel_client, $content);
-
     $content = str_replace('date_facture', \Carbon\Carbon::parse($facture->created_at)->format('d/m/Y'), $content);
 
     // Gérer la liste des articles
@@ -1191,8 +1190,9 @@ public function genererPDFFacture($factureId, $modelDocumentId)
         $articlesHtml .= "<tr>
             <td>{$article->article->nom_article}</td>
             <td>{$article->quantite_article}</td>
-            <td>" . number_format($article->article->prix_unitaire, 2) . " fcfa</td>
-            <td>" . number_format($article->prix_total_article, 2) . " fcfa</td>
+            <td>" . number_format($article->article->TVA_article, 2) . " </td>
+            <td>" . number_format($article->article->prix_unitaire, 2) . " </td>
+            <td>" . number_format($article->prix_total_article, 2) . " </td>
         </tr>";
     }
     $content = str_replace('articles', $articlesHtml, $content);
@@ -1215,17 +1215,17 @@ public function genererPDFFacture($factureId, $modelDocumentId)
     }
 
     // Gérer les conditions de paiement
-    if ($modelDocument->conditionsPaiementModel) {
-        $conditionsPaiementHtml = "<h3>Conditions de paiement</h3><p>{$modelDocument->conditionPaiement}</p>";
+    if ($modelDocument->condition_paiement) {
+        $conditionsPaiementHtml = "<h3>Conditions de paiement</h3><p>{$modelDocument->condition_paiement}</p>";
         $content = str_replace('conditions_paiement', $conditionsPaiementHtml, $content);
     } else {
         $content = str_replace('conditions_paiement', '', $content);
     }
 
     // Gérer les coordonnées bancaires
-    if ($modelDocument->coordonneesBancairesModel) {
+    if ($modelDocument->titulaire_compte && $modelDocument->IBAN && $modelDocument->BIC) {
         $coordonneesBancairesHtml = "<h3>Coordonnées bancaires</h3>
-            <p>Titulaire du compte : {$modelDocument->titulaireCompte}</p>
+            <p>Titulaire du compte : {$modelDocument->titulaire_compte}</p>
             <p>IBAN : {$modelDocument->IBAN}</p>
             <p>BIC : {$modelDocument->BIC}</p>";
         $content = str_replace('coordonnees_bancaires', $coordonneesBancairesHtml, $content);
@@ -1234,36 +1234,48 @@ public function genererPDFFacture($factureId, $modelDocumentId)
     }
 
     // Gérer la note de pied de page
-    if ($modelDocument->notePiedPageModel) {
-        $content = str_replace('note_pied_page', "<p>{$modelDocument->peidPage}</p>", $content);
+    if ($modelDocument->note_pied_page) {
+        $content = str_replace('note_pied_page', "<p>{$modelDocument->note_pied_page}</p>", $content);
     } else {
         $content = str_replace('note_pied_page', '', $content);
     }
 
     // Gérer les signatures
-    if ($modelDocument->signatureExpediteurModel) {
-        $signatureExpediteurHtml = "<img src='/path/to/images/{$modelDocument->image_expediteur}' alt='Signature Expéditeur' />";
+    if ($modelDocument->signature_expediteur) {
+        $signatureExpediteurHtml = "<img src='" . Storage::url($modelDocument->image_expediteur) . "' alt='Signature Expéditeur' />";
         $content = str_replace('signature_expediteur', $signatureExpediteurHtml, $content);
     } else {
         $content = str_replace('signature_expediteur', '', $content);
     }
 
-    if ($modelDocument->signatureDestinataireModel) {
-        $signatureDestinataireHtml = "<img src='/path/to/images/{$modelDocument->image_destinataire}' alt='Signature Destinataire' />";
+    if ($modelDocument->signature_destinataire) {
+        $signatureDestinataireHtml = "<img src='" . Storage::url($modelDocument->image_destinataire) . "' alt='Signature Destinataire' />";
         $content = str_replace('signature_destinataire', $signatureDestinataireHtml, $content);
     } else {
         $content = str_replace('signature_destinataire', '', $content);
     }
 
-    // 3. Appliquer le CSS du modèle
+    // 3. Appliquer le CSS du modèle en ajoutant une structure HTML complète
     $css = $modelDocument->css;
-    $content = str_replace('css', $css, $content);
+    $content = "<!doctype html>
+    <html lang='fr'>
+    <head>
+        <meta charset='utf-8'>
+        <style>{$css}</style>
+    </head>
+    <body>
+        {$content}
+    </body>
+    </html>";
 
-    // 4. Configurer DOMPDF et générer le PDF
+    // 4. Configurer DOMPDF avec des options avancées et générer le PDF
     $options = new Options();
-    $options->set('isRemoteEnabled', true);  // Si vous avez des images distantes
-    $dompdf = new Dompdf($options);
+    $options->set('isRemoteEnabled', true);
+    $options->set('isHtml5ParserEnabled', true);
+    $options->set('isCssFloatEnabled', true);
     
+    
+    $dompdf = new Dompdf($options);
     $dompdf->loadHtml($content);
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->render();
@@ -1271,6 +1283,7 @@ public function genererPDFFacture($factureId, $modelDocumentId)
     // 5. Télécharger le PDF
     return $dompdf->stream('facture_' . $facture->num_facture . '.pdf');
 }
+
 
 public function RapportFluxTrésorerie(Request $request)
 {

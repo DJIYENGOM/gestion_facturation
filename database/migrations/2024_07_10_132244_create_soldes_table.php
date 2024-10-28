@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('soldes', function (Blueprint $table) {
             $table->id();
             $table->date('date_paiement');
-            $table->decimal('montant', 10, 2);
+            $table->decimal('montant', 10, 2)->default(0);
             $table->string('commentaire')->nullable();
             $table->foreignId('id_paiement')->nullable()->constrained('payements')->onDelete('set null');
             $table->foreignId('facture_id')->nullable()->constrained('factures')->onDelete('set null');

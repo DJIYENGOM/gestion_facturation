@@ -327,8 +327,7 @@ Route::controller(StockController::class)->group(function(){
     Route::get('listerStocks','listerStocks');
     Route::get('ListeStock_a_modifier','ListeStock_a_modifier');
     Route::post('modifierStock','modifierStock');
-    Route::post('Rapport_Valeur_Stock/{date}', 'Rapport_Valeur_Stock');
-    Route::post('calculerValeurStock', 'calculerValeurStock');
+    Route::post('Rapport_Valeur_Stock', 'Rapport_Valeur_Stock');
 });
 
 Route::get ('InfoSurTva_Recolte_Deductif_Reverse', [TvaController::class, 'InfoSurTva_Recolte_Deductif_Reverse']);

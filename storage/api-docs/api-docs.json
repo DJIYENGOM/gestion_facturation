@@ -220,6 +220,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "commandeAchatId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -291,7 +301,7 @@
                 ]
             }
         },
-        "/api/genererPDFLivraison/livraisonId/modelDocumentId": {
+        "/api/genererPDFLivraison/{livraisonId}/{modelDocumentId}": {
             "post": {
                 "summary": "genererPDFLivraison",
                 "description": "",
@@ -419,7 +429,7 @@
                 ]
             }
         },
-        "/api/listerModelesDocumentsParType/{devi}": {
+        "/api/listerModelesDocumentsParType/devi": {
             "get": {
                 "summary": "listerModelesDocumentsParType",
                 "description": "",
@@ -2794,6 +2804,77 @@
                 }
             }
         },
+        "/api/Rapport_Valeur_Stock": {
+            "post": {
+                "summary": "Rapport_Valeur_Stock",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "les Rapports"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "date": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "date": "2024-10-22"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/modifierStock": {
             "post": {
                 "summary": "Modifier Stock",
@@ -3443,7 +3524,7 @@
                             },
                             "example": {
                                 "date_debut": "2024-10-01",
-                                "date_fin": "2024-10-10"
+                                "date_fin": "2024-10-18"
                             }
                         }
                     }
@@ -4290,6 +4371,77 @@
                 ]
             }
         },
+        "/api/RecuCommandeAchat/2": {
+            "post": {
+                "summary": "Reçu Commande Achat",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gestion des commandes d'Achat"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "modifier_stock": {
+                                        "type": "integer"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "modifier_stock": 1
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/annulerCommandeAchat/{id}": {
             "post": {
                 "summary": "annuler Commande Achat",
@@ -4735,7 +4887,8 @@
                                         "format": "binary"
                                     },
                                     "depense_id": {
-                                        "type": "integer"
+                                        "type": "string",
+                                        "format": "binary"
                                     },
                                     "note_interne": {
                                         "type": "string"
@@ -4765,7 +4918,7 @@
                                 "date_commandeAchat": "2024-07-23",
                                 "date_livraison": "2024-07-23",
                                 "fournisseur_id": null,
-                                "depense_id": 1,
+                                "depense_id": null,
                                 "note_interne": "Some notes about the facture",
                                 "titre": "jgjgkbnf",
                                 "description": "hfrfbrhb",
@@ -4774,21 +4927,21 @@
                                 "type_reccurente": "creer_brouillon",
                                 "articles": [
                                     {
-                                        "id_article": 1,
+                                        "id_article": 3,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 5000,
                                         "TVA_article": 50,
                                         "reduction_article": 5,
-                                        "prix_total_article": 5000,
+                                        "prix_total_article": 2000,
                                         "prix_total_tva_article": 8000
                                     },
                                     {
-                                        "id_article": 2,
+                                        "id_article": 4,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 1000,
                                         "TVA_article": 10,
                                         "reduction_article": 50,
-                                        "prix_total_article": 5000,
+                                        "prix_total_article": 1000,
                                         "prix_total_tva_article": 8000
                                     }
                                 ]
@@ -8161,15 +8314,11 @@
                                     "articles": {
                                         "type": "string",
                                         "format": "binary"
-                                    },
-                                    "etiquettes": {
-                                        "type": "string",
-                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "client_id": 3,
+                                "client_id": 2,
                                 "note_devi": "Some notes about the facture",
                                 "reduction_devi": 2000,
                                 "date_devi": "2024-06-29",
@@ -8193,11 +8342,6 @@
                                         "reduction_article": 0,
                                         "prix_total_article": 5000,
                                         "prix_total_tva_article": 8000
-                                    }
-                                ],
-                                "etiquettes": [
-                                    {
-                                        "id_etiquette": 1
                                     }
                                 ]
                             }
@@ -10647,7 +10791,7 @@
                                 "active_Stock": "oui",
                                 "articles": [
                                     {
-                                        "id_article": 2,
+                                        "id_article": 3,
                                         "quantite_article": 5,
                                         "prix_unitaire_article": 5000,
                                         "TVA_article": 0,
@@ -10656,7 +10800,7 @@
                                         "prix_total_tva_article": 8000
                                     },
                                     {
-                                        "id_article": 2,
+                                        "id_article": 4,
                                         "quantite_article": 4,
                                         "prix_unitaire_article": 1000,
                                         "TVA_article": 0,
@@ -13424,7 +13568,13 @@
                                     "prix_unitaire": {
                                         "type": "integer"
                                     },
-                                    "prix_achat": {
+                                    "tva_achat": {
+                                        "type": "integer"
+                                    },
+                                    "prix_ht_achat": {
+                                        "type": "integer"
+                                    },
+                                    "prix_ttc_achat": {
                                         "type": "integer"
                                     },
                                     "promo_id": {
@@ -13457,15 +13607,21 @@
                                     "autres_prix": {
                                         "type": "string",
                                         "format": "binary"
+                                    },
+                                    "lots": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "nom_article": "Parfum",
+                                "nom_article": "montre",
                                 "description": "Some notes about the facture",
                                 "code_barre": "000023567",
                                 "prix_unitaire": 20000,
-                                "prix_achat": 25000,
+                                "tva_achat": 20,
+                                "prix_ht_achat": 25000,
+                                "prix_ttc_achat": 30000,
                                 "promo_id": null,
                                 "tva": 18,
                                 "type_article": "produit",
@@ -13484,6 +13640,12 @@
                                         "titrePrix": "prix des senegalais",
                                         "montant": 15000,
                                         "tva": 50
+                                    }
+                                ],
+                                "lots": [
+                                    {
+                                        "nomLot": "lot1",
+                                        "quantiteLot": 15
                                     }
                                 ]
                             }

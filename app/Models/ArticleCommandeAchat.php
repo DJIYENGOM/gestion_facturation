@@ -14,7 +14,8 @@ class ArticleCommandeAchat extends Model
         'id_article' , 
         'reduction_article', 
         'TVA_article',
-        'prix_unitaire_article',
+        'prix_unitaire_article_ht',
+        'prix_unitaire_article_ttc',
         'quantite_article',
         'prix_total_article',
         'prix_total_tva_article'
@@ -22,7 +23,7 @@ class ArticleCommandeAchat extends Model
 
     public function CommandeAchat()
     {
-        return $this->belongsTo(BonCommande::class, 'id_CommandeAchat');
+        return $this->belongsTo(CommandeAchat::class, 'id_CommandeAchat');
     }
 
     // Relation avec l'article

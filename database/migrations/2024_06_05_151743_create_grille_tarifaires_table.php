@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('grille_tarifaires', function (Blueprint $table) {
             $table->id();
-            $table->decimal('montantTarif', 10, 2);
+            $table->decimal('montantTarif', 10, 2)->default(0);
             $table->decimal('tva', 5, 2)->nullable();
-            $table->decimal('montantTva', 10, 2)->nullable();
+            $table->decimal('montantTva', 10, 2)->nullable()->default(0);
             $table->foreignId('idArticle')->constrained('articles')->onDelete('cascade');
             $table->foreignId('idClient')->constrained('clients')->onDelete('cascade');
             $table->foreignId('sousUtilisateur_id')->nullable()->constrained('sous__utilisateurs')->onDelete('set null');            

@@ -19,8 +19,8 @@ return new class extends Migration
             $table->enum('type_reccurente', ['creer_brouillon', 'envoyer_email']);
             $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
             $table->boolean('creation_automatique')->default(1);
-            $table->decimal('prix_HT', 10, 2)->nullable();
-            $table->decimal('prix_TTC', 10, 2)->nullable();
+            $table->decimal('prix_HT', 10, 2)->nullable()->default(0);
+            $table->decimal('prix_TTC', 10, 2)->nullable()->default(0);
             $table->enum('active_Stock', ['non', 'oui'])->default('non');
             $table->string('commentaire')->nullable();
             $table->string('note_interne')->nullable();
