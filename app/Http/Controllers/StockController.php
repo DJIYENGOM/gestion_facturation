@@ -208,10 +208,28 @@ public function modifierStock(Request $request)
 
 function Rapport_Valeur_Stock(Request $request)
 {
+    if (auth()->guard('apisousUtilisateur')->check()) {
+        $sousUtilisateur = auth('apisousUtilisateur')->user();
+        if (!$sousUtilisateur->fonction_admin) {
+            return response()->json(['error' => 'Action non autorisée pour Vous'], 403);
+        }
+        $sousUtilisateur_id = auth('apisousUtilisateur')->id();
+        $userId = auth('apisousUtilisateur')->user()->id_user; // ID de l'utilisateur parent
+    } elseif (auth()->check()) {
+        $userId = auth()->id();
+        $sousUtilisateur_id = null;
+    } else {
+        return response()->json(['error' => 'Vous n\'etes pas connecté'], 401);
+    }
+
     $date = $request->get('date', date('Y-m-d'));
 
     $stocks = Stock::with(['article', 'facture', 'commandeAchat.articles'])
         ->where('date_stock', '<=', $date)
+        ->where(function ($query) use ($sousUtilisateur_id, $userId) {
+            $query->where('sousUtilisateur_id', $sousUtilisateur_id)
+                  ->orWhere('user_id', $userId);
+        })
         ->orderBy('date_stock', 'asc')
         ->get();
 

@@ -383,12 +383,13 @@ Route::get('listerConfigurationRelance', [ConfigurationRelanceAutoController::cl
 Route::post('CreerModelDocument', [ModelDocumentController::class, 'CreerModelDocument']);
 Route::post('ModifierModelDocument/{id}', [ModelDocumentController::class, 'ModifierModelDocument']);
 Route::get('listerModelesDocumentsParType/{typeDocument}', [ModelDocumentController::class, 'listerModelesDocumentsParType']);
-
+Route::middleware(['cors'])->group(function () {
 Route::post('genererPDFDevis/{devisId}/{modelDocumentId}',[DeviController::class, 'genererPDFDevis']);
 Route::post('genererPDFFacture/{factureId}/{modelDocumentId}',[FactureController::class, 'genererPDFFacture']);
 Route::post('genererPDFLivraison/{livraisonId}/{modelDocumentId}',[LivraisonController::class, 'genererPDFLivraison']);
 Route::post('genererPDFBonCommande/{bonCommandeId}/{modelDocumentId}',[BonCommandeController::class, 'genererPDFBonCommande']);
 Route::post('genererPDFCommandeAchat/{commandeAchatId}/{modelDocumentId}',[CommandeAchatController::class, 'genererPDFCommandeAchat']);
+});
 
 Route::post('getJournalVentesEntreDates', [JournalVenteController::class, 'getJournalVentesEntreDates']);
 Route::post('getJournalAchatsEntreDates', [JournalVenteController::class, 'getJournalAchatsEntreDates']);
