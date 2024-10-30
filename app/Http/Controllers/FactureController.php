@@ -1170,6 +1170,7 @@ public function genererPDFFacture($factureId, $modelDocumentId)
     if (!$facture || !$modelDocument) {
         return response()->json(['error' => 'Facture ou modèle introuvable'], 404);
     }
+    
 
     // 2. Remplacer les variables dynamiques par les données réelles
     $content = $modelDocument->content;
@@ -1278,10 +1279,21 @@ public function genererPDFFacture($factureId, $modelDocumentId)
     $dompdf = new Dompdf($options);
     $dompdf->loadHtml($content);
     $dompdf->setPaper('A4', 'portrait');
-    $dompdf->render();
 
-    // 5. Télécharger le PDF
-    return $dompdf->stream('facture_' . $facture->num_facture . '.pdf');
+    $dompdf->render();
+    
+    $pdfContent = $dompdf->output();
+    
+    $filename = 'facture_' . $facture->num_facture . '.pdf';
+    
+    return response($pdfContent)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+        ->header('Access-Control-Allow-Origin', '*')
+        ->header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization')
+        ->header('Access-Control-Allow-Credentials', 'true')
+        ->header('Access-Control-Expose-Headers', 'Content-Disposition');
 }
 
 
