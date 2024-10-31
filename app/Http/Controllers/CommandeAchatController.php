@@ -688,10 +688,11 @@ public function genererPDFCommandeAchat($commandeAchatId, $modelDocumentId)
     $content = str_replace('{{expediteur_email}}', $commandeAchat->user->email, $content);
     $content = str_replace('{{expediteur_tel}}', $commandeAchat->user->tel_entreprise ?? 'N/A', $content);
 
+    if($commandeAchat->client_id){
     $content = str_replace('{{destinataire_nom}}', $commandeAchat->fournisseur->prenom_fournisseur . ' ' . $commandeAchat->fournisseur->nom_fournisseur, $content);
     $content = str_replace('{{destinataire_email}}', $commandeAchat->fournisseur->email_fournisseur, $content);
     $content = str_replace('{{destinataire_tel}}', $commandeAchat->fournisseur->tel_fournisseur, $content);
-
+    }
     $content = str_replace('{{date_commandeAchat}}', \Carbon\Carbon::parse($commandeAchat->created_at)->format('d/m/Y'), $content);
 
     // Gérer la liste des articles
@@ -735,36 +736,59 @@ public function genererPDFCommandeAchat($commandeAchatId, $modelDocumentId)
         $content = str_replace('{{note_pied_page}}', '', $content);
     }
 
-    // Gérer les signatures si présentes dans le modèle de document
-    if ($modelDocument->signatureExpediteurModel) {
-        $signatureExpediteurHtml = "<img src='/path/to/images/{$modelDocument->image_expediteur}' alt='Signature Expéditeur' />";
-        $content = str_replace('{{signature_expediteur}}', $signatureExpediteurHtml, $content);
+   
+    // Gérer les conditions de paiement
+    if ($modelDocument->condition_paiement) {
+        $conditionsPaiementHtml = "<h3>Conditions de paiement</h3><p>{$modelDocument->condition_paiement}</p>";
+        $content = str_replace('conditions_paiement', $conditionsPaiementHtml, $content);
     } else {
-        $content = str_replace('{{signature_expediteur}}', '', $content);
+        $content = str_replace('conditions_paiement', '', $content);
     }
 
-    if ($modelDocument->signatureDestinataireModel) {
-        $signatureDestinataireHtml = "<img src='/path/to/images/{$modelDocument->image_destinataire}' alt='Signature Destinataire' />";
-        $content = str_replace('{{signature_destinataire}}', $signatureDestinataireHtml, $content);
+    // Gérer les coordonnées bancaires
+    if ($modelDocument->titulaire_compte && $modelDocument->IBAN && $modelDocument->BIC) {
+        $coordonneesBancairesHtml = "<h3>Coordonnées bancaires</h3>
+            <p>Titulaire du compte : {$modelDocument->titulaire_compte}</p>
+            <p>IBAN : {$modelDocument->IBAN}</p>
+            <p>BIC : {$modelDocument->BIC}</p>";
+        $content = str_replace('coordonnees_bancaires', $coordonneesBancairesHtml, $content);
     } else {
-        $content = str_replace('{{signature_destinataire}}', '', $content);
+        $content = str_replace('coordonnees_bancaires', '', $content);
     }
 
-    // 3. Appliquer le CSS du modèle
+    // 3. Appliquer le CSS du modèle en ajoutant une structure HTML complète
     $css = $modelDocument->css;
-    $content = str_replace('{{css}}', $css, $content);
+    $content = "<!doctype html>
+    <html lang='fr'>
+    <head>
+        <meta charset='utf-8'>
+        <style>{$css}</style>
+    </head>
+    <body>
+        {$content}
+    </body>
+    </html>";
 
     // 4. Configurer DOMPDF et générer le PDF
     $options = new Options();
-    $options->set('isRemoteEnabled', true);  // Si vous avez des images distantes
+    $options->set('isRemoteEnabled', true);
+    
     $dompdf = new Dompdf($options);
-
     $dompdf->loadHtml($content);
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->render();
-
-    // 5. Télécharger le PDF
-    return $dompdf->stream('commande_achat_' . $commandeAchat->num_commandeAchat . '.pdf');
+    
+    $pdfContent = $dompdf->output();
+    $filename = 'commandeAchat_' . $commandeAchat->num_commandeAchat . '.pdf';
+    
+    return response($pdfContent)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="' . $filename . '"')
+        ->header('Access-Control-Allow-Origin', '*')
+        ->header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization')
+        ->header('Access-Control-Allow-Credentials', 'true')
+        ->header('Access-Control-Expose-Headers', 'Content-Disposition');
 }
 
 }

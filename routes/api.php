@@ -350,32 +350,32 @@ Route::post('supprimerEtiquette/{id}',[EtiquetteController::class, 'supprimerEti
 
 Route::post('createEmailModele',[EmailModeleController::class, 'createEmailModele']); 
 
-Route::post('envoyerEmailFacture/{id_facture}',[EmailModeleController::class, 'envoyerEmailFacture']);
-Route::post('DetailEmailFacture_genererPDF/{id_facture}', [EmailModeleController::class, 'DetailEmailFacture_genererPDF']);
+Route::post('envoyerEmailFacture/{id_facture}/{modelDocumentId}',[EmailModeleController::class, 'envoyerEmailFacture']);
+Route::post('DetailEmailFacture_genererPDF/{id_facture}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailFacture_genererPDF']);
 
-Route::post('DetailEmailDevi_genererPDF/{id_devi}', [EmailModeleController::class, 'DetailEmailDevi_genererPDF']);
-Route::post('envoyerEmailDevi/{id_devi}', [EmailModeleController::class, 'envoyerEmailDevi']);
+Route::post('DetailEmailDevi_genererPDF/{id_devi}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailDevi_genererPDF']);
+Route::post('envoyerEmailDevi/{id_devi}/{modelDocumentId}', [EmailModeleController::class, 'envoyerEmailDevi']);
 
-Route::post('DetailEmailBonCommande_genererPDF/{id_bonCommande}', [EmailModeleController::class, 'DetailEmailBonCommande_genererPDF']);
-Route::post('envoyerEmailBonCommande/{id_bonCommande}', [EmailModeleController::class, 'envoyerEmailBonCommande']);
+Route::post('DetailEmailBonCommande_genererPDF/{id_bonCommande}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailBonCommande_genererPDF']);
+Route::post('envoyerEmailBonCommande/{id_bonCommande}/{modelDocumentId}', [EmailModeleController::class, 'envoyerEmailBonCommande']);
 
-Route::post('DetailEmailLivraison_genererPDF/{id_livraison}', [EmailModeleController::class, 'DetailEmailLivraison_genererPDF']);
-Route::post('envoyerEmailLivraison/{id_livraison}', [EmailModeleController::class, 'envoyerEmailLivraison']);
+Route::post('DetailEmailLivraison_genererPDF/{id_livraison}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailLivraison_genererPDF']);
+Route::post('envoyerEmailLivraison/{id_livraison}/{modelDocumentId}', [EmailModeleController::class, 'envoyerEmailLivraison']);
 
 Route::post('DetailEmailCommandeAchat_genererPDF/{id_CommandeAchat}', [EmailModeleController::class, 'DetailEmailCommandeAchat_genererPDF']);
 Route::post('envoyerEmailCommandeAchat/{id_CommandeAchat}', [EmailModeleController::class, 'envoyerEmailCommandeAchat']);
 
-Route::post('DetailEmailResumeVente_genererPDF/{id_facture}', [EmailModeleController::class, 'DetailEmailResumeVente_genererPDF']);
-Route::post('envoyerEmailResumeVente/{id_facture}', [EmailModeleController::class, 'envoyerEmailResumeVente']);
+Route::post('DetailEmailResumeVente_genererPDF/{id_facture}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailResumeVente_genererPDF']);
+Route::post('envoyerEmailResumeVente/{id_facture}/{modelDocumentId}', [EmailModeleController::class, 'envoyerEmailResumeVente']);
 
-Route::post('DetailEmailPaiementRecu_genererPDF/{id_PaiementRecu}', [EmailModeleController::class, 'DetailEmailPaiementRecu_genererPDF']);
-Route::post('envoyerEmailPaiementRecu/{id_PaiementRecu}', [EmailModeleController::class, 'envoyerEmailPaiementRecu']);
+Route::post('DetailEmailPaiementRecu_genererPDF/{id_PaiementRecu}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailPaiementRecu_genererPDF']);
+Route::post('envoyerEmailPaiementRecu/{id_PaiementRecu}/{modelDocumentId}', [EmailModeleController::class, 'envoyerEmailPaiementRecu']);
 
-Route::post('DetailEmailRelanceAvantEcheance_genererPDF/{id_echeance}', [EmailModeleController::class, 'DetailEmailRelanceAvantEcheance_genererPDF']);
-Route::post('envoyerEmailRelanceAvantEcheance/{id_echeance}', [EmailModeleController::class, 'envoyerEmailRelanceAvantEcheance']);
+Route::post('DetailEmailRelanceAvantEcheance_genererPDF/{id_echeance}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailRelanceAvantEcheance_genererPDF']);
+Route::post('envoyerEmailRelanceAvantEcheance/{id_echeance}/{modelDocumentId}', [EmailModeleController::class, 'envoyerEmailRelanceAvantEcheance']);
 
-Route::post('DetailEmailRelanceApresEcheance_genererPDF/{id_echeance}', [EmailModeleController::class, 'DetailEmailRelanceApresEcheance_genererPDF']);
-Route::post('envoyerEmailRelanceApresEcheance/{id_echeance}', [EmailModeleController::class, 'envoyerEmailRelanceApresEcheance']);
+Route::post('DetailEmailRelanceApresEcheance_genererPDF/{id_echeance}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailRelanceApresEcheance_genererPDF']);
+Route::post('envoyerEmailRelanceApresEcheance/{id_echeance}/{modelDocumentId}', [EmailModeleController::class, 'envoyerEmailRelanceApresEcheance']);
 
 Route::post('ConfigurerRelanceAuto', [ConfigurationRelanceAutoController::class, 'ConfigurerRelanceAuto']);
 Route::get('listerConfigurationRelance', [ConfigurationRelanceAutoController::class, 'listerConfigurationRelance']);

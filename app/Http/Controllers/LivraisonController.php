@@ -744,15 +744,17 @@ public function genererPDFLivraison($livraisonId, $modelDocumentId)
 
     // 2. Remplacer les variables dynamiques par les données réelles
     $content = $modelDocument->content;
-    $content = str_replace('{{num_livraison}}', $livraison->num_livraison, $content);
+    $content = str_replace('[num_livraison]', $livraison->num_livraison, $content);
     $content = str_replace('{{expediteur_nom}}', $livraison->user->name, $content);
     $content = str_replace('{{expediteur_email}}', $livraison->user->email, $content);
     $content = str_replace('{{expediteur_tel}}', $livraison->user->tel_entreprise ?? 'N/A', $content);
+    $content = str_replace('logo', $livraison->user->logo ? asset('storage/' . $livraison->user->logo) : 'N/A', $content);
 
+if($livraison->client_id){
     $content = str_replace('{{destinataire_nom}}', $livraison->client->prenom_client . ' ' . $livraison->client->nom_client, $content);
     $content = str_replace('{{destinataire_email}}', $livraison->client->email_client, $content);
     $content = str_replace('{{destinataire_tel}}', $livraison->client->tel_client, $content);
-
+}
     $content = str_replace('{{date_livraison}}', \Carbon\Carbon::parse($livraison->created_at)->format('d/m/Y'), $content);
 
     // Gérer la liste des articles
@@ -770,21 +772,59 @@ public function genererPDFLivraison($livraisonId, $modelDocumentId)
     // Gérer le montant total
     $content = str_replace('{{montant_total}}', number_format($livraison->prix_TTC, 2) . " fcfa", $content);
 
-    // 3. Appliquer le CSS du modèle
+   
+    // Gérer les conditions de paiement
+    if ($modelDocument->condition_paiement) {
+        $conditionsPaiementHtml = "<h3>Conditions de paiement</h3><p>{$modelDocument->condition_paiement}</p>";
+        $content = str_replace('conditions_paiement', $conditionsPaiementHtml, $content);
+    } else {
+        $content = str_replace('conditions_paiement', '', $content);
+    }
+
+    // Gérer les coordonnées bancaires
+    if ($modelDocument->titulaire_compte && $modelDocument->IBAN && $modelDocument->BIC) {
+        $coordonneesBancairesHtml = "<h3>Coordonnées bancaires</h3>
+            <p>Titulaire du compte : {$modelDocument->titulaire_compte}</p>
+            <p>IBAN : {$modelDocument->IBAN}</p>
+            <p>BIC : {$modelDocument->BIC}</p>";
+        $content = str_replace('coordonnees_bancaires', $coordonneesBancairesHtml, $content);
+    } else {
+        $content = str_replace('coordonnees_bancaires', '', $content);
+    }
+
+    // 3. Appliquer le CSS du modèle en ajoutant une structure HTML complète
     $css = $modelDocument->css;
-    $content = str_replace('{{css}}', $css, $content);
+    $content = "<!doctype html>
+    <html lang='fr'>
+    <head>
+        <meta charset='utf-8'>
+        <style>{$css}</style>
+    </head>
+    <body>
+        {$content}
+    </body>
+    </html>";
 
     // 4. Configurer DOMPDF et générer le PDF
     $options = new Options();
-    $options->set('isRemoteEnabled', true);  // Si vous avez des images distantes
+    $options->set('isRemoteEnabled', true);
+    
     $dompdf = new Dompdf($options);
-
     $dompdf->loadHtml($content);
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->render();
-
-    // 5. Télécharger le PDF
-    return $dompdf->stream('livraison_' . $livraison->num_livraison . '.pdf');
+    
+    $pdfContent = $dompdf->output();
+    $filename = 'livraison_' . $livraison->num_livraison. '.pdf';
+    
+    return response($pdfContent)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="' . $filename . '"')
+        ->header('Access-Control-Allow-Origin', '*')
+        ->header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization')
+        ->header('Access-Control-Allow-Credentials', 'true')
+        ->header('Access-Control-Expose-Headers', 'Content-Disposition');
 }
 
 public function RapportLivraison(Request $request)

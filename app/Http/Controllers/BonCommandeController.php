@@ -34,6 +34,7 @@ class BonCommandeController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'client_id' => 'required|exists:clients,id',
+            'num_commande'=>'nullable|string',
             'note_commande' => 'nullable|string',
             'reduction_commande' => 'nullable|numeric',
             'date_commande'=>'required|date',
@@ -80,7 +81,7 @@ class BonCommandeController extends Controller
         $numBonCommande= NumeroGeneratorService::genererNumero($userId, $typeDocument);
     
         $commande = BonCommande::create([
-            'num_commande' => $numBonCommande,
+            'num_commande' => $request->num_commande ?? $numBonCommande,
             'client_id' => $request->client_id,
             'date_commande' => $request->date_commande,
             'date_limite_commande' => $request->date_limite_commande,
@@ -694,11 +695,11 @@ public function genererPDFBonCommande($bonCommandeId, $modelDocumentId)
     $content = str_replace('{{expediteur_nom}}', $bonCommande->user->name, $content);
     $content = str_replace('{{expediteur_email}}', $bonCommande->user->email, $content);
     $content = str_replace('{{expediteur_tel}}', $bonCommande->user->tel_entreprise ?? 'N/A', $content);
-
+if($bonCommande->client_id){
     $content = str_replace('{{destinataire_nom}}', $bonCommande->client->prenom_client . ' ' . $bonCommande->client->nom_client, $content);
     $content = str_replace('{{destinataire_email}}', $bonCommande->client->email_client, $content);
     $content = str_replace('{{destinataire_tel}}', $bonCommande->client->tel_client, $content);
-
+}
     $content = str_replace('{{date_commande}}', \Carbon\Carbon::parse($bonCommande->created_at)->format('d/m/Y'), $content);
 
     // Gérer la liste des articles
@@ -738,54 +739,59 @@ public function genererPDFBonCommande($bonCommandeId, $modelDocumentId)
         $content = str_replace('{{conditions_paiement}}', '', $content);
     }
 
-    // Gérer les coordonnées bancaires si présentes dans le modèle de document
-    if ($modelDocument->coordonneesBancairesModel) {
+  
+    // Gérer les conditions de paiement
+    if ($modelDocument->condition_paiement) {
+        $conditionsPaiementHtml = "<h3>Conditions de paiement</h3><p>{$modelDocument->condition_paiement}</p>";
+        $content = str_replace('conditions_paiement', $conditionsPaiementHtml, $content);
+    } else {
+        $content = str_replace('conditions_paiement', '', $content);
+    }
+
+    // Gérer les coordonnées bancaires
+    if ($modelDocument->titulaire_compte && $modelDocument->IBAN && $modelDocument->BIC) {
         $coordonneesBancairesHtml = "<h3>Coordonnées bancaires</h3>
-            <p>Titulaire du compte : {$modelDocument->titulaireCompte}</p>
+            <p>Titulaire du compte : {$modelDocument->titulaire_compte}</p>
             <p>IBAN : {$modelDocument->IBAN}</p>
             <p>BIC : {$modelDocument->BIC}</p>";
-        $content = str_replace('{{coordonnees_bancaires}}', $coordonneesBancairesHtml, $content);
+        $content = str_replace('coordonnees_bancaires', $coordonneesBancairesHtml, $content);
     } else {
-        $content = str_replace('{{coordonnees_bancaires}}', '', $content);
+        $content = str_replace('coordonnees_bancaires', '', $content);
     }
 
-    // Gérer la note de pied de page si présente dans le modèle de document
-    if ($modelDocument->notePiedPageModel) {
-        $content = str_replace('{{note_pied_page}}', "<p>{$modelDocument->peidPage}</p>", $content);
-    } else {
-        $content = str_replace('{{note_pied_page}}', '', $content);
-    }
-
-    // Gérer les signatures si présentes dans le modèle de document
-    if ($modelDocument->signatureExpediteurModel) {
-        $signatureExpediteurHtml = "<img src='/path/to/images/{$modelDocument->image_expediteur}' alt='Signature Expéditeur' />";
-        $content = str_replace('{{signature_expediteur}}', $signatureExpediteurHtml, $content);
-    } else {
-        $content = str_replace('{{signature_expediteur}}', '', $content);
-    }
-
-    if ($modelDocument->signatureDestinataireModel) {
-        $signatureDestinataireHtml = "<img src='/path/to/images/{$modelDocument->image_destinataire}' alt='Signature Destinataire' />";
-        $content = str_replace('{{signature_destinataire}}', $signatureDestinataireHtml, $content);
-    } else {
-        $content = str_replace('{{signature_destinataire}}', '', $content);
-    }
-
-    // 3. Appliquer le CSS du modèle
+    // 3. Appliquer le CSS du modèle en ajoutant une structure HTML complète
     $css = $modelDocument->css;
-    $content = str_replace('{{css}}', $css, $content);
+    $content = "<!doctype html>
+    <html lang='fr'>
+    <head>
+        <meta charset='utf-8'>
+        <style>{$css}</style>
+    </head>
+    <body>
+        {$content}
+    </body>
+    </html>";
 
     // 4. Configurer DOMPDF et générer le PDF
     $options = new Options();
-    $options->set('isRemoteEnabled', true);  // Si vous avez des images distantes
+    $options->set('isRemoteEnabled', true);
+    
     $dompdf = new Dompdf($options);
-
     $dompdf->loadHtml($content);
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->render();
-
-    // 5. Télécharger le PDF
-    return $dompdf->stream('bon_commande_' . $bonCommande->num_commande . '.pdf');
+    
+    $pdfContent = $dompdf->output();
+    $filename = 'bonCommande_' . $bonCommande->num_commande . '.pdf';
+    
+    return response($pdfContent)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="' . $filename . '"')
+        ->header('Access-Control-Allow-Origin', '*')
+        ->header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization')
+        ->header('Access-Control-Allow-Credentials', 'true')
+        ->header('Access-Control-Expose-Headers', 'Content-Disposition');
 }
 
 public function RapportCommandeVente(Request $request)

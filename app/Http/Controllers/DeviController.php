@@ -701,106 +701,227 @@ public function exporterDevis()
     $writer->save('php://output');
     exit;
  
-}
-  
+} 
 
-
-public function genererPDFDevis($devisId, $modelDocumentId)
+public function genererPDFDevis($deviId, $modelDocumentId)
 {
     // 1. Récupérer le devis et le modèle de document depuis la base de données
-    $devis = Devi::with(['user', 'client', 'articles.article', 'echeances'])->find($devisId);
+    $devi = Devi::with(['user', 'client', 'articles.article', 'echeances'])->find($deviId);
     $modelDocument = ModelDocument::where('id', $modelDocumentId)->first();
 
-    if (!$devis || !$modelDocument) {
+    if (!$devi || !$modelDocument) {
         return response()->json(['error' => 'Devis ou modèle introuvable'], 404);
     }
-
+    
     // 2. Remplacer les variables dynamiques par les données réelles
     $content = $modelDocument->content;
-    $content = str_replace('{{num_devi}}', $devis->num_devi, $content);
-    $content = str_replace('{{expediteur_nom}}', $devis->user->name, $content);
-    $content = str_replace('{{expediteur_email}}', $devis->user->email, $content);
-    $content = str_replace('{{expediteur_tel}}', $devis->user->tel_entreprise ?? 'N/A', $content);
-    $logoUrl = $devis->user->logo ? Storage::url($devis->user->logo) : asset('public/storage/images/1hzmoM4fb2BZN5EMU4ZT4ddI1aWYhMJTo7Zr6pn3.jpg');
-    $content = str_replace('{{logo}}', "<img src='{$logoUrl}' alt='Logo' style='width:150px;height:auto;' />", $content);
-    
-    $content = str_replace('{{destinataire_nom}}', $devis->client->prenom_client . ' ' . $devis->client->nom_client, $content);
-    $content = str_replace('{{destinataire_email}}', $devis->client->email_client, $content);
-    $content = str_replace('{{destinataire_tel}}', $devis->client->tel_client, $content);
-    
-    $content = str_replace('{{date_devi}}', \Carbon\Carbon::parse($devis->created_at)->format('d/m/Y'), $content);
-    
+    $content = str_replace('[numero]', $devi->num_devi, $content);
+    $content = str_replace('[expediteur_nom]', $devi->user->name, $content);
+    $content = str_replace('[expediteur_email]', $devi->user->email, $content);
+    $content = str_replace('[expediteur_tel]', $devi->user->tel_entreprise ?? 'N/A', $content);
+
+    // Ajouter le logo en base64 pour éviter les problèmes CORS
+    $logoPath = storage_path('app/public/' . $devi->user->logo);
+    if (file_exists($logoPath)) {
+        $logoData = base64_encode(file_get_contents($logoPath));
+        $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
+        $mimeType = ($extension === 'png') ? 'image/png' : 'image/jpeg';
+        $content = str_replace('[logo]', "data:$mimeType;base64,$logoData", $content);
+    } else {
+        $content = str_replace('[logo]', '', $content);
+    }
+
+    $content = str_replace('[destinataire_nom]', $devi->client->prenom_client . ' ' . $devi->client->nom_client, $content);
+    $content = str_replace('[destinataire_email]', $devi->client->email_client, $content);
+    $content = str_replace('[destinataire_tel]', $devi->client->tel_client, $content);
+    $content = str_replace('[date_devi]', \Carbon\Carbon::parse($devi->created_at)->format('d/m/Y'), $content);
+
     // Gérer la liste des articles
     $articlesHtml = '';
-    foreach ($devis->articles as $article) {
+    foreach ($devi->articles as $article) {
         $articlesHtml .= "<tr>
             <td>{$article->article->nom_article}</td>
             <td>{$article->quantite_article}</td>
-            <td>" . number_format($article->article->prix_unitaire, 2) . " fcfa</td>
-            <td>" . number_format($article->prix_total_article, 2) . " fcfa</td>
+            <td>" . number_format($article->article->TVA_article, 2) . " </td>
+            <td>" . number_format($article->article->prix_unitaire, 2) . " </td>
+            <td>" . number_format($article->prix_total_article, 2) . " </td>
         </tr>";
     }
-    $content = str_replace('{{articles}}', $articlesHtml, $content);
+    $content = str_replace('articles', $articlesHtml, $content);
 
     // Gérer le montant total
-    $content = str_replace('{{montant_total}}', number_format($devis->prix_TTC, 2) . " fcfa", $content);
+    $content = str_replace('[montant_total_ttc]', number_format($devi->prix_TTC, 2) . " fcfa", $content);
+    $content = str_replace('[montant_total_ht]', number_format($devi->prix_HT, 2) . " fcfa", $content);
+
+    $montant_tva = $devi->prix_TTC - $devi->prix_HT;
+    $content = str_replace('[montant_total_tva]', number_format($montant_tva, 2) . " fcfa", $content);
+
+    // Gérer les échéances
+    if ($devi->type_paiement == 'echeance') {
+        $echeancesHtml = '
+            <thead>
+                <tr>
+                    <th>Prévue le</th>
+                    <th>Montant</th>
+                </tr>
+            </thead>';
+        foreach ($devi->echeances as $echeance) {
+            $echeancesHtml .= "
+                <tbody>
+                    <tr>
+                        <td>" . \Carbon\Carbon::parse($echeance->date_pay_echeance)->format('d/m/Y') . "</td>
+                        <td>" . number_format($echeance->montant_echeance, 2) . " fcfa</td>
+                    </tr>
+                </tbody>";
+        }
+        $content = str_replace('[echeances]', $echeancesHtml, $content);
+    } else {
+        $content = str_replace('[echeances]', '', $content);
+    }
+
+   // Gérer les signatures
+        // 1. Créer le chemin complet vers l'image
+        $logoPath = storage_path('app/public/' . $modelDocument->image_expediteur);
+
+        // 2. Vérifier que l'image existe et renvoyer une erreur si elle est introuvable
+        if (!file_exists($logoPath)) {
+            return response()->json(['error' => 'L\'image de signature expéditeur est introuvable'], 404);
+        }
+
+        // 3. Lire le contenu de l'image et l'encoder en base64
+        $logoData = base64_encode(file_get_contents($logoPath));
+
+        // 4. Déterminer le type MIME en fonction de l'extension
+        $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
+        $mimeType = ($extension === 'png') ? 'image/png' : 'image/jpeg';
+
+        // 5. Créer le HTML avec l'image encodée en base64 pour l'intégrer dans le contenu PDF
+        if ($modelDocument->signatureExpediteurModel && $modelDocument->image_expediteur ) {
+            $signatureExpediteurTitre="signature Expediteur";
+            $mention_expediteur="Mention Expediteur";
+            $signatureExpediteurHtml = "<img style='max-width: 100%;margin-top: 10px; height: auto;' src='data:$mimeType;base64,$logoData' alt='Signature Expéditeur' />";
+            $content .= "<div style='margin-top: 20px;'>
+                        <span>{$mention_expediteur}: </span>
+                        <span>{$modelDocument->mention_expediteur}</span>
+                        <p>{$signatureExpediteurTitre}</p>
+                        <p>{$signatureExpediteurHtml}</p>
+                </div>";
+        }else {
+            $content .= "";
+        }
+
+        if ($modelDocument->signatureDestinataireModel) {
+            $mention_destinataire="Mention Destinataire";
+            $content .= "<div style='margin-top: 20px; text-align: right;'>
+            <span>{$mention_destinataire}: </span>
+            <span>{$modelDocument->mention_destinataire}</span>
+          </div>";
+        } else {
+            $content .= "";
+        }
+
+    // Gérer autre image
+     // 1. Créer le chemin complet vers l'image
+     $autreImagePath = storage_path('app/public/' . $modelDocument->image);
+
+     // 2. Vérifier que l'image existe et renvoyer une erreur si elle est introuvable
+     if (!file_exists($autreImagePath)) {
+         return response()->json(['error' => 'L\'image de signature expéditeur est introuvable'], 404);
+     }
+
+     // 3. Lire le contenu de l'image et l'encoder en base64
+     $logoData = base64_encode(file_get_contents($autreImagePath));
+
+     // 4. Déterminer le type MIME en fonction de l'extension
+     $extension = pathinfo($autreImagePath, PATHINFO_EXTENSION);
+     $mimeType = ($extension === 'png') ? 'image/png' : 'image/jpeg';
+
+      // 5. Créer le HTML avec l'image encodée en base64 pour l'intégrer dans le contenu PDF
+      if ($modelDocument->autresImagesModel && $modelDocument->image ) {
+        $AutreImageTitre="Autre Image";
+        $AutreImageTitreHtml = "<img style='max-width: 100%;margin-top: 10px; height: auto;' src='data:$mimeType;base64,$logoData' alt='Signature Expéditeur' />";
+        $content .= "<div style='margin-top: 20px;'>
+                    <p>{$AutreImageTitre}</p>
+                    <p>{$AutreImageTitreHtml}</p>
+            </div>";
+    }else {
+        $content .= "";
+    }
 
     // Gérer les conditions de paiement
-    if ($modelDocument->conditionsPaiementModel) {
-        $conditionsPaiementHtml = "<h3>Conditions de paiement</h3><p>{$modelDocument->conditionPaiement}</p>";
-        $content = str_replace('{{conditions_paiement}}', $conditionsPaiementHtml, $content);
-    } else {
-        $content = str_replace('{{conditions_paiement}}', '', $content);
-    }
+        if ($modelDocument->conditionsPaiementModel) {
+            $content .= "
+            <div style='margin-top: 20px; text-align: right;'>
+            <h4>Conditions de paiement</h4>
+            <span>{$modelDocument->conditionPaiement}</span>
+          </div>";
+        } else {
+            $content .= "";
+        }               
+
 
     // Gérer les coordonnées bancaires
-    if ($modelDocument->coordonneesBancairesModel) {
-        $coordonneesBancairesHtml = "<h3>Coordonnées bancaires</h3>
-            <p>Titulaire du compte : {$modelDocument->titulaireCompte}</p>
-            <p>IBAN : {$modelDocument->IBAN}</p>
-            <p>BIC : {$modelDocument->BIC}</p>";
-        $content = str_replace('{{coordonnees_bancaires}}', $coordonneesBancairesHtml, $content);
-    } else {
-        $content = str_replace('{{coordonnees_bancaires}}', '', $content);
-    }
+        if ($modelDocument->coordonneesBancairesModel) {
+            $coordonneesBancairesHtml = "<h4>Coordonnées bancaires</h4>
+                <p>Titulaire du compte : {$modelDocument->titulaire_compte}</p>
+                <p>IBAN : {$modelDocument->IBAN}</p>
+                <p>BIC : {$modelDocument->BIC}</p>";
+                $content .= "<div style='margin-top: 20px;'>
+                <span>{$coordonneesBancairesHtml}</span>
+              </div>";
+        } else {
+            $content .= "";
+        }
 
     // Gérer la note de pied de page
-    if ($modelDocument->notePiedPageModel) {
-        $content = str_replace('{{note_pied_page}}', "<p>{$modelDocument->peidPage}</p>", $content);
-    } else {
-        $content = str_replace('{{note_pied_page}}', '', $content);
-    }
+        if ($modelDocument->notePiedPageModel) {
+            $content .= "<div style='position: fixed; bottom: 0; left: 0; width: 100%; margin: 0;  border-top: 1px solid #eee;'>
+           <span>{$modelDocument->peidPage}</span>
+        </div>";
+        } else {
+            $content .= "";
+        }
 
-    // Gérer les signatures
-    if ($modelDocument->signatureExpediteurModel) {
-        $signatureExpediteurHtml = "<img src='/path/to/images/{$modelDocument->image_expediteur}' alt='Signature Expéditeur' />";
-        $content = str_replace('{{signature_expediteur}}', $signatureExpediteurHtml, $content);
-    } else {
-        $content = str_replace('{{signature_expediteur}}', '', $content);
-    }
-
-    if ($modelDocument->signatureDestinataireModel) {
-        $signatureDestinataireHtml = "<img src='/path/to/images/{$modelDocument->image_destinataire}' alt='Signature Destinataire' />";
-        $content = str_replace('{{signature_destinataire}}', $signatureDestinataireHtml, $content);
-    } else {
-        $content = str_replace('{{signature_destinataire}}', '', $content);
-    }
-
-    // 3. Appliquer le CSS du modèle
+    // 3. Appliquer le CSS du modèle en ajoutant une structure HTML complète
     $css = $modelDocument->css;
-    $content = str_replace('{{css}}', $css, $content);
+    $content = "<!doctype html>
+    <html lang='fr'>
+    <head>
+        <meta charset='utf-8'>
+        <style>{$css}</style>
+    </head>
+    <body>
+        {$content}
+    </body>
+    </html>";
 
-    // 4. Configurer DOMPDF et générer le PDF
+    // 4. Configurer DOMPDF avec des options avancées et générer le PDF
     $options = new Options();
-    $options->set('isRemoteEnabled', true);  // Si vous avez des images distantes
-    $dompdf = new Dompdf($options);
+    $options->set('isRemoteEnabled', true);
+    $options->set('isHtml5ParserEnabled', true);
+    $options->set('isCssFloatEnabled', true);
     
+    
+    $dompdf = new Dompdf($options);
     $dompdf->loadHtml($content);
     $dompdf->setPaper('A4', 'portrait');
-    $dompdf->render();
 
-    // 5. Télécharger le PDF
-    return $dompdf->stream('devis_' . $devis->num_devi . '.pdf');
+    $dompdf->render();
+    
+    $pdfContent = $dompdf->output();
+    
+    $filename = 'devi_' . $devi->num_devi. '.pdf';
+    
+    return response($pdfContent)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+        ->header('Access-Control-Allow-Origin', '*')
+        ->header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization')
+        ->header('Access-Control-Allow-Credentials', 'true')
+        ->header('Access-Control-Expose-Headers', 'Content-Disposition');
 }
+
+
 
 }

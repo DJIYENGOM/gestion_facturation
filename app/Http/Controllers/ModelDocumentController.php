@@ -32,7 +32,7 @@ class ModelDocumentController extends Controller
                 'contenu' => 'required',
                 'signatureExpediteurModel' => 'nullable|boolean',
                 'mention_expediteur' => 'nullable|string',
-                'image_expediteur' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'image_expediteur' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'signatureDestinataireModel' => 'nullable|boolean',
                 'mention_destinataire' => 'nullable|string',
                 'autresImagesModel' => 'nullable|boolean',

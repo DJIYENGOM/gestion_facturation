@@ -18,9 +18,16 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Services\PDFService;
 
 class EmailModeleController extends Controller
 {
+    protected $pdfService;
+
+    public function __construct(PDFService $pdfService)
+    {
+        $this->pdfService = $pdfService;
+    }
     
     public function createEmailModele(Request $request)
     {
@@ -105,7 +112,7 @@ class EmailModeleController extends Controller
         ], 201);
     }
 
-    public function DetailEmailFacture_genererPDF($id_facture)
+    public function DetailEmailFacture_genererPDF($id_facture, $modelDocumentId)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur = auth('apisousUtilisateur')->user();
@@ -158,22 +165,18 @@ class EmailModeleController extends Controller
         $subject = str_replace(array_keys($variables), array_values($variables), $modelEmail->object);
         $body = str_replace(array_keys($variables), array_values($variables), $modelEmail->contenu);
     
-        $invoice->load(['articles', 'echeances']);
-    
-        $pdf = Pdf::loadView('invoices.template', compact('invoice'));
-        $pdfPath = storage_path('app/public/invoices/') . 'invoice_' . $invoice->id . '.pdf';
-        $pdf->save($pdfPath);
-    
-        if (!file_exists($pdfPath)) {
-            return ['error' => 'Erreur lors de la génération du fichier PDF'];
-        }
-    
-        $attachments = [];
-        if ($modelEmail->attachments) {
-            foreach ($modelEmail->attachments as $attachment) {
-                $attachments[] = asset('storage/' . $attachment->chemin_fichier);
-            }
-        }
+      // Génération du PDF via le service
+      $pdfPath = $this->pdfService->genererPDFFacture($id_facture, $modelDocumentId);
+
+      if (!$pdfPath) {
+          return ['error' => 'Erreur lors de la génération du fichier PDF'];
+      }
+
+      // Préparer les pièces jointes
+      $attachments = [];
+      foreach ($modelEmail->attachments as $attachment) {
+          $attachments[] = asset('storage/' . $attachment->chemin_fichier);
+      }
     
         return [
             'subject' => $subject,
@@ -186,9 +189,9 @@ class EmailModeleController extends Controller
         ];
     }
 
-    public function envoyerEmailFacture($id_facture)
+    public function envoyerEmailFacture($id_facture, $modelDocumentId)
     {
-        $details = $this->DetailEmailFacture_genererPDF($id_facture);
+        $details = $this->DetailEmailFacture_genererPDF($id_facture, $modelDocumentId);
     
         if (isset($details['error'])) {
             return response()->json(['error' => $details['error']], 500);
@@ -211,29 +214,22 @@ class EmailModeleController extends Controller
                 $message->to($details['client_email'])
                         ->from($details['entreprise'], $details['nom_entreprise'])
                         ->subject($emailData['subject'])
-                        ->html($emailData['body']);
-    
-                // Ajouter le PDF en pièce jointe
-                if (file_exists($emailData['pdfPath'])) {
-                    $message->attach($emailData['pdfPath']);
+                        ->html($emailData['body'])
+                        ->attach($details['pdf']);
+
+                        foreach ($details['attachments'] as $attachment) {
+                            $message->attachFromStorage($attachment);
+                        }
+                    });
+            
+                    return response()->json(['message' => 'Email envoyé avec succès']);
+                } catch (\Exception $e) {
+                    Log::error("Erreur lors de l'envoi de l'email : {$e->getMessage()}");
+                    return response()->json(['error' => 'Erreur lors de l\'envoi de l\'email'], 500);
                 }
-    
-                // Ajouter les autres pièces jointes
-                foreach ($emailData['attachments'] as $attachment) {
-                    $message->attachFromStorage($attachment);
-                }
-            });
-    
-            return response()->json(['message' => 'Email envoyé avec succès']);
-    
-        } catch (\Exception $e) {
-            Log::error('Erreur lors de l\'envoi de l\'email : ' . $e->getMessage());
-    
-            return response()->json(['error' => 'Erreur lors de l\'envoi de l\'email'], 500);
-        }
     }
 
-    public function DetailEmailDevi_genererPDF($id_devi)
+    public function DetailEmailDevi_genererPDF($id_devi, $modelDocumentId)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur = auth('apisousUtilisateur')->user();
@@ -286,13 +282,9 @@ class EmailModeleController extends Controller
         $subject = str_replace(array_keys($variables), array_values($variables), $modelEmail->object);
         $body = str_replace(array_keys($variables), array_values($variables), $modelEmail->contenu);
     
-        $devi->load(['articles', 'echeances']);
-    
-        $pdf = Pdf::loadView('devis.template', compact('devi'));
-        $pdfPath = storage_path('app/public/devis/') . 'devi_' . $devi->id . '.pdf';
-        $pdf->save($pdfPath);
-    
-        if (!file_exists($pdfPath)) {
+        $pdfPath = $this->pdfService->genererPDFDevis($id_devi, $modelDocumentId);
+
+        if (!$pdfPath) {
             return ['error' => 'Erreur lors de la génération du fichier PDF'];
         }
     
@@ -314,9 +306,9 @@ class EmailModeleController extends Controller
         ];
     }
     
-    public function envoyerEmailDevi($id_devi)
+    public function envoyerEmailDevi($id_devi, $modelDocumentId)
     {
-        $details = $this->DetailEmailDevi_genererPDF($id_devi);
+        $details = $this->DetailEmailDevi_genererPDF($id_devi, $modelDocumentId);
     
         if (isset($details['error'])) {
             return response()->json(['error' => $details['error']], 500);
