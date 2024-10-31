@@ -780,6 +780,8 @@ public function genererPDFDevis($deviId, $modelDocumentId)
     }
 
    // Gérer les signatures
+    if ($modelDocument->signatureExpediteurModel && $modelDocument->image_expediteur) {
+        
         // 1. Créer le chemin complet vers l'image
         $logoPath = storage_path('app/public/' . $modelDocument->image_expediteur);
 
@@ -820,7 +822,10 @@ public function genererPDFDevis($deviId, $modelDocumentId)
             $content .= "";
         }
 
+    }
     // Gérer autre image
+    if($modelDocument->autresImagesModel && $modelDocument->image){
+
      // 1. Créer le chemin complet vers l'image
      $autreImagePath = storage_path('app/public/' . $modelDocument->image);
 
@@ -847,7 +852,7 @@ public function genererPDFDevis($deviId, $modelDocumentId)
     }else {
         $content .= "";
     }
-
+    }
     // Gérer les conditions de paiement
         if ($modelDocument->conditionsPaiementModel) {
             $content .= "

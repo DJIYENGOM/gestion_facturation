@@ -31,6 +31,8 @@ use Illuminate\Support\Facades\Storage;
     // 1. Créer le chemin complet vers l'image
     $logoPath = storage_path('app/public/' . $facture->user->logo);
     // 2. Lire le contenu de l'image et l'encoder en base64
+    if(file_exists($logoPath)) {
+    
     $logoData = base64_encode(file_get_contents($logoPath));
     // 3. Déterminer le type MIME en fonction de l'extension
     $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
@@ -38,6 +40,7 @@ use Illuminate\Support\Facades\Storage;
      // 4. Remplacer le mot-clé "logo" dans le HTML par l'image encodée en base64
     //    pour afficher le logo sans déclencher d'erreurs CORS
     $content = str_replace('[logo]', "data:$mimeType;base64,$logoData", $content);
+    }
 
     $content = str_replace('[destinataire_nom]', $facture->client->prenom_client . ' ' . $facture->client->nom_client, $content);
     $content = str_replace('[destinataire_email]', $facture->client->email_client, $content);
@@ -116,6 +119,7 @@ use Illuminate\Support\Facades\Storage;
 
     // Gérer les signatures
         // 1. Créer le chemin complet vers l'image
+        if($modelDocument->signatureExpediteurModel){
         $logoPath = storage_path('app/public/' . $modelDocument->image_expediteur);
 
         // 2. Vérifier que l'image existe et renvoyer une erreur si elle est introuvable
@@ -144,6 +148,7 @@ use Illuminate\Support\Facades\Storage;
         }else {
             $content .= "";
         }
+    }
 
         if ($modelDocument->signatureDestinataireModel) {
             $mention_destinataire="Mention Destinataire";
@@ -156,6 +161,7 @@ use Illuminate\Support\Facades\Storage;
         }
 
     // Gérer autre image
+    if($modelDocument->autresImagesModel ){
      // 1. Créer le chemin complet vers l'image
      $autreImagePath = storage_path('app/public/' . $modelDocument->image);
 
@@ -182,7 +188,7 @@ use Illuminate\Support\Facades\Storage;
     }else {
         $content .= "";
     }
-
+    }
     // Gérer les conditions de paiement
         if ($modelDocument->conditionsPaiementModel) {
             $content .= "
@@ -243,10 +249,18 @@ use Illuminate\Support\Facades\Storage;
 
     $dompdf->render();
  
-         $pdfPath = storage_path("app/public/invoices/facture_{$facture->num_facture}.pdf");
-         file_put_contents($pdfPath, $dompdf->output());
- 
-         return $pdfPath;
+
+        $pdfDirectory = storage_path('app/public/factures');
+        $pdfPath = $pdfDirectory . '/facture_' . $facture->num_facture . '.pdf';
+
+        // Vérifiez et créez le dossier si nécessaire
+        if (!file_exists($pdfDirectory)) {
+            mkdir($pdfDirectory, 0777, true); // true pour créer les sous-dossiers nécessaires
+        }
+
+file_put_contents($pdfPath, $dompdf->output());
+
+return $pdfPath;
     
 }
 
@@ -327,6 +341,7 @@ public function genererPDFDevis($deviId, $modelDocumentId)
     }
 
    // Gérer les signatures
+   if($modelDocument->signatureExpediteurModel && $modelDocument->image_expediteur){
         // 1. Créer le chemin complet vers l'image
         $logoPath = storage_path('app/public/' . $modelDocument->image_expediteur);
 
@@ -356,7 +371,7 @@ public function genererPDFDevis($deviId, $modelDocumentId)
         }else {
             $content .= "";
         }
-
+    }
         if ($modelDocument->signatureDestinataireModel) {
             $mention_destinataire="Mention Destinataire";
             $content .= "<div style='margin-top: 20px; text-align: right;'>
@@ -368,6 +383,8 @@ public function genererPDFDevis($deviId, $modelDocumentId)
         }
 
     // Gérer autre image
+    if($modelDocument->autresImagesModel && $modelDocument->image){
+
      // 1. Créer le chemin complet vers l'image
      $autreImagePath = storage_path('app/public/' . $modelDocument->image);
 
@@ -394,7 +411,7 @@ public function genererPDFDevis($deviId, $modelDocumentId)
     }else {
         $content .= "";
     }
-
+    }
     // Gérer les conditions de paiement
         if ($modelDocument->conditionsPaiementModel) {
             $content .= "
@@ -455,10 +472,17 @@ public function genererPDFDevis($deviId, $modelDocumentId)
 
     $dompdf->render();
 
-    $pdfPath = storage_path("app/public/devis/devi_{$devi->num_devi}.pdf");
-    file_put_contents($pdfPath, $dompdf->output());
+    $pdfDirectory = storage_path('app/public/devis');
+    $pdfPath = $pdfDirectory . '/devi_' . $devi->num_devi . '.pdf';
 
-    return $pdfPath;
+    // Vérifiez et créez le dossier si nécessaire
+    if (!file_exists($pdfDirectory)) {
+        mkdir($pdfDirectory, 0777, true); // true pour créer les sous-dossiers nécessaires
+    }
+
+file_put_contents($pdfPath, $dompdf->output());
+
+return $pdfPath;
     
 
 }

@@ -1266,6 +1266,7 @@ public function genererPDFFacture($factureId, $modelDocumentId)
 
 
     // Gérer les signatures
+    if($modelDocument->signatureExpediteurModel){
         // 1. Créer le chemin complet vers l'image
         $logoPath = storage_path('app/public/' . $modelDocument->image_expediteur);
 
@@ -1305,8 +1306,11 @@ public function genererPDFFacture($factureId, $modelDocumentId)
         } else {
             $content .= "";
         }
-
+    }
+    
     // Gérer autre image
+    if($modelDocument->autresImagesModel ){
+
      // 1. Créer le chemin complet vers l'image
      $autreImagePath = storage_path('app/public/' . $modelDocument->image);
 
@@ -1333,7 +1337,7 @@ public function genererPDFFacture($factureId, $modelDocumentId)
     }else {
         $content .= "";
     }
-
+    }
     // Gérer les conditions de paiement
         if ($modelDocument->conditionsPaiementModel) {
             $content .= "
