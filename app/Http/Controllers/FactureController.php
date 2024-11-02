@@ -1181,6 +1181,8 @@ public function genererPDFFacture($factureId, $modelDocumentId)
 
     // 1. Créer le chemin complet vers l'image
     $logoPath = storage_path('app/public/' . $facture->user->logo);
+    if(file_exists($logoPath)) {
+
     // 2. Lire le contenu de l'image et l'encoder en base64
     $logoData = base64_encode(file_get_contents($logoPath));
     // 3. Déterminer le type MIME en fonction de l'extension
@@ -1189,6 +1191,10 @@ public function genererPDFFacture($factureId, $modelDocumentId)
      // 4. Remplacer le mot-clé "logo" dans le HTML par l'image encodée en base64
     //    pour afficher le logo sans déclencher d'erreurs CORS
     $content = str_replace('[logo]', "data:$mimeType;base64,$logoData", $content);
+
+} else {
+    $content = str_replace('[logo]', '', $content);
+}
 
     $content = str_replace('[destinataire_nom]', $facture->client->prenom_client . ' ' . $facture->client->nom_client, $content);
     $content = str_replace('[destinataire_email]', $facture->client->email_client, $content);
@@ -1265,7 +1271,6 @@ public function genererPDFFacture($factureId, $modelDocumentId)
     }
 
 
-    // Gérer les signatures
     if($modelDocument->signatureExpediteurModel){
         // 1. Créer le chemin complet vers l'image
         $logoPath = storage_path('app/public/' . $modelDocument->image_expediteur);

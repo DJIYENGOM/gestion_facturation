@@ -734,7 +734,7 @@ public function exporterLivraisons()
 
 public function genererPDFLivraison($livraisonId, $modelDocumentId)
 {
-    // 1. Récupérer la livraison et le modèle de document depuis la base de données
+    // 1. Récupérer la livraison et le modèle de document
     $livraison = Livraison::with(['user', 'client', 'articles.article'])->find($livraisonId);
     $modelDocument = ModelDocument::where('id', $modelDocumentId)->first();
 
@@ -742,22 +742,33 @@ public function genererPDFLivraison($livraisonId, $modelDocumentId)
         return response()->json(['error' => 'Livraison ou modèle introuvable'], 404);
     }
 
-    // 2. Remplacer les variables dynamiques par les données réelles
+    // 2. Remplacer les variables dynamiques
     $content = $modelDocument->content;
     $content = str_replace('[num_livraison]', $livraison->num_livraison, $content);
-    $content = str_replace('{{expediteur_nom}}', $livraison->user->name, $content);
-    $content = str_replace('{{expediteur_email}}', $livraison->user->email, $content);
-    $content = str_replace('{{expediteur_tel}}', $livraison->user->tel_entreprise ?? 'N/A', $content);
-    $content = str_replace('logo', $livraison->user->logo ? asset('storage/' . $livraison->user->logo) : 'N/A', $content);
+    $content = str_replace('[expediteur_nom]', $livraison->user->name, $content);
+    $content = str_replace('[expediteur_email]', $livraison->user->email, $content);
+    $content = str_replace('[expediteur_tel]', $livraison->user->tel_entreprise ?? 'N/A', $content);
 
-if($livraison->client_id){
-    $content = str_replace('{{destinataire_nom}}', $livraison->client->prenom_client . ' ' . $livraison->client->nom_client, $content);
-    $content = str_replace('{{destinataire_email}}', $livraison->client->email_client, $content);
-    $content = str_replace('{{destinataire_tel}}', $livraison->client->tel_client, $content);
-}
-    $content = str_replace('{{date_livraison}}', \Carbon\Carbon::parse($livraison->created_at)->format('d/m/Y'), $content);
+    // Logo en base64 pour éviter les problèmes CORS
+    $logoPath = storage_path('app/public/' . $livraison->user->logo);
+    if (file_exists($logoPath)) {
+        $logoData = base64_encode(file_get_contents($logoPath));
+        $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
+        $mimeType = ($extension === 'png') ? 'image/png' : 'image/jpeg';
+        $content = str_replace('[logo]', "data:$mimeType;base64,$logoData", $content);
+    } else {
+        $content = str_replace('[logo]', '', $content);
+    }
 
-    // Gérer la liste des articles
+    if($livraison->client_id){
+        $content = str_replace('[destinataire_nom]', $livraison->client->prenom_client . ' ' . $livraison->client->nom_client, $content);
+        $content = str_replace('[destinataire_email]', $livraison->client->email_client, $content);
+        $content = str_replace('[destinataire_tel]', $livraison->client->tel_client, $content);
+    }
+
+    $content = str_replace('[date_livraison]', \Carbon\Carbon::parse($livraison->created_at)->format('d/m/Y'), $content);
+
+    // Gestion des articles
     $articlesHtml = '';
     foreach ($livraison->articles as $article) {
         $articlesHtml .= "<tr>
@@ -767,32 +778,117 @@ if($livraison->client_id){
             <td>" . number_format($article->prix_total_article, 2) . " fcfa</td>
         </tr>";
     }
-    $content = str_replace('{{articles}}', $articlesHtml, $content);
+    $content = str_replace('[articles]', $articlesHtml, $content);
 
-    // Gérer le montant total
-    $content = str_replace('{{montant_total}}', number_format($livraison->prix_TTC, 2) . " fcfa", $content);
+    // Montant total
+    $content = str_replace('[montant_total]', number_format($livraison->prix_TTC, 2) . " fcfa", $content);
 
-   
-    // Gérer les conditions de paiement
-    if ($modelDocument->condition_paiement) {
-        $conditionsPaiementHtml = "<h3>Conditions de paiement</h3><p>{$modelDocument->condition_paiement}</p>";
-        $content = str_replace('conditions_paiement', $conditionsPaiementHtml, $content);
-    } else {
-        $content = str_replace('conditions_paiement', '', $content);
+    if ($modelDocument->signatureExpediteurModel && $modelDocument->image_expediteur) {
+        
+        // 1. Créer le chemin complet vers l'image
+        $logoPath = storage_path('app/public/' . $modelDocument->image_expediteur);
+
+        // 2. Vérifier que l'image existe et renvoyer une erreur si elle est introuvable
+        if (!file_exists($logoPath)) {
+            return response()->json(['error' => 'L\'image de signature expéditeur est introuvable'], 404);
+        }
+
+        // 3. Lire le contenu de l'image et l'encoder en base64
+        $logoData = base64_encode(file_get_contents($logoPath));
+
+        // 4. Déterminer le type MIME en fonction de l'extension
+        $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
+        $mimeType = ($extension === 'png') ? 'image/png' : 'image/jpeg';
+
+        // 5. Créer le HTML avec l'image encodée en base64 pour l'intégrer dans le contenu PDF
+        if ($modelDocument->signatureExpediteurModel && $modelDocument->image_expediteur ) {
+            $signatureExpediteurTitre="signature Expediteur";
+            $mention_expediteur="Mention Expediteur";
+            $signatureExpediteurHtml = "<img style='max-width: 100%;margin-top: 10px; height: auto;' src='data:$mimeType;base64,$logoData' alt='Signature Expéditeur' />";
+            $content .= "<div style='margin-top: 20px;'>
+                        <span>{$mention_expediteur}: </span>
+                        <span>{$modelDocument->mention_expediteur}</span>
+                        <p>{$signatureExpediteurTitre}</p>
+                        <p>{$signatureExpediteurHtml}</p>
+                </div>";
+        }else {
+            $content .= "";
+        }
+
+        if ($modelDocument->signatureDestinataireModel) {
+            $mention_destinataire="Mention Destinataire";
+            $content .= "<div style='margin-top: 20px; text-align: right;'>
+            <span>{$mention_destinataire}: </span>
+            <span>{$modelDocument->mention_destinataire}</span>
+          </div>";
+        } else {
+            $content .= "";
+        }
+
     }
+    // Gérer autre image
+    if($modelDocument->autresImagesModel && $modelDocument->image){
+
+     // 1. Créer le chemin complet vers l'image
+     $autreImagePath = storage_path('app/public/' . $modelDocument->image);
+
+     // 2. Vérifier que l'image existe et renvoyer une erreur si elle est introuvable
+     if (!file_exists($autreImagePath)) {
+         return response()->json(['error' => 'L\'image de signature expéditeur est introuvable'], 404);
+     }
+
+     // 3. Lire le contenu de l'image et l'encoder en base64
+     $logoData = base64_encode(file_get_contents($autreImagePath));
+     // 4. Déterminer le type MIME en fonction de l'extension
+     $extension = pathinfo($autreImagePath, PATHINFO_EXTENSION);
+     $mimeType = ($extension === 'png') ? 'image/png' : 'image/jpeg';
+
+      // 5. Créer le HTML avec l'image encodée en base64 pour l'intégrer dans le contenu PDF
+      if ($modelDocument->autresImagesModel && $modelDocument->image ) {
+        $AutreImageTitre="Autre Image";
+        $AutreImageTitreHtml = "<img style='max-width: 100%;margin-top: 10px; height: auto;' src='data:$mimeType;base64,$logoData' alt='Signature Expéditeur' />";
+        $content .= "<div style='margin-top: 20px;'>
+                    <p>{$AutreImageTitre}</p>
+                    <p>{$AutreImageTitreHtml}</p>
+            </div>";
+    }else {
+        $content .= "";
+    }
+    }
+    // Gérer les conditions de paiement
+        if ($modelDocument->conditionsPaiementModel) {
+            $content .= "
+            <div style='margin-top: 20px; text-align: right;'>
+            <h4>Conditions de paiement</h4>
+            <span>{$modelDocument->conditionPaiement}</span>
+          </div>";
+        } else {
+            $content .= "";
+        }               
+
 
     // Gérer les coordonnées bancaires
-    if ($modelDocument->titulaire_compte && $modelDocument->IBAN && $modelDocument->BIC) {
-        $coordonneesBancairesHtml = "<h3>Coordonnées bancaires</h3>
-            <p>Titulaire du compte : {$modelDocument->titulaire_compte}</p>
-            <p>IBAN : {$modelDocument->IBAN}</p>
-            <p>BIC : {$modelDocument->BIC}</p>";
-        $content = str_replace('coordonnees_bancaires', $coordonneesBancairesHtml, $content);
-    } else {
-        $content = str_replace('coordonnees_bancaires', '', $content);
-    }
+        if ($modelDocument->coordonneesBancairesModel) {
+            $coordonneesBancairesHtml = "<h4>Coordonnées bancaires</h4>
+                <p>Titulaire du compte : {$modelDocument->titulaire_compte}</p>
+                <p>IBAN : {$modelDocument->IBAN}</p>
+                <p>BIC : {$modelDocument->BIC}</p>";
+                $content .= "<div style='margin-top: 20px;'>
+                <span>{$coordonneesBancairesHtml}</span>
+              </div>";
+        } else {
+            $content .= "";
+        }
 
-    // 3. Appliquer le CSS du modèle en ajoutant une structure HTML complète
+    // Gérer la note de pied de page
+        if ($modelDocument->notePiedPageModel) {
+            $content .= "<div style='position: fixed; bottom: 0; left: 0; width: 100%; margin: 0;  border-top: 1px solid #eee;'>
+           <span>{$modelDocument->peidPage}</span>
+        </div>";
+        } else {
+            $content .= "";
+        }
+    // 3. Appliquer le CSS du modèle
     $css = $modelDocument->css;
     $content = "<!doctype html>
     <html lang='fr'>
@@ -808,15 +904,14 @@ if($livraison->client_id){
     // 4. Configurer DOMPDF et générer le PDF
     $options = new Options();
     $options->set('isRemoteEnabled', true);
-    
     $dompdf = new Dompdf($options);
     $dompdf->loadHtml($content);
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->render();
-    
+
     $pdfContent = $dompdf->output();
-    $filename = 'livraison_' . $livraison->num_livraison. '.pdf';
-    
+    $filename = 'livraison_' . $livraison->num_livraison . '.pdf';
+
     return response($pdfContent)
         ->header('Content-Type', 'application/pdf')
         ->header('Content-Disposition', 'inline; filename="' . $filename . '"')

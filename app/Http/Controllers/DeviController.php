@@ -836,7 +836,6 @@ public function genererPDFDevis($deviId, $modelDocumentId)
 
      // 3. Lire le contenu de l'image et l'encoder en base64
      $logoData = base64_encode(file_get_contents($autreImagePath));
-
      // 4. Déterminer le type MIME en fonction de l'extension
      $extension = pathinfo($autreImagePath, PATHINFO_EXTENSION);
      $mimeType = ($extension === 'png') ? 'image/png' : 'image/jpeg';

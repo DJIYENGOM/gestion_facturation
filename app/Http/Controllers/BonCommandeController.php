@@ -691,16 +691,25 @@ public function genererPDFBonCommande($bonCommandeId, $modelDocumentId)
 
     // 2. Remplacer les variables dynamiques par les données réelles
     $content = $modelDocument->content;
-    $content = str_replace('{{num_commande}}', $bonCommande->num_commande, $content);
-    $content = str_replace('{{expediteur_nom}}', $bonCommande->user->name, $content);
-    $content = str_replace('{{expediteur_email}}', $bonCommande->user->email, $content);
-    $content = str_replace('{{expediteur_tel}}', $bonCommande->user->tel_entreprise ?? 'N/A', $content);
-if($bonCommande->client_id){
-    $content = str_replace('{{destinataire_nom}}', $bonCommande->client->prenom_client . ' ' . $bonCommande->client->nom_client, $content);
-    $content = str_replace('{{destinataire_email}}', $bonCommande->client->email_client, $content);
-    $content = str_replace('{{destinataire_tel}}', $bonCommande->client->tel_client, $content);
-}
-    $content = str_replace('{{date_commande}}', \Carbon\Carbon::parse($bonCommande->created_at)->format('d/m/Y'), $content);
+    $content = str_replace('[num_commande]', $bonCommande->num_commande, $content);
+    $content = str_replace('[expediteur_nom]', $bonCommande->user->name, $content);
+    $content = str_replace('[expediteur_email]', $bonCommande->user->email, $content);
+    $content = str_replace('[expediteur_tel]', $bonCommande->user->tel_entreprise ?? 'N/A', $content);
+    $logoPath = storage_path('app/public/' . $bonCommande->user->logo);
+    if (file_exists($logoPath)) {
+        $logoData = base64_encode(file_get_contents($logoPath));
+        $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
+        $mimeType = ($extension === 'png') ? 'image/png' : 'image/jpeg';
+        $content = str_replace('[logo]', "data:$mimeType;base64,$logoData", $content);
+    } else {
+        $content = str_replace('[logo]', '', $content);
+    }
+    if($bonCommande->client_id){
+    $content = str_replace('[destinataire_nom]', $bonCommande->client->prenom_client . ' ' . $bonCommande->client->nom_client, $content);
+    $content = str_replace('[destinataire_email]', $bonCommande->client->email_client, $content);
+    $content = str_replace('[destinataire_tel]', $bonCommande->client->tel_client, $content);
+    }
+    $content = str_replace('[date_commande]', \Carbon\Carbon::parse($bonCommande->created_at)->format('d/m/Y'), $content);
 
     // Gérer la liste des articles
     $articlesHtml = '';
@@ -712,10 +721,10 @@ if($bonCommande->client_id){
             <td>" . number_format($article->prix_total_article, 2) . " fcfa</td>
         </tr>";
     }
-    $content = str_replace('{{articles}}', $articlesHtml, $content);
+    $content = str_replace('[articles]', $articlesHtml, $content);
 
     // Gérer le montant total
-    $content = str_replace('{{montant_total}}', number_format($bonCommande->prix_TTC, 2) . " fcfa", $content);
+    $content = str_replace('[montant_total]', number_format($bonCommande->prix_TTC, 2) . " fcfa", $content);
 
     // Gérer les échéances s'il y en a
     if ($bonCommande->echeances && count($bonCommande->echeances) > 0) {
@@ -726,38 +735,106 @@ if($bonCommande->client_id){
                 <td>" . number_format($echeance->montant_echeance, 2) . " fcfa</td>
             </tr>";
         }
-        $content = str_replace('{{echeances}}', $echeancesHtml, $content);
+        $content = str_replace('[echeances]', $echeancesHtml, $content);
     } else {
-        $content = str_replace('{{echeances}}', '', $content);
+        $content = str_replace('[echeances]', '', $content);
     }
 
-    // Gérer les conditions de paiement si présentes dans le modèle de document
-    if ($modelDocument->conditionsPaiementModel) {
-        $conditionsPaiementHtml = "<h3>Conditions de paiement</h3><p>{$modelDocument->conditionPaiement}</p>";
-        $content = str_replace('{{conditions_paiement}}', $conditionsPaiementHtml, $content);
-    } else {
-        $content = str_replace('{{conditions_paiement}}', '', $content);
-    }
+    if ($modelDocument->signatureExpediteurModel && $modelDocument->image_expediteur) {
+        
+           $logoPath = storage_path('app/public/' . $modelDocument->image_expediteur);
 
-  
+        if (!file_exists($logoPath)) {
+            return response()->json(['error' => 'L\'image de signature expéditeur est introuvable'], 404);
+        }
+
+           $logoData = base64_encode(file_get_contents($logoPath));
+
+           $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
+        $mimeType = ($extension === 'png') ? 'image/png' : 'image/jpeg';
+
+        if ($modelDocument->signatureExpediteurModel && $modelDocument->image_expediteur ) {
+            $signatureExpediteurTitre="signature Expediteur";
+            $mention_expediteur="Mention Expediteur";
+            $signatureExpediteurHtml = "<img style='max-width: 100%;margin-top: 10px; height: auto;' src='data:$mimeType;base64,$logoData' alt='Signature Expéditeur' />";
+            $content .= "<div style='margin-top: 20px;'>
+                        <span>{$mention_expediteur}: </span>
+                        <span>{$modelDocument->mention_expediteur}</span>
+                        <p>{$signatureExpediteurTitre}</p>
+                        <p>{$signatureExpediteurHtml}</p>
+                </div>";
+        }else {
+            $content .= "";
+        }
+
+        if ($modelDocument->signatureDestinataireModel) {
+            $mention_destinataire="Mention Destinataire";
+            $content .= "<div style='margin-top: 20px; text-align: right;'>
+            <span>{$mention_destinataire}: </span>
+            <span>{$modelDocument->mention_destinataire}</span>
+          </div>";
+        } else {
+            $content .= "";
+        }
+
+    }
+    // Gérer autre image
+    if($modelDocument->autresImagesModel && $modelDocument->image){
+
+     $autreImagePath = storage_path('app/public/' . $modelDocument->image);
+
+     if (!file_exists($autreImagePath)) {
+         return response()->json(['error' => 'L\'image de signature expéditeur est introuvable'], 404);
+     }
+
+     $logoData = base64_encode(file_get_contents($autreImagePath));
+     $extension = pathinfo($autreImagePath, PATHINFO_EXTENSION);
+     $mimeType = ($extension === 'png') ? 'image/png' : 'image/jpeg';
+
+      if ($modelDocument->autresImagesModel && $modelDocument->image ) {
+        $AutreImageTitre="Autre Image";
+        $AutreImageTitreHtml = "<img style='max-width: 100%;margin-top: 10px; height: auto;' src='data:$mimeType;base64,$logoData' alt='Signature Expéditeur' />";
+        $content .= "<div style='margin-top: 20px;'>
+                    <p>{$AutreImageTitre}</p>
+                    <p>{$AutreImageTitreHtml}</p>
+            </div>";
+    }else {
+        $content .= "";
+    }
+    }
     // Gérer les conditions de paiement
-    if ($modelDocument->condition_paiement) {
-        $conditionsPaiementHtml = "<h3>Conditions de paiement</h3><p>{$modelDocument->condition_paiement}</p>";
-        $content = str_replace('conditions_paiement', $conditionsPaiementHtml, $content);
-    } else {
-        $content = str_replace('conditions_paiement', '', $content);
-    }
+        if ($modelDocument->conditionsPaiementModel) {
+            $content .= "
+            <div style='margin-top: 20px; text-align: right;'>
+            <h4>Conditions de paiement</h4>
+            <span>{$modelDocument->conditionPaiement}</span>
+          </div>";
+        } else {
+            $content .= "";
+        }               
+
 
     // Gérer les coordonnées bancaires
-    if ($modelDocument->titulaire_compte && $modelDocument->IBAN && $modelDocument->BIC) {
-        $coordonneesBancairesHtml = "<h3>Coordonnées bancaires</h3>
-            <p>Titulaire du compte : {$modelDocument->titulaire_compte}</p>
-            <p>IBAN : {$modelDocument->IBAN}</p>
-            <p>BIC : {$modelDocument->BIC}</p>";
-        $content = str_replace('coordonnees_bancaires', $coordonneesBancairesHtml, $content);
-    } else {
-        $content = str_replace('coordonnees_bancaires', '', $content);
-    }
+        if ($modelDocument->coordonneesBancairesModel) {
+            $coordonneesBancairesHtml = "<h4>Coordonnées bancaires</h4>
+                <p>Titulaire du compte : {$modelDocument->titulaire_compte}</p>
+                <p>IBAN : {$modelDocument->IBAN}</p>
+                <p>BIC : {$modelDocument->BIC}</p>";
+                $content .= "<div style='margin-top: 20px;'>
+                <span>{$coordonneesBancairesHtml}</span>
+              </div>";
+        } else {
+            $content .= "";
+        }
+
+    // Gérer la note de pied de page
+        if ($modelDocument->notePiedPageModel) {
+            $content .= "<div style='position: fixed; bottom: 0; left: 0; width: 100%; margin: 0;  border-top: 1px solid #eee;'>
+           <span>{$modelDocument->peidPage}</span>
+        </div>";
+        } else {
+            $content .= "";
+        }
 
     // 3. Appliquer le CSS du modèle en ajoutant une structure HTML complète
     $css = $modelDocument->css;

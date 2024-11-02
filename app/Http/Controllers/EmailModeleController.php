@@ -181,7 +181,7 @@ class EmailModeleController extends Controller
         return [
             'subject' => $subject,
             'body' => $body,
-            'pdf' => $pdfPath,
+            'pdf' => $pdfPath ,
             'attachments' => $attachments,
             'client_email' => $invoice->client->email_client,
             'entreprise' => $invoice->user->email ,
@@ -353,7 +353,7 @@ class EmailModeleController extends Controller
         }
     }
 
-    public function DetailEmailBonCommande_genererPDF($id_BonCommande)
+    public function DetailEmailBonCommande_genererPDF($id_BonCommande, $modelDocumentId)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur = auth('apisousUtilisateur')->user();
@@ -404,15 +404,12 @@ class EmailModeleController extends Controller
         $subject = str_replace(array_keys($variables), array_values($variables), $modelEmail->object);
         $body = str_replace(array_keys($variables), array_values($variables), $modelEmail->contenu);
     
-        $BonCommande->load(['articles', 'echeances']);
-    
-        $pdf = Pdf::loadView('BonCommandes.template', compact('BonCommande'));
-        $pdfPath = storage_path('app/public/BonCommandes/') . 'BonCommande_' . $BonCommande->id . '.pdf';
-        $pdf->save($pdfPath);
-    
-        if (!file_exists($pdfPath)) {
-            return ['error' => 'Erreur lors de la génération du fichier PDF'];
-        }
+        // Génération du PDF via le service
+      $pdfPath = $this->pdfService->genererPDFBonCommande($id_BonCommande, $modelDocumentId);
+
+      if (!$pdfPath) {
+          return ['error' => 'Erreur lors de la génération du fichier PDF'];
+      }
     
         $attachments = [];
         if ($modelEmail->attachments) {
@@ -432,9 +429,9 @@ class EmailModeleController extends Controller
         ];
     }
 
-    public function envoyerEmailBonCommande($id_BonCommande)
+    public function envoyerEmailBonCommande($id_BonCommande, $modelDocumentId)
     {
-        $details = $this->DetailEmailBonCommande_genererPDF($id_BonCommande);
+        $details = $this->DetailEmailBonCommande_genererPDF($id_BonCommande, $modelDocumentId);
     
         if (isset($details['error'])) {
             return response()->json(['error' => $details['error']], 500);
@@ -479,7 +476,7 @@ class EmailModeleController extends Controller
         }
     }
 
-    public function DetailEmailLivraison_genererPDF($id_livraison)
+    public function DetailEmailLivraison_genererPDF($id_livraison, $modelDocumentId)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur = auth('apisousUtilisateur')->user();
@@ -531,15 +528,12 @@ class EmailModeleController extends Controller
         $subject = str_replace(array_keys($variables), array_values($variables), $modelEmail->object);
         $body = str_replace(array_keys($variables), array_values($variables), $modelEmail->contenu);
     
-        $livraison->load(['articles']);
-    
-        $pdf = Pdf::loadView('livraisons.template', compact('livraison'));
-        $pdfPath = storage_path('app/public/livraisons/') . 'livraison_' . $livraison->id . '.pdf';
-        $pdf->save($pdfPath);
-    
-        if (!file_exists($pdfPath)) {
-            return ['error' => 'Erreur lors de la génération du fichier PDF'];
-        }
+         // Génération du PDF via le service
+      $pdfPath = $this->pdfService->genererPDFFacture($id_livraison, $modelDocumentId);
+
+      if (!$pdfPath) {
+          return ['error' => 'Erreur lors de la génération du fichier PDF'];
+      }
     
         $attachments = [];
         if ($modelEmail->attachments) {
@@ -559,9 +553,9 @@ class EmailModeleController extends Controller
         ];
     }
 
-    public function envoyerEmailLivraison($id_livraison)
+    public function envoyerEmailLivraison($id_livraison, $modelDocumentId)
     {
-        $details = $this->DetailEmailLivraison_genererPDF($id_livraison);
+        $details = $this->DetailEmailLivraison_genererPDF($id_livraison, $modelDocumentId);
     
         if (isset($details['error'])) {
             return response()->json(['error' => $details['error']], 500);
@@ -606,7 +600,7 @@ class EmailModeleController extends Controller
         }
     }
 
-    public function DetailEmailCommandeAchat_genererPDF($id_CommandeAchat)
+    public function DetailEmailCommandeAchat_genererPDF($id_CommandeAchat, $modelDocumentId)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur = auth('apisousUtilisateur')->user();
@@ -658,15 +652,12 @@ class EmailModeleController extends Controller
         $subject = str_replace(array_keys($variables), array_values($variables), $modelEmail->object);
         $body = str_replace(array_keys($variables), array_values($variables), $modelEmail->contenu);
     
-        $CommandeAchat->load(['articles']);
-    
-        $pdf = Pdf::loadView('CommandeAchats.template', compact('CommandeAchat'));
-        $pdfPath = storage_path('app/public/CommandeAchats/') . 'CommandeAchat_' . $CommandeAchat->id . '.pdf';
-        $pdf->save($pdfPath);
-    
-        if (!file_exists($pdfPath)) {
-            return ['error' => 'Erreur lors de la génération du fichier PDF'];
-        }
+        // Génération du PDF via le service
+      $pdfPath = $this->pdfService->genererPDFFacture($id_CommandeAchat, $modelDocumentId);
+
+      if (!$pdfPath) {
+          return ['error' => 'Erreur lors de la génération du fichier PDF'];
+      }
     
         $attachments = [];
         if ($modelEmail->attachments) {
@@ -686,9 +677,9 @@ class EmailModeleController extends Controller
         ];
     }
 
-    public function envoyerEmailCommandeAchat($id_CommandeAchat)
+    public function envoyerEmailCommandeAchat($id_CommandeAchat, $modelDocumentId)
     {
-        $details = $this->DetailEmailCommandeAchat_genererPDF($id_CommandeAchat);
+        $details = $this->DetailEmailCommandeAchat_genererPDF($id_CommandeAchat, $modelDocumentId);
     
         if (isset($details['error'])) {
             return response()->json(['error' => $details['error']], 500);
@@ -736,7 +727,7 @@ class EmailModeleController extends Controller
     }
 
     
-    public function DetailEmailResumeVente_genererPDF($id_facture)
+    public function DetailEmailResumeVente_genererPDF($id_facture, $modelDocumentId)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur = auth('apisousUtilisateur')->user();
@@ -787,15 +778,13 @@ class EmailModeleController extends Controller
         $subject = str_replace(array_keys($variables), array_values($variables), $modelEmail->object);
         $body = str_replace(array_keys($variables), array_values($variables), $modelEmail->contenu);
     
-        $invoice->load(['articles', 'echeances']);
     
-        $pdf = Pdf::loadView('invoices.template', compact('invoice'));
-        $pdfPath = storage_path('app/public/invoices/') . 'invoice_' . $invoice->id . '.pdf';
-        $pdf->save($pdfPath);
-    
-        if (!file_exists($pdfPath)) {
-            return ['error' => 'Erreur lors de la génération du fichier PDF'];
-        }
+         // Génération du PDF via le service
+      $pdfPath = $this->pdfService->genererPDFFacture($id_facture, $modelDocumentId);
+
+      if (!$pdfPath) {
+          return ['error' => 'Erreur lors de la génération du fichier PDF'];
+      }
     
         $attachments = [];
         if ($modelEmail->attachments) {
@@ -815,9 +804,9 @@ class EmailModeleController extends Controller
         ];
     }
 
-    public function envoyerEmailResumeVente($id_facture)
+    public function envoyerEmailResumeVente($id_facture, $modelDocument)
     {
-        $details = $this->DetailEmailResumeVente_genererPDF($id_facture);
+        $details = $this->DetailEmailResumeVente_genererPDF($id_facture, $modelDocument);
     
         if (isset($details['error'])) {
             return response()->json(['error' => $details['error']], 500);
@@ -988,7 +977,7 @@ class EmailModeleController extends Controller
         }
     }
 
-    public function DetailEmailRelanceAvantEcheance_genererPDF($id_echeance)
+    public function DetailEmailRelanceAvantEcheance_genererPDF($id_echeance, $modelDocumentId)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur = auth('apisousUtilisateur')->user();
@@ -1042,16 +1031,14 @@ class EmailModeleController extends Controller
         $body = str_replace(array_keys($variables), array_values($variables), $modelEmail->contenu);
     
         $invoice = $echeance->facture;
+        $id_facture= $invoice->id;
 
-        $invoice->load(['articles', 'echeances']);
-    
-        $pdf = Pdf::loadView('invoices.template', compact('invoice'));
-        $pdfPath = storage_path('app/public/invoices/') . 'invoice_' . $invoice->id . '.pdf';
-        $pdf->save($pdfPath);
-    
-        if (!file_exists($pdfPath)) {
-            return ['error' => 'Erreur lors de la génération du fichier PDF'];
-        }
+        // Génération du PDF via le service
+      $pdfPath = $this->pdfService->genererPDFFacture($id_facture, $modelDocumentId);
+
+      if (!$pdfPath) {
+          return ['error' => 'Erreur lors de la génération du fichier PDF'];
+      }
     
         $attachments = [];
         if ($modelEmail->attachments) {
@@ -1071,9 +1058,9 @@ class EmailModeleController extends Controller
         ];
     }
 
-    public function envoyerEmailRelanceAvantEcheance($id_echeance)
+    public function envoyerEmailRelanceAvantEcheance($id_echeance, $modelDocumentId)
     {
-        $details = $this->DetailEmailRelanceAvantEcheance_genererPDF($id_echeance);
+        $details = $this->DetailEmailRelanceAvantEcheance_genererPDF($id_echeance, $modelDocumentId);
     
         if (isset($details['error'])) {
             return response()->json(['error' => $details['error']], 500);
@@ -1118,7 +1105,7 @@ class EmailModeleController extends Controller
         }
     }
 
-    public function DetailEmailRelanceApresEcheance_genererPDF($id_echeance)
+    public function DetailEmailRelanceApresEcheance_genererPDF($id_echeance, $modelDocumentId)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur = auth('apisousUtilisateur')->user();
@@ -1172,13 +1159,10 @@ class EmailModeleController extends Controller
         $body = str_replace(array_keys($variables), array_values($variables), $modelEmail->contenu);
     
         $invoice = $echeance->facture;
+        $id_facture = $invoice->id;
 
-        $invoice->load(['articles', 'echeances']);
-    
-        $pdf = Pdf::loadView('invoices.template', compact('invoice'));
-        $pdfPath = storage_path('app/public/invoices/') . 'invoice_' . $invoice->id . '.pdf';
-        $pdf->save($pdfPath);
-    
+        $pdfPath = $this->pdfService->genererPDFFacture($id_facture, $modelDocumentId);
+
         if (!file_exists($pdfPath)) {
             return ['error' => 'Erreur lors de la génération du fichier PDF'];
         }
@@ -1201,9 +1185,9 @@ class EmailModeleController extends Controller
         ];
     }
 
-    public function envoyerEmailRelanceApresEcheance($id_echeance)
+    public function envoyerEmailRelanceApresEcheance($id_echeance, $modelDocumentId)
     {
-        $details = $this->DetailEmailRelanceApresEcheance_genererPDF($id_echeance);
+        $details = $this->DetailEmailRelanceApresEcheance_genererPDF($id_echeance, $modelDocumentId);
     
         if (isset($details['error'])) {
             return response()->json(['error' => $details['error']], 500);
