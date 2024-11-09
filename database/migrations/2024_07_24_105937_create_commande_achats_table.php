@@ -21,6 +21,7 @@ return new class extends Migration
             $table->date('date_paiement')->nullable();
             $table->enum('statut_commande' , ['commander','annuler','recu','brouillon'])->default('brouillon');
             $table->foreignId('fournisseur_id')->nullable()->constrained('fournisseurs')->onDelete('set null');
+            $table->decimal('total_HT', 10, 2)->nullable();
             $table->decimal('total_TTC', 10, 2)->nullable();
             $table->boolean('active_Stock')->default(0);
             $table->foreignId('depense_id')->nullable()->constrained('depenses')->onDelete('set null');

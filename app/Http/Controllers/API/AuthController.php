@@ -156,8 +156,8 @@ class AuthController extends Controller
                 'contenu' => "Bonjour {DESTINATAIRE},\n\n Veuillez trouver ci-joint le Bon de Livraison N° {LIVRAISON_NUMERO}.\n\nLivraison prévue le : {LIVRAISON_DATE}.\n\nMerci de nous avoir fait confiance.\n\nCordialement,\n\n{ENTREPRISE}"
             ],
             'fournisseur' => [
-                'object' => 'Bon de commande N° {BON_NUMERO} du {BON_DATE}',
-                'contenu' => "Bonjour {DESTINATAIRE},\n\nVoici le bon de commande N° {BON_NUMERO} daté du {BON_DATE}.\n\nCordialement,\n\n{ENTREPRISE}"
+                'object' => 'Commande d\'achat {ACHAT_NUMERO} réalisée le {ACHAT_DATE}',
+                'contenu' => "Bonjour {DESTINATAIRE},\n\nVeuillez trouver ci-joint la Commande d'Achat N° {ACHAT_NUMERO}\n\nréalisée le {ACHAT_DATE} pour un montant de {ACHAT_PRIX_TOTAL}.\n\nSi vous avez besoin d'informations supplémentaires, n'hésitez pas à nous\n\ncontacter.\n\nCordialement,\n\n{ENTREPRISE}"
             ],
         ];
     

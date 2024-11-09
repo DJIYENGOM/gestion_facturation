@@ -362,14 +362,14 @@ Route::post('envoyerEmailBonCommande/{id_bonCommande}/{modelDocumentId}', [Email
 Route::post('DetailEmailLivraison_genererPDF/{id_livraison}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailLivraison_genererPDF']);
 Route::post('envoyerEmailLivraison/{id_livraison}/{modelDocumentId}', [EmailModeleController::class, 'envoyerEmailLivraison']);
 
-Route::post('DetailEmailCommandeAchat_genererPDF/{id_CommandeAchat}', [EmailModeleController::class, 'DetailEmailCommandeAchat_genererPDF']);
-Route::post('envoyerEmailCommandeAchat/{id_CommandeAchat}', [EmailModeleController::class, 'envoyerEmailCommandeAchat']);
+Route::post('DetailEmailCommandeAchat_genererPDF/{id_CommandeAchat}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailCommandeAchat_genererPDF']);
+Route::post('envoyerEmailCommandeAchat/{id_CommandeAchat}/{modelDocumentId}', [EmailModeleController::class, 'envoyerEmailCommandeAchat']);
 
 Route::post('DetailEmailResumeVente_genererPDF/{id_facture}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailResumeVente_genererPDF']);
 Route::post('envoyerEmailResumeVente/{id_facture}/{modelDocumentId}', [EmailModeleController::class, 'envoyerEmailResumeVente']);
 
-Route::post('DetailEmailPaiementRecu_genererPDF/{id_PaiementRecu}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailPaiementRecu_genererPDF']);
-Route::post('envoyerEmailPaiementRecu/{id_PaiementRecu}/{modelDocumentId}', [EmailModeleController::class, 'envoyerEmailPaiementRecu']);
+Route::post('DetailEmailPaiementRecu_genererPDF/{paiementRecuId}/{factureId}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailPaiementRecu_genererPDF']);
+Route::post('envoyerEmailPaiementRecu/{paiementRecuId}/{factureId}/{modelDocumentId}', [EmailModeleController::class, 'envoyerEmailPaiementRecu']);
 
 Route::post('DetailEmailRelanceAvantEcheance_genererPDF/{id_echeance}/{modelDocumentId}', [EmailModeleController::class, 'DetailEmailRelanceAvantEcheance_genererPDF']);
 Route::post('envoyerEmailRelanceAvantEcheance/{id_echeance}/{modelDocumentId}', [EmailModeleController::class, 'envoyerEmailRelanceAvantEcheance']);

@@ -243,6 +243,7 @@ public function transformerEcheanceEnPaiementRecu(Request $request, $EcheanceId)
     if($nombre_echeances < 2) {
     $facture->update([
         'statut_paiement' =>'payer',
+        'date_paiement' => now(),
     ]);
     }
     $Echeance->delete();

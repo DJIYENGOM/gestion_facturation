@@ -18,6 +18,7 @@ class CommandeAchat extends Model
         'date_paiement',
         'statut_commande',
         'fournisseur_id',
+        'total_HT',
         'total_TTC',
         'active_Stock',
         'depense_id',

@@ -529,7 +529,7 @@ class EmailModeleController extends Controller
         $body = str_replace(array_keys($variables), array_values($variables), $modelEmail->contenu);
     
          // Génération du PDF via le service
-      $pdfPath = $this->pdfService->genererPDFFacture($id_livraison, $modelDocumentId);
+      $pdfPath = $this->pdfService->genererPDFLivraison($id_livraison, $modelDocumentId);
 
       if (!$pdfPath) {
           return ['error' => 'Erreur lors de la génération du fichier PDF'];
@@ -636,7 +636,7 @@ class EmailModeleController extends Controller
         $variables = [
             '{ACHAT_NUMERO}' => $CommandeAchat->num_commandeAchat ?? 'N/A',
             '{ACHAT_DATE}' => $CommandeAchat->date_commandeAchat ?? 'N/A',
-            '{DESTINATAIRE}' => $CommandeAchat->fournisseur->prenom_fournisseur.' '.$CommandeAchat->fournisseur->nom_fournisseur ?? 'N/A',
+            '{DESTINATAIRE}' => ($CommandeAchat->fournisseur->prenom_fournisseur ?? 'N/A').' '.($CommandeAchat->fournisseur->nom_fournisseur ?? 'N/A'),
             '{ACHAT_PRIX_TOTAL}' => $CommandeAchat->total_TTC ?? 'N/A',
             '{ENTREPRISE}' => $CommandeAchat->user->nom_entreprise ?? 'N/A',
             '{LIST_PRODUCTS_SERVICES}' => $CommandeAchat->articles->map(function ($articleCommandeAchat) {
@@ -644,7 +644,8 @@ class EmailModeleController extends Controller
                     'id' => $articleCommandeAchat->article->id,
                     'nom' => $articleCommandeAchat->article->nom_article,
                     'quantite' => $articleCommandeAchat->quantite_article,
-                    'prix' => $articleCommandeAchat->prix_total_tva_article,
+                    'prix_unitaire' => $articleCommandeAchat->prix_unitaire_article_ttc,
+                    'prix_total' => $articleCommandeAchat->prix_total_tva_article,
                 ];
             }),
         ];
@@ -653,7 +654,7 @@ class EmailModeleController extends Controller
         $body = str_replace(array_keys($variables), array_values($variables), $modelEmail->contenu);
     
         // Génération du PDF via le service
-      $pdfPath = $this->pdfService->genererPDFFacture($id_CommandeAchat, $modelDocumentId);
+      $pdfPath = $this->pdfService->genererPDFCommandeAchat($id_CommandeAchat, $modelDocumentId);
 
       if (!$pdfPath) {
           return ['error' => 'Erreur lors de la génération du fichier PDF'];
@@ -671,7 +672,7 @@ class EmailModeleController extends Controller
             'body' => $body,
             'pdf' => $pdfPath,
             'attachments' => $attachments,
-            'fournisseur_email' => $CommandeAchat->fournisseur->email_fournisseur,
+            'fournisseur_email' => $CommandeAchat->fournisseur->email_fournisseur ?? 'N/A',
             'entreprise' => $CommandeAchat->user->email ,
             'nom_entreprise' => $CommandeAchat->user->nom_entreprise
         ];
@@ -851,7 +852,7 @@ class EmailModeleController extends Controller
         }
     }
 
-    public function DetailEmailPaiementRecu_genererPDF($id_PaiementRecu)
+    public function DetailEmailPaiementRecu_genererPDF($paiementRecuId, $factureId, $modelDocumentId)
     {
         if (auth()->guard('apisousUtilisateur')->check()) {
             $sousUtilisateur = auth('apisousUtilisateur')->user();
@@ -867,7 +868,7 @@ class EmailModeleController extends Controller
             return ['error' => 'Vous n\'êtes pas connecté'];
         }
     
-        $PaiementRecu = PaiementRecu::find($id_PaiementRecu);
+        $PaiementRecu = PaiementRecu::find($paiementRecuId);
         if (!$PaiementRecu) {
             return ['error' => 'PaiementRecu introuvable'];
         }
@@ -904,11 +905,9 @@ class EmailModeleController extends Controller
         $body = str_replace(array_keys($variables), array_values($variables), $modelEmail->contenu);
     
     
-        $pdf = Pdf::loadView('PaiementRecus.template', compact('PaiementRecu'));
-        $pdfPath = storage_path('app/public/PaiementRecus/') . 'PaiementRecu_' . $PaiementRecu->id . '.pdf';
-        $pdf->save($pdfPath);
-    
-        if (!file_exists($pdfPath)) {
+        $pdfPath = $this->pdfService->genererPDFPaiementRecu($paiementRecuId, $factureId, $modelDocumentId);
+
+        if (!$pdfPath) {
             return ['error' => 'Erreur lors de la génération du fichier PDF'];
         }
     
@@ -930,9 +929,9 @@ class EmailModeleController extends Controller
         ];
     }
 
-    public function envoyerEmailPaiementRecu($id_PaiementRecu)
+    public function envoyerEmailPaiementRecu($paiementRecuId, $factureId, $modelDocumentId)
     {
-        $details = $this->DetailEmailPaiementRecu_genererPDF($id_PaiementRecu);
+        $details = $this->DetailEmailPaiementRecu_genererPDF($paiementRecuId, $factureId, $modelDocumentId);
     
         if (isset($details['error'])) {
             return response()->json(['error' => $details['error']], 500);
