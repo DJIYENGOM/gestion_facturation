@@ -808,7 +808,7 @@
                                 }
                             },
                             "example": {
-                                "typeDocument": "livraison",
+                                "typeDocument": "vente",
                                 "reprendre_model_vente": null,
                                 "typeDesign": "bloc",
                                 "contenu": "<!DOCTYPE html><html lang='fr'><head><meta charset='UTF-8'><title>Devis</title><style></p></div><h3>Détails des Articles</h3><table><thead><tr><th>Nom de l'Article</th><th>Quantité</th><th>Prix Unitaire</th><th>Prix Total</th></tr></thead><tbody></tbody></table><h3 class='total'>Montant Total :</h3></body></html>",
@@ -963,7 +963,7 @@
                 }
             }
         },
-        "/api/envoyerEmailRelanceApresEcheance/7": {
+        "/api/envoyerEmailRelanceApresEcheance/{id_echeance}/{modelDocumentId}": {
             "post": {
                 "summary": "envoyerEmailRelanceApresEcheance",
                 "description": "",
@@ -1010,6 +1010,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_echeance",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1017,7 +1027,7 @@
                 ]
             }
         },
-        "/api/DetailEmailRelanceApresEcheance_genererPDF/7": {
+        "/api/DetailEmailRelanceApresEcheance_genererPDF/{id_echeance}/{modelDocumentId}": {
             "post": {
                 "summary": "DetailEmailRelanceApresEcheance_genererPDF",
                 "description": "",
@@ -1064,6 +1074,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_echeance",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1071,7 +1091,7 @@
                 ]
             }
         },
-        "/api/envoyerEmailRelanceAvantEcheance/7": {
+        "/api/envoyerEmailRelanceAvantEcheance/{id_echeance}/{modelDocumentId}": {
             "post": {
                 "summary": "envoyerEmailRelanceAvantEcheance",
                 "description": "",
@@ -1118,6 +1138,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_echeance",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1125,7 +1155,7 @@
                 ]
             }
         },
-        "/api/DetailEmailRelanceAvantEcheance_genererPDF/7": {
+        "/api/DetailEmailRelanceAvantEcheance_genererPDF/{id_echeance}/{modelDocumentId}": {
             "post": {
                 "summary": "DetailEmailRelanceAvantEcheance_genererPDF",
                 "description": "",
@@ -1172,6 +1202,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_echeance",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1179,7 +1219,7 @@
                 ]
             }
         },
-        "/api/envoyerEmailPaiementRecu/1": {
+        "/api/envoyerEmailPaiementRecu/{paiementRecuId}/{factureId}/{modelDocumentId}": {
             "post": {
                 "summary": "envoyerEmailPaiementRecu",
                 "description": "",
@@ -1226,6 +1266,21 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "paiementRecuId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "factureId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1233,7 +1288,7 @@
                 ]
             }
         },
-        "/api/DetailEmailPaiementRecu_genererPDF/1": {
+        "/api/DetailEmailPaiementRecu_genererPDF/{paiementRecuId}/{factureId}/{modelDocumentId}": {
             "post": {
                 "summary": "DetailEmailPaiementRecu_genererPDF",
                 "description": "",
@@ -1280,6 +1335,21 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "paiementRecuId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "factureId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1287,7 +1357,7 @@
                 ]
             }
         },
-        "/api/envoyerEmailResumeVente/5": {
+        "/api/envoyerEmailResumeVente/{id_facture}/{modelDocumentId}": {
             "post": {
                 "summary": "envoyerEmailResumeVente",
                 "description": "",
@@ -1334,6 +1404,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_facture",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1341,7 +1421,7 @@
                 ]
             }
         },
-        "/api/DetailEmailResumeVente_genererPDF/5": {
+        "/api/DetailEmailResumeVente_genererPDF/{id_facture}/{modelDocumentId}": {
             "post": {
                 "summary": "DetailEmailResumeVente_genererPDF",
                 "description": "",
@@ -1388,6 +1468,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_facture",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1395,7 +1485,7 @@
                 ]
             }
         },
-        "/api/envoyerEmailCommandeAchat/1": {
+        "/api/envoyerEmailCommandeAchat/{id_CommandeAchat}/{modelDocumentId}": {
             "post": {
                 "summary": "envoyerEmailCommandeAchat",
                 "description": "",
@@ -1442,6 +1532,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_CommandeAchat",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1449,7 +1549,7 @@
                 ]
             }
         },
-        "/api/DetailEmailCommandeAchat_genererPDF/1": {
+        "/api/DetailEmailCommandeAchat_genererPDF/{id_CommandeAchat}/{modelDocumentId}": {
             "post": {
                 "summary": "DetailEmailCommandeAchat_genererPDF",
                 "description": "",
@@ -1496,6 +1596,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_CommandeAchat",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1503,7 +1613,7 @@
                 ]
             }
         },
-        "/api/envoyerEmailLivraison/1": {
+        "/api/envoyerEmailLivraison/{id_livraison}/{modelDocumentId}": {
             "post": {
                 "summary": "envoyerEmailLivraison",
                 "description": "",
@@ -1550,6 +1660,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_livraison",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1557,7 +1677,7 @@
                 ]
             }
         },
-        "/api/DetailEmailLivraison_genererPDF/1": {
+        "/api/DetailEmailLivraison_genererPDF/{id_livraison}/{modelDocumentId}": {
             "post": {
                 "summary": "DetailEmailLivraison_genererPDF",
                 "description": "",
@@ -1604,6 +1724,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_livraison",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1611,7 +1741,7 @@
                 ]
             }
         },
-        "/api/envoyerEmailBonCommande/3": {
+        "/api/envoyerEmailBonCommande/{id_bonCommande}/{modelDocumentId}": {
             "post": {
                 "summary": "envoyerEmailBonCommande",
                 "description": "",
@@ -1658,6 +1788,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_bonCommande",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1665,7 +1805,7 @@
                 ]
             }
         },
-        "/api/DetailEmailBonCommande_genererPDF/3": {
+        "/api/DetailEmailBonCommande_genererPDF/{id_bonCommande}/{modelDocumentId}": {
             "post": {
                 "summary": "DetailEmailBonCommande_genererPDF",
                 "description": "",
@@ -1712,6 +1852,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_bonCommande",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1719,7 +1869,7 @@
                 ]
             }
         },
-        "/api/envoyerEmailDevi/1": {
+        "/api/envoyerEmailDevi/{id_devi}/{modelDocumentId}": {
             "post": {
                 "summary": "envoyer Email Devi",
                 "description": "",
@@ -1766,6 +1916,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_devi",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1773,7 +1933,7 @@
                 ]
             }
         },
-        "/api/DetailEmailDevi_genererPDF/1": {
+        "/api/DetailEmailDevi_genererPDF/{id_devi}/{modelDocumentId}": {
             "post": {
                 "summary": "DetailEmailDevi_genererPDF",
                 "description": "",
@@ -1820,6 +1980,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_devi",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1827,7 +1997,7 @@
                 ]
             }
         },
-        "/api/envoyerEmailFacture/4": {
+        "/api/envoyerEmailFacture/{id_facture}/{modelDocumentId}": {
             "post": {
                 "summary": "envoyer Email Facture",
                 "description": "",
@@ -1874,6 +2044,16 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "id_facture",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -1881,7 +2061,7 @@
                 ]
             }
         },
-        "/api/DetailEmailFacture_genererPDF/3": {
+        "/api/DetailEmailFacture_genererPDF/{id_facture}/{modelDocumentId}": {
             "post": {
                 "summary": "DetailEmailFacture_genererPDF",
                 "description": "",
@@ -1927,6 +2107,16 @@
                     "gestion des emails"
                 ],
                 "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id_facture",
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "modelDocumentId",
+                        "type": "string"
+                    },
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -2005,9 +2195,9 @@
                                 }
                             },
                             "example": {
-                                "type_modele": "relanceApres_echeance",
-                                "object": "Rappel d'échéance du {ECHEANCE_DATE} - Facture {VENTE_NUMERO} ",
-                                "contenu": " Bonjour {DESTINATAIRE}, Sauf erreur de notre part, nous constatons qu'à ce jour vous n'avez pas effectué le paiement de {ECHEANCE_MONTANT} prévu pour le {ECHEANCE_DATE} concernant la Facture N° {VENTE_NUMERO} (ci-joint). Si vous avez déjà effectué le paiement en question, s'il vous plaît ignorez ce message. Cordialement, {ENTREPRISE}  "
+                                "type_modele": "fournisseur",
+                                "object": " Commande d'achat {ACHAT_NUMERO} réalisée le {ACHAT_DATE} ",
+                                "contenu": "Bonjour {DESTINATAIRE},\n\nVeuillez trouver ci-joint la Commande d'Achat N° {ACHAT_NUMERO}\n\nréalisée le {ACHAT_DATE} pour un montant de {ACHAT_PRIX_TOTAL}.\n\nSi vous avez besoin d'informations supplémentaires, n'hésitez pas à nous\n\ncontacter.\n\nCordialement,\n\n{ENTREPRISE}"
                             }
                         }
                     }
@@ -4595,7 +4785,7 @@
                 ]
             }
         },
-        "/api/modifierCommandeAchat/{id}": {
+        "/api/modifierCommandeAchat/1": {
             "post": {
                 "summary": "modifier Commande Achat",
                 "description": "",
@@ -4668,11 +4858,11 @@
                                         "type": "string"
                                     },
                                     "fournisseur_id": {
-                                        "type": "string",
-                                        "format": "binary"
+                                        "type": "integer"
                                     },
                                     "depense_id": {
-                                        "type": "integer"
+                                        "type": "string",
+                                        "format": "binary"
                                     },
                                     "note_interne": {
                                         "type": "string"
@@ -4683,8 +4873,14 @@
                                     "description": {
                                         "type": "string"
                                     },
+                                    "active_Stock": {
+                                        "type": "boolean"
+                                    },
                                     "total_TTC": {
                                         "type": "integer"
+                                    },
+                                    "type_reccurente": {
+                                        "type": "string"
                                     },
                                     "articles": {
                                         "type": "string",
@@ -4693,32 +4889,36 @@
                                 }
                             },
                             "example": {
-                                "num_commandeAchat": "000012",
+                                "num_commandeAchat": "000001",
                                 "date_commandeAchat": "2024-07-23",
                                 "date_livraison": "2024-07-23",
-                                "fournisseur_id": null,
-                                "depense_id": 1,
+                                "fournisseur_id": 1,
+                                "depense_id": null,
                                 "note_interne": "Some notes about the facture",
                                 "titre": "jgjgkbnf",
                                 "description": "hfrfbrhb",
+                                "active_Stock": true,
                                 "total_TTC": 25000,
+                                "type_reccurente": "creer_brouillon",
                                 "articles": [
                                     {
                                         "id_article": 1,
                                         "quantite_article": 3,
-                                        "prix_unitaire_article": 5000,
+                                        "prix_unitaire_article_ht": 5000,
+                                        "prix_unitaire_article_ttc": 10000,
                                         "TVA_article": 50,
                                         "reduction_article": 5,
-                                        "prix_total_article": 5000,
+                                        "prix_total_article": 2000,
                                         "prix_total_tva_article": 8000
                                     },
                                     {
                                         "id_article": 2,
                                         "quantite_article": 3,
-                                        "prix_unitaire_article": 1000,
+                                        "prix_unitaire_article_ht": 1000,
+                                        "prix_unitaire_article_ttc": 10000,
                                         "TVA_article": 10,
                                         "reduction_article": 50,
-                                        "prix_total_article": 5000,
+                                        "prix_total_article": 1000,
                                         "prix_total_tva_article": 8000
                                     }
                                 ]
@@ -4927,18 +5127,20 @@
                                 "type_reccurente": "creer_brouillon",
                                 "articles": [
                                     {
-                                        "id_article": 3,
+                                        "id_article": 1,
                                         "quantite_article": 3,
-                                        "prix_unitaire_article": 5000,
+                                        "prix_unitaire_article_ht": 5000,
+                                        "prix_unitaire_article_ttc": 10000,
                                         "TVA_article": 50,
                                         "reduction_article": 5,
                                         "prix_total_article": 2000,
                                         "prix_total_tva_article": 8000
                                     },
                                     {
-                                        "id_article": 4,
+                                        "id_article": 2,
                                         "quantite_article": 3,
-                                        "prix_unitaire_article": 1000,
+                                        "prix_unitaire_article_ht": 1000,
+                                        "prix_unitaire_article_ttc": 10000,
                                         "TVA_article": 10,
                                         "reduction_article": 50,
                                         "prix_total_article": 1000,
@@ -6752,7 +6954,7 @@
                                 "prix_TTC": 25000,
                                 "articles": [
                                     {
-                                        "id_article": 2,
+                                        "id_article": 1,
                                         "quantite_article": 2,
                                         "prix_unitaire_article": 5000,
                                         "reduction_article": 0,
@@ -6760,7 +6962,7 @@
                                         "prix_total_tva_article": 8000
                                     },
                                     {
-                                        "id_article": 3,
+                                        "id_article": 2,
                                         "quantite_article": 3,
                                         "prix_unitaire_article": 1000,
                                         "TVA_article": 10,
@@ -7639,15 +7841,11 @@
                                     "echeances": {
                                         "type": "string",
                                         "format": "binary"
-                                    },
-                                    "etiquettes": {
-                                        "type": "string",
-                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "client_id": 3,
+                                "client_id": 1,
                                 "note_commande": "Some notes about the facture",
                                 "reduction_commande": 1000,
                                 "date_commande": "2024-06-29",
@@ -7677,11 +7875,6 @@
                                     {
                                         "date_pay_echeance": "2024-06-28",
                                         "montant_echeance": 4000
-                                    }
-                                ],
-                                "etiquettes": [
-                                    {
-                                        "id_etiquette": 1
                                     }
                                 ]
                             }
@@ -10791,7 +10984,7 @@
                                 "active_Stock": "oui",
                                 "articles": [
                                     {
-                                        "id_article": 3,
+                                        "id_article": 1,
                                         "quantite_article": 5,
                                         "prix_unitaire_article": 5000,
                                         "TVA_article": 0,
@@ -10800,7 +10993,7 @@
                                         "prix_total_tva_article": 8000
                                     },
                                     {
-                                        "id_article": 4,
+                                        "id_article": 2,
                                         "quantite_article": 4,
                                         "prix_unitaire_article": 1000,
                                         "TVA_article": 0,
