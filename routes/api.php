@@ -42,6 +42,12 @@ use App\Http\Controllers\NoteJustificativeController;
 use App\Http\Controllers\Info_SupplementaireController;
 use App\Http\Controllers\NumeroConfigurationController;
 use App\Http\Controllers\ConfigurationRelanceAutoController;
+use Illuminate\Support\Facades\Artisan;
+
+
+Artisan::call('command:factureRecurrente');
+Artisan::call('schedule:run');
+
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
