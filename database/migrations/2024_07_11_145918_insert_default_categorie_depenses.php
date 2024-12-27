@@ -14,15 +14,16 @@ class InsertDefaultCategorieDepenses extends Migration
     {
         // Liste des catégories de dépenses par défaut
         $defaultCategories = [
-            'Immobilière',
+            'Immobilier',
             'Automobile',
             'Salaire',
             'Impôts',
             'Assurance',
-            'Autre service',
             'Maintenance',
             'Santé',
             'Transport',
+            'Autre service',
+
         ];
 
         foreach ($defaultCategories as $categorie) {
@@ -40,7 +41,7 @@ class InsertDefaultCategorieDepenses extends Migration
     public function down()
     {
         DB::table('categorie_depenses')->whereIn('nom_categorie_depense', [
-            'Immobilière', 'Automobile', 'Salaire', 'Impôts', 'Assurance', 'Autre service', 'Maintenance', 'Santé', 'Transport'
+            'Immobilier', 'Automobile', 'Salaire', 'Impôts', 'Assurance', 'Maintenance', 'Santé', 'Transport', 'Autre service'
         ])->delete();
     }
 }
